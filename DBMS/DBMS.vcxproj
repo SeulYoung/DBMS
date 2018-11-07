@@ -113,8 +113,13 @@
     </QtRcc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CmdParse.cpp" />
+    <ClCompile Include="DataManage.cpp" />
+    <ClCompile Include="DbManage.cpp" />
     <ClCompile Include="DBMS.cpp" />
+    <ClCompile Include="FieldManage.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TableManage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DBMS.h" />
@@ -124,6 +129,13 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="DBMS.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CmdParse.h" />
+    <ClInclude Include="DataManage.h" />
+    <ClInclude Include="DbManage.h" />
+    <ClInclude Include="FieldManage.h" />
+    <ClInclude Include="TableManage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
