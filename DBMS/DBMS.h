@@ -1,7 +1,10 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include <QTextCursor.h>
 #include "ui_DBMS.h"
+
+using namespace std;
 
 class DBMS : public QMainWindow
 {
@@ -12,4 +15,8 @@ public:
 
 private:
 	Ui::DBMSClass ui;
+
+public slots:
+void cmdCursorPositionChanged();
+	void getCmd();
 };

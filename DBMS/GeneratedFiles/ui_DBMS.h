@@ -14,10 +14,15 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTableWidget>
+#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -25,30 +30,83 @@ QT_BEGIN_NAMESPACE
 class Ui_DBMSClass
 {
 public:
-    QMenuBar *menuBar;
-    QToolBar *mainToolBar;
     QWidget *centralWidget;
+    QTreeWidget *treeWidget;
+    QTableWidget *tableWidget;
+    QLineEdit *lineEdit;
+    QTextEdit *textEdit;
+    QMenuBar *menuBar;
+    QMenu *menu;
+    QMenu *menu_2;
+    QMenu *menu_3;
+    QMenu *menu_4;
+    QMenu *menu_5;
+    QMenu *menu_6;
+    QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
     void setupUi(QMainWindow *DBMSClass)
     {
         if (DBMSClass->objectName().isEmpty())
             DBMSClass->setObjectName(QStringLiteral("DBMSClass"));
-        DBMSClass->resize(600, 400);
+        DBMSClass->resize(1000, 800);
+        centralWidget = new QWidget(DBMSClass);
+        centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        treeWidget = new QTreeWidget(centralWidget);
+        QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
+        __qtreewidgetitem->setText(0, QStringLiteral("1"));
+        treeWidget->setHeaderItem(__qtreewidgetitem);
+        treeWidget->setObjectName(QStringLiteral("treeWidget"));
+        treeWidget->setGeometry(QRect(0, 0, 341, 451));
+        tableWidget = new QTableWidget(centralWidget);
+        tableWidget->setObjectName(QStringLiteral("tableWidget"));
+        tableWidget->setGeometry(QRect(349, 0, 651, 451));
+        lineEdit = new QLineEdit(centralWidget);
+        lineEdit->setObjectName(QStringLiteral("lineEdit"));
+        lineEdit->setGeometry(QRect(0, 710, 1000, 31));
+        QFont font;
+        font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
+        font.setPointSize(11);
+        lineEdit->setFont(font);
+        textEdit = new QTextEdit(centralWidget);
+        textEdit->setObjectName(QStringLiteral("textEdit"));
+        textEdit->setEnabled(true);
+        textEdit->setGeometry(QRect(0, 460, 1000, 241));
+        textEdit->setFont(font);
+        textEdit->setReadOnly(true);
+        DBMSClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(DBMSClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
+        menuBar->setGeometry(QRect(0, 0, 1000, 23));
+        menu = new QMenu(menuBar);
+        menu->setObjectName(QStringLiteral("menu"));
+        menu_2 = new QMenu(menuBar);
+        menu_2->setObjectName(QStringLiteral("menu_2"));
+        menu_3 = new QMenu(menuBar);
+        menu_3->setObjectName(QStringLiteral("menu_3"));
+        menu_4 = new QMenu(menuBar);
+        menu_4->setObjectName(QStringLiteral("menu_4"));
+        menu_5 = new QMenu(menuBar);
+        menu_5->setObjectName(QStringLiteral("menu_5"));
+        menu_6 = new QMenu(menuBar);
+        menu_6->setObjectName(QStringLiteral("menu_6"));
         DBMSClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(DBMSClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
-        DBMSClass->addToolBar(mainToolBar);
-        centralWidget = new QWidget(DBMSClass);
-        centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        DBMSClass->setCentralWidget(centralWidget);
+        DBMSClass->addToolBar(Qt::TopToolBarArea, mainToolBar);
         statusBar = new QStatusBar(DBMSClass);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         DBMSClass->setStatusBar(statusBar);
 
+        menuBar->addAction(menu->menuAction());
+        menuBar->addAction(menu_2->menuAction());
+        menuBar->addAction(menu_3->menuAction());
+        menuBar->addAction(menu_4->menuAction());
+        menuBar->addAction(menu_5->menuAction());
+        menuBar->addAction(menu_6->menuAction());
+
         retranslateUi(DBMSClass);
+        QObject::connect(lineEdit, SIGNAL(returnPressed()), DBMSClass, SLOT(getCmd()));
 
         QMetaObject::connectSlotsByName(DBMSClass);
     } // setupUi
@@ -56,6 +114,12 @@ public:
     void retranslateUi(QMainWindow *DBMSClass)
     {
         DBMSClass->setWindowTitle(QApplication::translate("DBMSClass", "DBMS", nullptr));
+        menu->setTitle(QApplication::translate("DBMSClass", "\347\263\273\347\273\237", nullptr));
+        menu_2->setTitle(QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", nullptr));
+        menu_3->setTitle(QApplication::translate("DBMSClass", "\350\241\250", nullptr));
+        menu_4->setTitle(QApplication::translate("DBMSClass", "\345\255\227\346\256\265", nullptr));
+        menu_5->setTitle(QApplication::translate("DBMSClass", "\350\256\260\345\275\225", nullptr));
+        menu_6->setTitle(QApplication::translate("DBMSClass", "\345\270\256\345\212\251", nullptr));
     } // retranslateUi
 
 };
