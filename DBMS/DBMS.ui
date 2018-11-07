@@ -14,7 +14,7 @@
    <string>DBMS</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTreeWidget" name="treeWidget">
+   <widget class="QTreeWidget" name="tree">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -29,7 +29,7 @@
      </property>
     </column>
    </widget>
-   <widget class="QTableWidget" name="tableWidget">
+   <widget class="QTableWidget" name="table">
     <property name="geometry">
      <rect>
       <x>349</x>
@@ -39,23 +39,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>710</y>
-      <width>1000</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>11</pointsize>
-     </font>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="cmdLine">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -64,7 +48,7 @@
       <x>0</x>
       <y>460</y>
       <width>1000</width>
-      <height>241</height>
+      <height>281</height>
      </rect>
     </property>
     <property name="font">
@@ -140,23 +124,24 @@
  </resources>
  <connections>
   <connection>
-   <sender>lineEdit</sender>
-   <signal>returnPressed()</signal>
+   <sender>cmdLine</sender>
+   <signal>cursorPositionChanged()</signal>
    <receiver>DBMSClass</receiver>
-   <slot>getCmd()</slot>
+   <slot>cmdCursorPositionChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>981</x>
-     <y>760</y>
+     <x>917</x>
+     <y>639</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1072</x>
-     <y>763</y>
+     <x>1079</x>
+     <y>643</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
+  <slot>cmdCursorPositionChanged()</slot>
   <slot>getCmd()</slot>
  </slots>
 </ui>
