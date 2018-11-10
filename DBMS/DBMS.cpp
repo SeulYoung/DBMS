@@ -6,7 +6,7 @@ DBMS::DBMS(QWidget *parent)
 	ui.setupUi(this);
 }
 
-void cmdCursorPositionChanged()
+/*void DBMS:: cmdCursorPositionChanged()
 {
 	//当前光标
 	qDebug() << "coming" << endl;           //可以看到行号随着光标的改变而改变
@@ -17,4 +17,4 @@ void cmdCursorPositionChanged()
 	int nCurpos = tc.position() - tc.block().position();
 	int nTextline = pLayout->lineForTextPosition(nCurpos).lineNumber() + tc.block().firstLineNumber();
 	qDebug() << nTextline << endl;           //可以看到行号随着光标的改变而改变
-}
+}*/

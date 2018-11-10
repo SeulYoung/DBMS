@@ -31,6 +31,8 @@
 *.out
 *.app
 
+# Visual Studio 2017
+*.vcxproj.user
 .vs/
 x64/
 Debug/
