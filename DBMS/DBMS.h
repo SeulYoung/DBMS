@@ -3,8 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QTextCursor.h>
 #include "ui_DBMS.h"
-
-using namespace std;
+#include "CmdParse.h"
 
 class DBMS : public QMainWindow
 {
@@ -15,8 +14,8 @@ public:
 
 private:
 	Ui::DBMSClass ui;
+	string sql;
 
 public slots:
-void cmdCursorPositionChanged();
 	void getCmd();
 };

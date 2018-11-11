@@ -48,7 +48,7 @@
       <x>0</x>
       <y>460</y>
       <width>1000</width>
-      <height>281</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="font">
@@ -59,6 +59,22 @@
     </property>
     <property name="readOnly">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="inputLine">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>710</y>
+      <width>1000</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微软雅黑</family>
+      <pointsize>11</pointsize>
+     </font>
     </property>
    </widget>
   </widget>
@@ -124,24 +140,23 @@
  </resources>
  <connections>
   <connection>
-   <sender>cmdLine</sender>
-   <signal>cursorPositionChanged()</signal>
+   <sender>inputLine</sender>
+   <signal>returnPressed()</signal>
    <receiver>DBMSClass</receiver>
-   <slot>cmdCursorPositionChanged()</slot>
+   <slot>getCmd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>917</x>
-     <y>639</y>
+     <x>968</x>
+     <y>757</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1079</x>
-     <y>643</y>
+     <x>1077</x>
+     <y>766</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>cmdCursorPositionChanged()</slot>
   <slot>getCmd()</slot>
  </slots>
 </ui>

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'DBMS.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.11.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -12,7 +12,6 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
@@ -31,10 +30,10 @@ class Ui_DBMSClass
 {
 public:
     QWidget *centralWidget;
-    QTreeWidget *treeWidget;
-    QTableWidget *tableWidget;
-    QLineEdit *lineEdit;
-    QTextEdit *textEdit;
+    QTreeWidget *tree;
+    QTableWidget *table;
+    QTextEdit *cmdLine;
+    QLineEdit *inputLine;
     QMenuBar *menuBar;
     QMenu *menu;
     QMenu *menu_2;
@@ -52,28 +51,28 @@ public:
         DBMSClass->resize(1000, 800);
         centralWidget = new QWidget(DBMSClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        treeWidget = new QTreeWidget(centralWidget);
+        tree = new QTreeWidget(centralWidget);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QStringLiteral("1"));
-        treeWidget->setHeaderItem(__qtreewidgetitem);
-        treeWidget->setObjectName(QStringLiteral("treeWidget"));
-        treeWidget->setGeometry(QRect(0, 0, 341, 451));
-        tableWidget = new QTableWidget(centralWidget);
-        tableWidget->setObjectName(QStringLiteral("tableWidget"));
-        tableWidget->setGeometry(QRect(349, 0, 651, 451));
-        lineEdit = new QLineEdit(centralWidget);
-        lineEdit->setObjectName(QStringLiteral("lineEdit"));
-        lineEdit->setGeometry(QRect(0, 710, 1000, 31));
+        tree->setHeaderItem(__qtreewidgetitem);
+        tree->setObjectName(QStringLiteral("tree"));
+        tree->setGeometry(QRect(0, 0, 341, 451));
+        table = new QTableWidget(centralWidget);
+        table->setObjectName(QStringLiteral("table"));
+        table->setGeometry(QRect(349, 0, 651, 451));
+        cmdLine = new QTextEdit(centralWidget);
+        cmdLine->setObjectName(QStringLiteral("cmdLine"));
+        cmdLine->setEnabled(true);
+        cmdLine->setGeometry(QRect(0, 460, 1000, 251));
         QFont font;
         font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
         font.setPointSize(11);
-        lineEdit->setFont(font);
-        textEdit = new QTextEdit(centralWidget);
-        textEdit->setObjectName(QStringLiteral("textEdit"));
-        textEdit->setEnabled(true);
-        textEdit->setGeometry(QRect(0, 460, 1000, 241));
-        textEdit->setFont(font);
-        textEdit->setReadOnly(true);
+        cmdLine->setFont(font);
+        cmdLine->setReadOnly(true);
+        inputLine = new QLineEdit(centralWidget);
+        inputLine->setObjectName(QStringLiteral("inputLine"));
+        inputLine->setGeometry(QRect(0, 710, 1000, 31));
+        inputLine->setFont(font);
         DBMSClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(DBMSClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -106,7 +105,7 @@ public:
         menuBar->addAction(menu_6->menuAction());
 
         retranslateUi(DBMSClass);
-        QObject::connect(lineEdit, SIGNAL(returnPressed()), DBMSClass, SLOT(getCmd()));
+        QObject::connect(inputLine, SIGNAL(returnPressed()), DBMSClass, SLOT(getCmd()));
 
         QMetaObject::connectSlotsByName(DBMSClass);
     } // setupUi
