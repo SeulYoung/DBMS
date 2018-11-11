@@ -2,20 +2,18 @@
 
 CmdParse::CmdParse(string s)
 {
-	sql = s;
-	transform(sql.begin(), sql.end(), sql.begin(), towlower);
-	sql = preSql(sql);
-	sql += "END";
+	sql = preSql(s);
 }
 
 string CmdParse::sqlCheck()
 {
-	regex Pupdate("update\.+set\.+(where\.+)?END");
-	regex Pdelete("delete\.+from\.+where\.+END");
-	regex Pinsert("insert\.+into\.+(\(\.+/)\.*)?values\(.+\)END");
-	regex Pcreate("create table\.+\\(\.+\\)END");
-	regex Pselect("select\.+from\.+(where\.+)?((group by)?|(order by)?|(having)?)END");
-	regex Pdrop("drop table\.+END");
+	regex Pcreate("^create table\\s\\w+\\s?\\(.+\\);$");
+	regex Pdrop("^drop table\\s\\w+;$");
+	regex Pinsert("^insert into\\s\\w+\\s?(\\(.+\\))?values\\(.+\\);$");
+	regex Pdelete("^delete from\\s\\w+\\swhere\\s.+;$");
+	regex Pupdate("^update\\s\\w+\\sset(\\s\\w+=\\w+\\s?)(where.+)?;$");
+	regex Pselect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
+
 
 	if (regex_match(sql, Pcreate))
 		return ForCreate();
@@ -35,8 +33,8 @@ string CmdParse::sqlCheck()
 
 string CmdParse::ForCreate() {
 	vector<vector<string>> vCreate;
-	regex re1("(?<=create table )\.+?(?=\\()");
-	regex re2("(?<=\\()\.+(?=\\))");
+	regex re1("(?<=create table ).+?(?=\\()");
+	regex re2("(?<=\\().+(?=\\))");
 	smatch csm1;
 	smatch csm2;
 	string cstr[2];
@@ -53,7 +51,7 @@ string CmdParse::ForCreate() {
 	else return "create tableÓï¾äºó´æÔÚ´íÎó";
 
 	if (regex_search(sql, csm2, re2)) {
-		regex rer("(\.+?,)|(\.+)");
+		regex rer("(.+?,)|(.+)");
 		smatch rsm;
 		cstr[1] = csm2.str();
 		string::const_iterator st = cstr[1].begin();
