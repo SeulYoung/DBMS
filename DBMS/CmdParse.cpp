@@ -9,7 +9,7 @@ string CmdParse::sqlCheck()
 {
 	regex Pcreate("^create table\\s\\w+\\s?\\(.+\\);$");
 	regex Pdrop("^drop table\\s\\w+;$");
-	regex Pinsert("^insert into\\s\\w+\\s?(\\(.+\\))?values\\(.+\\);$");
+	regex Pinsert("^insert into\\s\\w+\\s?(\\(.+\\))?\\svalues\\s\\(.+\\);$");
 	regex Pdelete("^delete from\\s\\w+\\swhere\\s.+;$");
 	regex Pupdate("^update\\s\\w+\\sset(\\s\\w+=\\w+\\s?)(where.+)?;$");
 	regex Pselect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
@@ -31,33 +31,38 @@ string CmdParse::sqlCheck()
 	return "Sql语句错误";
 }
 
-string CmdParse::ForCreate() {
+string CmdParse::ForCreate()
+{
 	vector<vector<string>> vCreate;
-	regex re1("(?<=create table ).+?(?=\\()");
+	/*regex re1("(?<=create table ).+?(?=\\()");
 	regex re2("(?<=\\().+(?=\\))");
 	smatch csm1;
 	smatch csm2;
-	string cstr[2];
-
-	if (regex_search(sql, csm1, re1)) {
+	string cstr[2];*/
+	int off1;
+	if ((off1 = sql.find('(', 13)) != string::npos)
+	{
 		vector<string> create;
-		cstr[0] = csm1.str();
+		string s = sql.substr(13, off1 - 13);
 		cout << "create table:" << endl;
-		cout << cstr[0] << endl;
+		cout << s << endl;
 		cout << endl;
-		create.push_back(cstr[0]);
+		create.push_back(s);
 		vCreate.push_back(create);
 	}
 	else return "create table语句后存在错误";
 
-	if (regex_search(sql, csm2, re2)) {
+	int off2;
+	if ((off2 = sql.rfind(')')) != string::npos)
+	{
 		regex rer("(.+?,)|(.+)");
 		smatch rsm;
-		cstr[1] = csm2.str();
-		string::const_iterator st = cstr[1].begin();
-		string::const_iterator en = cstr[1].end();
+		string s = sql.substr(off1 + 1, off2 - off1 - 1);
+		string::const_iterator st = s.begin();
+		string::const_iterator en = s.end();
 
-		while (regex_search(st, en, rsm, rer)) {
+		while (regex_search(st, en, rsm, rer))
+		{
 			vector<string> create;
 			string ss = rsm.str();
 			bool isname = true;
@@ -66,29 +71,33 @@ string CmdParse::ForCreate() {
 			string name = "";
 			string attribute = "";
 			string capacity = "";
-			for (int i = 0; i < ss.length(); i++) {
-				if (isname == true && ss[i] != ' ') {
+			for (int i = 0; i < ss.length(); i++)
+			{
+				if (isname == true && ss[i] != ' ')
 					name = name + ss[i];
-				}
-				if (isname == true && name != "" && ss[i] == ' ') {
+
+				if (isname == true && name != "" && ss[i] == ' ')
+				{
 					isname = false;
 					isatt = true;
 					cout << name << endl;
 					create.push_back(name);
 				}
-				if (isatt == true && ss[i] != ' ' && ss[i] != '(') {
+				if (isatt == true && ss[i] != ' ' && ss[i] != '(')
 					attribute = attribute + ss[i];
-				}
-				if (isatt == true && attribute != "" && ss[i] == '(') {
+
+				if (isatt == true && attribute != "" && ss[i] == '(')
+				{
 					isatt = false;
 					iscap = true;
 					cout << attribute << endl;
 					create.push_back(attribute);
 				}
-				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')') {
+				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')')
 					capacity = capacity + ss[i];
-				}
-				if (iscap == true && ss[i] == ')' && capacity != "") {
+
+				if (iscap == true && ss[i] == ')' && capacity != "")
+				{
 					iscap = false;
 					cout << capacity << endl;
 					create.push_back(capacity);
@@ -105,16 +114,20 @@ string CmdParse::ForCreate() {
 	return "Create table成功";
 }
 
-string CmdParse::ForDrop() {
+string CmdParse::ForDrop()
+{
 	vector<vector<string>> vDrop;
-	regex dre("(?<=drop table )\\w+(?=END)");
-	smatch dsm;
+	/*regex dre("(?<=drop table )\\w+(?=;)");
+	smatch dsm;*/
 
 	cout << "drop table:" << endl;
-	if (regex_search(sql, dsm, dre)) {
+	int off;
+	if ((off = sql.rfind(';') != string::npos))
+	{
 		vector<string> name;
-		cout << dsm.str() << endl;
-		name.push_back(dsm.str());
+		string s = sql.substr(11, sql.length() - 12);
+		cout << s << endl;
+		name.push_back(s);
 		vDrop.push_back(name);
 	}
 	else return "drop语句后存在错误";
@@ -123,62 +136,72 @@ string CmdParse::ForDrop() {
 	return "Drop table成功";
 }
 
-string CmdParse::ForInsert() {
+string CmdParse::ForInsert()
+{
 	vector<vector<string>> vInsert;
-	regex re1("(?<=insert into )\.+(?=values)");
-	regex re2("(?<=values\\()\.+(?=\\)END)");
+	/*regex re1("(?<=insert into )\.+(?=values)");
+	regex re2("(?<=values\\()\.+(?=\\);)");
 	string istr[2];
-	smatch ism[2];
-
-	if (regex_search(sql, ism[0], re1)) {
+	smatch ism[2];*/
+	int off1;
+	if ((off1 = sql.find("values (", 12)) != string::npos)
+	{
 		vector<string> insert;
-		regex rr("(?<=\\()\.+(?=\\))");
+		regex rr("(?<=\\().+(?=\\))");
 		smatch rsm;
-		istr[0] = ism[0].str();
+		string s = sql.substr(12, off1 - 12);
 
 		cout << "Insert into:" << endl;
-		if (regex_search(istr[0], rsm, rr)) {
-			regex rr2("\.+?(?=\\()");
+		if (regex_search(s, rsm, rr))
+		{
+			regex rr2(".+?(?=\\()");
 			smatch rsm2;
-			regex_search(istr[0], rsm2, rr2);
+			regex_search(s, rsm2, rr2);
 			cout << rsm2.str() << endl;
 			cout << endl;
 			insert.push_back(rsm2.str());
 
 			string rstr = rsm.str();
 			smatch rsm1;
-			regex rr1("(?<=')\.+?(?=')");
+			regex rr1("(?<=').+?(?=')");
 			string::const_iterator st = rstr.begin();
 			string::const_iterator en = rstr.end();
 
-			while (regex_search(st, en, rsm1, rr1)) {
-				if (rsm1.str() != ",") {
+			while (regex_search(st, en, rsm1, rr1))
+			{
+				if (rsm1.str() != ",")
+				{
 					cout << rsm1.str() << endl;
 					insert.push_back(rsm1.str());
 				}
 				st = rsm1[0].second;
 			}
 		}
-		else {
-			insert.push_back(istr[0]);
-			cout << istr[0] << endl;
+		else
+		{
+			insert.push_back(s);
+			cout << s << endl;
 		}
 		vInsert.push_back(insert);
 		cout << endl;
 	}
 	else return "insert into语句后存在错误";
 
-	if (regex_search(sql, ism[1], re2)) {
+	int off2;
+	if ((off2 = sql.rfind(");")) != string::npos)
+	{
 		vector<string> insert;
 		smatch rsm3;
-		regex rr3("(?<=')\.+?(?=')");
-		istr[1] = ism[1].str();
-		string::const_iterator st = istr[1].begin();
-		string::const_iterator en = istr[1].end();
+		regex rr3("(?<=').+?(?=')");
+		string s = sql.substr(off1 + 1, off2 - off1 - 1);
+		string::const_iterator st = s.begin();
+		string::const_iterator en = s.end();
 
 		cout << "Values:" << endl;
-		while (regex_search(st, en, rsm3, rr3)) {
-			if (rsm3.str() != ",") {
+		while (regex_search(st, en, rsm3, rr3))
+		{
+			if (rsm3.str() != ",")
+			{
 				cout << rsm3.str() << endl;
 				insert.push_back(rsm3.str());
 			}
@@ -193,50 +216,57 @@ string CmdParse::ForInsert() {
 }
 
 
-string CmdParse::ForDelete() {
+string CmdParse::ForDelete()
+{
 	vector<vector<string>> vDelete;
-	regex re1("(?<=delete from )\.+(?=where )");
-	regex re2("(?<=where )\.+(?=END)");
+	/*regex re1("(?<=delete from )\.+(?=where )");
+	regex re2("(?<=where )\.+(?=;)");
 	string dstr[2];
 	smatch dsm[2];
 	string::const_iterator st = sql.begin();
-	string::const_iterator en = sql.end();
-
-	if (regex_search(sql, dsm[0], re1)) {
+	string::const_iterator en = sql.end();*/
+	int off1;
+	if ((off1 = sql.find("where ", 12)) != string::npos)
+	{
 		vector<string> vdelete;
-		dstr[0] = dsm[0].str();
-		vdelete.push_back(dstr[0]);
+		string s = sql.substr(12, off1 - 12);
+		vdelete.push_back(s);
 		cout << "delete from:" << endl;
-		cout << dstr[0] << endl;
+		cout << s << endl;
 		cout << endl;
 		vDelete.push_back(vdelete);
 	}
 	else return "delete from与where之间存在错误";
 
-	if (regex_search(sql, dsm[1], re2)) {
+	int off2;
+	if ((off2 = sql.rfind(";")) != string::npos)
+	{
 		vector<string> vdelete;
-		regex rr("(\.+?and )|(\.+?or )");
+		regex rr("(.+?and )|(.+?or )");
 		smatch rrsm;
-		dstr[1] = dsm[1].str();
-		string::const_iterator st = dstr[1].begin();
-		string::const_iterator en = dstr[1].end();
+		string s = sql.substr(off1 + 6, off2 - off1);
+		string::const_iterator st = s.begin();
+		string::const_iterator en = s.end();
 		bool flag = false;
 
 		cout << "where:" << endl;
-		while (regex_search(st, en, rrsm, rr)) {
+		while (regex_search(st, en, rrsm, rr))
+		{
 			flag = true;
 			cout << rrsm.str() << endl;
 			vdelete.push_back(rrsm.str());
 			st = rrsm[0].second;
 		}
-		if (flag) {
+		if (flag)
+		{
 			regex_search(st, en, rrsm, regex("\.+"));
 			cout << rrsm.str() << endl;
 			vdelete.push_back(rrsm.str());
 		}
-		else {
-			cout << dstr[1] << endl;
-			vdelete.push_back(dstr[1]);
+		else
+		{
+			cout << s << endl;
+			vdelete.push_back(s);
 		}
 		vDelete.push_back(vdelete);
 	}

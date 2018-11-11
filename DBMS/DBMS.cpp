@@ -17,6 +17,7 @@ void DBMS::getCmd()
 		CmdParse cp(sql);
 		string s = cp.sqlCheck();
 		ui.cmdLine->append(QString::fromLocal8Bit(s.c_str()));
+		sql = "";
 	}
 	ui.inputLine->clear();
 }
