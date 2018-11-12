@@ -12,7 +12,7 @@ void DBMS::getCmd()
 	QString s = ui.inputLine->text();
 	ui.cmdLine->append(s);
 	sql += s.toStdString();
-	if (s[s.length() - 1] == ';')
+	if (s[s.size() - 1] == ';')
 	{
 		CmdParse cp(sql);
 		string s = cp.sqlCheck();

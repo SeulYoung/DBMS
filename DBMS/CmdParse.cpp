@@ -11,7 +11,7 @@ string CmdParse::sqlCheck()
 	regex Pdrop("^drop table\\s\\w+;$");
 	regex Pinsert("^insert into\\s\\w+\\s?(\\(.+\\))?\\svalues\\s\\(.+\\);$");
 	regex Pdelete("^delete from\\s\\w+\\swhere\\s.+;$");
-	regex Pupdate("^update\\s\\w+\\sset(\\s\\w+=\\w+\\s?)(where.+)?;$");
+	regex Pupdate("^update\\s\\w+\\sset(\\s\\w+=\\w+\\s?,)*(\\s\\w+=\\w+\\s?)(where.+)?;$");
 	regex Pselect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
 
@@ -40,17 +40,15 @@ string CmdParse::ForCreate()
 	smatch csm2;
 	string cstr[2];*/
 	int off1;
-	if ((off1 = sql.find('(', 13)) != string::npos)
+	if ((off1 = sql.find('(')) != string::npos)
 	{
 		vector<string> create;
 		string s = sql.substr(13, off1 - 13);
-		cout << "create table:" << endl;
-		cout << s << endl;
-		cout << endl;
 		create.push_back(s);
 		vCreate.push_back(create);
 	}
-	else return "create tableÓï¾äºó´æÔÚ´íÎó";
+	else
+		return "create tableÓï¾äºó´æÔÚ´íÎó";
 
 	int off2;
 	if ((off2 = sql.rfind(')')) != string::npos)
@@ -71,7 +69,7 @@ string CmdParse::ForCreate()
 			string name = "";
 			string attribute = "";
 			string capacity = "";
-			for (int i = 0; i < ss.length(); i++)
+			for (int i = 0; i < ss.size(); i++)
 			{
 				if (isname == true && ss[i] != ' ')
 					name = name + ss[i];
@@ -80,17 +78,15 @@ string CmdParse::ForCreate()
 				{
 					isname = false;
 					isatt = true;
-					cout << name << endl;
 					create.push_back(name);
 				}
-				if (isatt == true && ss[i] != ' ' && ss[i] != '(')
+				if (isatt == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ',')
 					attribute = attribute + ss[i];
 
-				if (isatt == true && attribute != "" && ss[i] == '(')
+				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ','))
 				{
 					isatt = false;
 					iscap = true;
-					cout << attribute << endl;
 					create.push_back(attribute);
 				}
 				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')')
@@ -99,16 +95,15 @@ string CmdParse::ForCreate()
 				if (iscap == true && ss[i] == ')' && capacity != "")
 				{
 					iscap = false;
-					cout << capacity << endl;
 					create.push_back(capacity);
 				}
 			}
 			vCreate.push_back(create);
-			cout << endl;
 			st = rsm[0].second;
 		}
 	}
-	else return "À¨ºÅÖÐÓï¾ä´æÔÚ´íÎó";
+	else
+		return "À¨ºÅÖÐÓï¾ä´æÔÚ´íÎó";
 
 	result = vCreate;
 	return "Create table³É¹¦";
@@ -120,17 +115,16 @@ string CmdParse::ForDrop()
 	/*regex dre("(?<=drop table )\\w+(?=;)");
 	smatch dsm;*/
 
-	cout << "drop table:" << endl;
 	int off;
 	if ((off = sql.rfind(';') != string::npos))
 	{
 		vector<string> name;
-		string s = sql.substr(11, sql.length() - 12);
-		cout << s << endl;
+		string s = sql.substr(11, sql.size() - 12);
 		name.push_back(s);
 		vDrop.push_back(name);
 	}
-	else return "dropÓï¾äºó´æÔÚ´íÎó";
+	else
+		return "dropÓï¾äºó´æÔÚ´íÎó";
 
 	result = vDrop;
 	return "Drop table³É¹¦";
@@ -144,72 +138,86 @@ string CmdParse::ForInsert()
 	string istr[2];
 	smatch ism[2];*/
 	int off1;
-	if ((off1 = sql.find("values (", 12)) != string::npos)
+	if ((off1 = sql.find(" values (")) != string::npos)
 	{
 		vector<string> insert;
-		regex rr("(?<=\\().+(?=\\))");
+		//regex rr("(?<=\\().+(?=\\))");
 		smatch rsm;
 		string s = sql.substr(12, off1 - 12);
 
-		cout << "Insert into:" << endl;
-		if (regex_search(s, rsm, rr))
+		int off2;
+		if ((off2 = s.find("(")) != string::npos)
 		{
 			regex rr2(".+?(?=\\()");
 			smatch rsm2;
 			regex_search(s, rsm2, rr2);
-			cout << rsm2.str() << endl;
-			cout << endl;
 			insert.push_back(rsm2.str());
 
-			string rstr = rsm.str();
+			string ss = s.substr(off2 + 1, s.size() - off2 - 2);
 			smatch rsm1;
-			regex rr1("(?<=').+?(?=')");
-			string::const_iterator st = rstr.begin();
-			string::const_iterator en = rstr.end();
+			/*regex rr1("(?<=').+?(?=')");
+			string::const_iterator st = s.begin();
+			string::const_iterator en = s.end();
 
 			while (regex_search(st, en, rsm1, rr1))
 			{
 				if (rsm1.str() != ",")
-				{
-					cout << rsm1.str() << endl;
 					insert.push_back(rsm1.str());
-				}
 				st = rsm1[0].second;
+			}*/
+			string stt = "";
+			for (int i = 0; i < ss.size(); i++)
+			{
+				if (ss[i] != ' ' && ss[i] != ',')
+					stt = stt + ss[i];
+
+				if ((ss[i] == ',' || i == ss.size() - 1) && stt != "")
+				{
+					insert.push_back(stt);
+					stt = "";
+				}
 			}
 		}
 		else
-		{
 			insert.push_back(s);
-			cout << s << endl;
-		}
+
 		vInsert.push_back(insert);
-		cout << endl;
 	}
-	else return "insert intoÓï¾äºó´æÔÚ´íÎó";
+	else
+		return "insert intoÓï¾äºó´æÔÚ´íÎó";
 
 	int off2;
 	if ((off2 = sql.rfind(");")) != string::npos)
 	{
 		vector<string> insert;
-		smatch rsm3;
+		string s = sql.substr(off1 + 9, off2 - off1 - 9);
+		/*smatch rsm3;
 		regex rr3("(?<=').+?(?=')");
-		string s = sql.substr(off1 + 1, off2 - off1 - 1);
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 
-		cout << "Values:" << endl;
 		while (regex_search(st, en, rsm3, rr3))
 		{
 			if (rsm3.str() != ",")
-			{
-				cout << rsm3.str() << endl;
 				insert.push_back(rsm3.str());
-			}
 			st = rsm3[0].second;
+		}*/
+		string stt = "";
+		for (int i = 0; i < s.size(); i++)
+		{
+			if (s[i] != ' ' && s[i] != ',')
+				stt = stt + s[i];
+
+			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
+			{
+				insert.push_back(stt);
+				stt = "";
+			}
 		}
 		vInsert.push_back(insert);
 	}
-	else return "valuesÓï¾äºó´æÔÚ´íÎó";
+	else
+		return "valuesÓï¾äºó´æÔÚ´íÎó";
 
 	result = vInsert;
 	return "InsertÊý¾Ý³É¹¦";
@@ -226,17 +234,15 @@ string CmdParse::ForDelete()
 	string::const_iterator st = sql.begin();
 	string::const_iterator en = sql.end();*/
 	int off1;
-	if ((off1 = sql.find("where ", 12)) != string::npos)
+	if ((off1 = sql.find("where ")) != string::npos)
 	{
 		vector<string> vdelete;
 		string s = sql.substr(12, off1 - 12);
 		vdelete.push_back(s);
-		cout << "delete from:" << endl;
-		cout << s << endl;
-		cout << endl;
 		vDelete.push_back(vdelete);
 	}
-	else return "delete fromÓëwhereÖ®¼ä´æÔÚ´íÎó";
+	else
+		return "delete fromÓëwhereÖ®¼ä´æÔÚ´íÎó";
 
 	int off2;
 	if ((off2 = sql.rfind(";")) != string::npos)
@@ -249,88 +255,84 @@ string CmdParse::ForDelete()
 		string::const_iterator en = s.end();
 		bool flag = false;
 
-		cout << "where:" << endl;
 		while (regex_search(st, en, rrsm, rr))
 		{
 			flag = true;
-			cout << rrsm.str() << endl;
 			vdelete.push_back(rrsm.str());
 			st = rrsm[0].second;
 		}
 		if (flag)
 		{
-			regex_search(st, en, rrsm, regex("\.+"));
-			cout << rrsm.str() << endl;
+			regex_search(st, en, rrsm, regex(".+"));
 			vdelete.push_back(rrsm.str());
 		}
 		else
-		{
-			cout << s << endl;
 			vdelete.push_back(s);
-		}
+
 		vDelete.push_back(vdelete);
 	}
-	else return "whereÓï¾äºó´æÔÚ´íÎó";
+	else
+		return "whereÓï¾äºó´æÔÚ´íÎó";
 
 	result = vDelete;
 	return "Delete Êý¾Ý³É¹¦";
 }
 
-string CmdParse::ForUpdate() {
+string CmdParse::ForUpdate()
+{
 	vector<vector<string>> vUpdate;
-	string str[3];
+	/*string str[3];
 	smatch sm[3];
 	regex re1("(?<=update )\.+(?= set)");
-	regex re2("((?<=set )\.+(?= where))|((?<=set )\.+(?=END))");
-	regex re3("(?<=where )\.+(?=END)");
-
-	if (regex_search(sql, sm[0], re1)) {
+	regex re2("((?<=set )\.+(?= where))|((?<=set )\.+(?=;))");
+	regex re3("(?<=where )\.+(?=;)");*/
+	int off1;
+	if ((off1 = sql.find(" set")) != string::npos)
+	{
 		vector<string> update;
-		str[0] = sm[0].str();
-		update.push_back(str[0]);
-		cout << "update:" << endl;
-		cout << str[0] << endl;
-		cout << endl;
+		string s = sql.substr(7, off1 - 7);
+		update.push_back(s);
 		vUpdate.push_back(update);
 	}
-	else return "updateÓësetÓï¾ä¼ä´æÔÚ´íÎó";
+	else
+		return "updateÓësetÓï¾ä¼ä´æÔÚ´íÎó";
 
-	if (regex_search(sql, sm[1], re2)) {
+	int off2;
+	if ((off2 = sql.rfind(" where")) != string::npos || (off2 = sql.rfind(";")) != string::npos)
+	{
 		vector<string> update;
-		str[1] = sm[1].str();
-		update.push_back(str[1]);
-		cout << "set:" << endl;
-		cout << str[1] << endl;
-		cout << endl;
+		string s = sql.substr(off1 + 5, off2 - off1 - 5);
+		update.push_back(s);
 		vUpdate.push_back(update);
 	}
-	else return "set×Ö¶Î´æÔÚ´íÎó";
+	else
+		return "set×Ö¶Î´æÔÚ´íÎó";
 
-	if (regex_search(sql, sm[2], re3)) {
+	int off3;
+	if (sql.rfind(" where") != string::npos && (off3 = sql.rfind(";")) != string::npos)
+	{
 		vector<string> update;
-		regex rr("(\.+?and )|(\.+?or )");
+		regex rr("(.+?and )|(.+?or )");
 		smatch rrsm;
-		str[2] = sm[2].str();
-		string::const_iterator st = str[2].begin();
-		string::const_iterator en = str[2].end();
+		string s = sql.substr(off2 + 7, off3 - off2 - 7);
+		string::const_iterator st = s.begin();
+		string::const_iterator en = s.end();
 		bool flag = false;
 
-		cout << "where:" << endl;
-		while (regex_search(st, en, rrsm, rr)) {
+		while (regex_search(st, en, rrsm, rr))
+		{
 			flag = true;
-			cout << rrsm.str() << endl;
 			update.push_back(rrsm.str());
 			st = rrsm[0].second;
 		}
-		if (flag) {
-			regex_search(st, en, rrsm, regex("\.+"));
-			cout << rrsm.str() << endl;
+		if (flag)
+		{
+			regex_search(st, en, rrsm, regex(".+"));
 			update.push_back(rrsm.str());
 		}
-		else {
-			cout << str[2] << endl;
-			update.push_back(str[2]);
-		}
+		else
+			update.push_back(s);
+
 		vUpdate.push_back(update);
 	}
 
@@ -338,76 +340,82 @@ string CmdParse::ForUpdate() {
 	return "Update Êý¾Ý³É¹¦";
 }
 
-string CmdParse::ForSelect() {
+string CmdParse::ForSelect()
+{
 	vector<vector<string>> vSelect;
-	regex reg1("(?<=select )\.+?(?= from)");
-	regex reg2("((?<=from )\.+?(?= where))|((?<=from )\.+?(?=END))");
-	regex reg3("(?<=where )\.+?(?=END)");
-	smatch ssm[3];
-
-	if (regex_search(sql, ssm[0], reg1)) {
-		cout << "select:" << endl;
+	/*regex reg1("(?<=select )\.+?(?= from)");
+	regex reg2("((?<=from )\.+?(?= where))|((?<=from )\.+?(?=;))");
+	regex reg3("(?<=where )\.+?(?=;)");
+	smatch ssm[3];*/
+	int off1;
+	if ((off1 = sql.find(" from")) != string::npos)
+	{
 		vector<string> attribute;
 		string stt = "";
-		string ss = ssm[0].str();
-		for (int i = 0; i < ss.size(); i++) {
-			if (ss[i] != ' ' && ss[i] != ',') {
-				stt = stt + ss[i];
-			}
-			if ((ss[i] == ',' || i == ss.size() - 1) && stt != "") {
-				cout << stt << endl;
+		string s = sql.substr(7, off1 - 7);
+		for (int i = 0; i < s.size(); i++)
+		{
+			if (s[i] != ' ' && s[i] != ',')
+				stt = stt + s[i];
+
+			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
+			{
 				attribute.push_back(stt);
 				stt = "";
 			}
 		}
 		vSelect.push_back(attribute);
 	}
-	else return "select fromÓï¾äºó´æÔÚ´íÎó";
+	else
+		return "select fromÓï¾äºó´æÔÚ´íÎó";
 
-	if (regex_search(sql, ssm[1], reg2)) {
-		cout << "from:" << endl;
+	int off2;
+	if ((off2 = sql.rfind(" where")) != string::npos || (off2 = sql.rfind(";")) != string::npos)
+	{
 		vector<string> tablename;
 		string stt = "";
-		string ss = ssm[1].str();
-		for (int i = 0; i < ss.size(); i++) {
-			if (ss[i] != ' ' && ss[i] != ',') {
-				stt = stt + ss[i];
-			}
-			if ((ss[i] == ',' || i == ss.size() - 1) && stt != "") {
-				cout << stt << endl;
+		string s = sql.substr(off1 + 11, off2 - off1 - 11);
+		for (int i = 0; i < s.size(); i++)
+		{
+			if (s[i] != ' ' && s[i] != ',')
+				stt = stt + s[i];
+
+			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
+			{
 				tablename.push_back(stt);
 				stt = "";
 			}
 		}
 		vSelect.push_back(tablename);
 	}
-	else return "fromÓï¾äºó´æÔÚ´íÎó";
+	else
+		return "fromÓï¾äºó´æÔÚ´íÎó";
 
-	if (regex_search(sql, ssm[2], reg3)) {
+	int off3;
+	if (sql.rfind(" where") != string::npos && (off3 = sql.rfind(";")) != string::npos)
+	{
 		vector<string> condition;
-		regex sr("(\.+?and )|(\.+?or )");
+		regex sr("(.+?and )|(.+?or )");
 		smatch srsm;
-		string sst = ssm[2].str();
-		string::const_iterator st = sst.begin();
-		string::const_iterator en = sst.end();
+		string s = sql.substr(off2 + 7, off3 - off2 - 7);
+		string::const_iterator st = s.begin();
+		string::const_iterator en = s.end();
 		bool flag = false;
 
-		cout << "where:" << endl;
-		while (regex_search(st, en, srsm, sr)) {
+		while (regex_search(st, en, srsm, sr))
+		{
 			flag = true;
-			cout << srsm.str() << endl;
 			condition.push_back(srsm.str());
 			st = srsm[0].second;
 		}
-		if (flag) {
-			regex_search(st, en, srsm, regex("\.+"));
-			cout << srsm.str() << endl;
+		if (flag)
+		{
+			regex_search(st, en, srsm, regex(".+"));
 			condition.push_back(srsm.str());
 		}
-		else {
-			cout << sst << endl;
-			condition.push_back(sst);
-		}
+		else
+			condition.push_back(s);
+
 		vSelect.push_back(condition);
 	}
 	result = vSelect;
