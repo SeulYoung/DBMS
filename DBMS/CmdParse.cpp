@@ -7,31 +7,77 @@ CmdParse::CmdParse(string s)
 
 string CmdParse::sqlCheck()
 {
-	regex Pcreate("^create table\\s\\w+\\s?\\(.+\\);$");
-	regex Pdrop("^drop table\\s\\w+;$");
-	regex Pinsert("^insert into\\s\\w+\\s?(\\(.+\\))?\\svalues\\s\\(.+\\);$");
-	regex Pdelete("^delete from\\s\\w+\\swhere\\s.+;$");
-	regex Pupdate("^update\\s\\w+\\sset(\\s\\w+=\\w+\\s?,)*(\\s\\w+=\\w+\\s?)(where.+)?;$");
-	regex Pselect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
+	regex dCreate("^create database \\w+;$");
+	regex dDrop("^drop database \\w+;$");
+	regex tCreate("^create table \\w+\\s?\\(.+\\);$");
+	regex tAlter("^alter table \\w+\\s(add|drop)\\s;$");
+	regex tDrop("^drop table \\w+;$");
+	regex tInsert("^insert into \\w+\\s?(\\(.+\\))?\\svalues\\s\\(.+\\);$");
+	regex tDelete("^delete from \\w+\\swhere\\s.+;$");
+	regex tUpdate("^update \\w+\\sset(\\s\\w+=\\w+\\s?,)*(\\s\\w+=\\w+\\s?)(where.+)?;$");
+	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
-
-	if (regex_match(sql, Pcreate))
-		return ForCreate();
-	else if (regex_match(sql, Pdrop))
-		return ForDrop();
-	else if (regex_match(sql, Pinsert))
-		return ForInsert();
-	else if (regex_match(sql, Pdelete))
-		return  ForDelete();
-	else if (regex_match(sql, Pupdate))
-		return  ForUpdate();
-	else if (regex_search(sql, Pselect))
-		return ForSelect();
+	if (regex_match(sql, dCreate))
+		return dbCreate();
+	else if (regex_match(sql, dDrop))
+		return dbDrop();
+	else if (regex_match(sql, tCreate))
+		return tableCreate();
+	else if (regex_match(sql, tAlter))
+		return tableAlter();
+	else if (regex_match(sql, tDrop))
+		return tableDrop();
+	else if (regex_match(sql, tInsert))
+		return tableInsert();
+	else if (regex_match(sql, tDelete))
+		return  tableDelete();
+	else if (regex_match(sql, tUpdate))
+		return  tableUpdate();
+	else if (regex_search(sql, tSelect))
+		return tableSelect();
 
 	return "Sql语句错误";
 }
 
-string CmdParse::ForCreate()
+string CmdParse::dbCreate()
+{
+	vector<vector<string>> vCreate;
+
+	int off;
+	if ((off = sql.rfind(';') != string::npos))
+	{
+		vector<string> name;
+		string s = sql.substr(16, sql.size() - 17);
+		name.push_back(s);
+		vCreate.push_back(name);
+	}
+	else
+		return "create语句后存在错误";
+
+	result = vCreate;
+	return "Create database成功";
+}
+
+string CmdParse::dbDrop()
+{
+	vector<vector<string>> vDrop;
+
+	int off;
+	if ((off = sql.rfind(';') != string::npos))
+	{
+		vector<string> name;
+		string s = sql.substr(14, sql.size() - 15);
+		name.push_back(s);
+		vDrop.push_back(name);
+	}
+	else
+		return "drop语句后存在错误";
+
+	result = vDrop;
+	return "Drop database成功";
+}
+
+string CmdParse::tableCreate()
 {
 	vector<vector<string>> vCreate;
 	/*regex re1("(?<=create table ).+?(?=\\()");
@@ -109,7 +155,12 @@ string CmdParse::ForCreate()
 	return "Create table成功";
 }
 
-string CmdParse::ForDrop()
+string CmdParse::tableAlter()
+{
+	return string();
+}
+
+string CmdParse::tableDrop()
 {
 	vector<vector<string>> vDrop;
 	/*regex dre("(?<=drop table )\\w+(?=;)");
@@ -130,7 +181,7 @@ string CmdParse::ForDrop()
 	return "Drop table成功";
 }
 
-string CmdParse::ForInsert()
+string CmdParse::tableInsert()
 {
 	vector<vector<string>> vInsert;
 	/*regex re1("(?<=insert into )\.+(?=values)");
@@ -224,7 +275,7 @@ string CmdParse::ForInsert()
 }
 
 
-string CmdParse::ForDelete()
+string CmdParse::tableDelete()
 {
 	vector<vector<string>> vDelete;
 	/*regex re1("(?<=delete from )\.+(?=where )");
@@ -278,7 +329,7 @@ string CmdParse::ForDelete()
 	return "Delete 数据成功";
 }
 
-string CmdParse::ForUpdate()
+string CmdParse::tableUpdate()
 {
 	vector<vector<string>> vUpdate;
 	/*string str[3];
@@ -340,7 +391,7 @@ string CmdParse::ForUpdate()
 	return "Update 数据成功";
 }
 
-string CmdParse::ForSelect()
+string CmdParse::tableSelect()
 {
 	vector<vector<string>> vSelect;
 	/*regex reg1("(?<=select )\.+?(?= from)");
