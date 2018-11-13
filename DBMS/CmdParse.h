@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <regex>
 
@@ -12,12 +13,15 @@ public:
 	string sqlCheck();
 
 private:
-	string ForCreate();
-	string ForDrop();
-	string ForInsert();
-	string ForDelete();
-	string ForUpdate();
-	string ForSelect();
+	string dbCreate();
+	string dbDrop();
+	string tableCreate();
+	string tableAlter();
+	string tableDrop();
+	string tableInsert();
+	string tableDelete();
+	string tableUpdate();
+	string tableSelect();
 	string preSql(string s);
 
 	vector<vector<string>> result;

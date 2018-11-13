@@ -1,6 +1,5 @@
 #include "DBMS.h"
 
-
 DBMS::DBMS(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -20,7 +19,5 @@ void DBMS::getCmd()
 		ui.cmdLine->append(QString::fromLocal8Bit(s.c_str()));
 		sql = "";
 	}
-	
 	ui.inputLine->clear();
-	
 }
