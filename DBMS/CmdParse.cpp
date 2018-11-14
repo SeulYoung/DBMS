@@ -353,7 +353,18 @@ string CmdParse::tableUpdate()
 	{
 		vector<string> update;
 		string s = sql.substr(off1 + 5, off2 - off1 - 5);
-		update.push_back(s);
+		string stt = "";
+		for (int i = 0; i < s.size(); i++)
+		{
+			if (s[i] != ' ' && s[i] != ',')
+				stt = stt + s[i];
+
+			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
+			{
+				update.push_back(stt);
+				stt = "";
+			}
+		}
 		vUpdate.push_back(update);
 	}
 	else
