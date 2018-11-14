@@ -8,7 +8,7 @@ using namespace std;
 class FieldManage
 {
 public:
-	FieldManage(string s,string db_name);
+	FieldManage(vector<vector<string>> s);
 	~FieldManage();
 	void manage();
 	
@@ -17,8 +17,6 @@ private:
 	void field_Modify();
 	void field_Delete();
 
-	string sql;
-	string db_name;
-	
+	vector<vector<string>> sql;
 };
 

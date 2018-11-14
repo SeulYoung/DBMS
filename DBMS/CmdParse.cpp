@@ -47,6 +47,7 @@ string CmdParse::dbCreate()
 	if ((off = sql.rfind(';') != string::npos))
 	{
 		vector<string> name;
+		name.push_back("create");
 		string s = sql.substr(16, sql.size() - 17);
 		name.push_back(s);
 		vCreate.push_back(name);
@@ -66,6 +67,7 @@ string CmdParse::dbDrop()
 	if ((off = sql.rfind(';') != string::npos))
 	{
 		vector<string> name;
+		name.push_back("drop");
 		string s = sql.substr(14, sql.size() - 15);
 		name.push_back(s);
 		vDrop.push_back(name);
@@ -85,14 +87,11 @@ string CmdParse::tableCreate()
 	smatch csm1;
 	smatch csm2;
 	string cstr[2];*/
-	vector<string> create;
-	create.push_back("create");
-	vCreate.push_back(create);
-
 	int off1;
 	if ((off1 = sql.find('(')) != string::npos)
 	{
 		vector<string> create;
+		create.push_back("create");
 		string s = sql.substr(13, off1 - 13);
 		create.push_back(s);
 		vCreate.push_back(create);
@@ -174,6 +173,7 @@ string CmdParse::tableDrop()
 	if ((off = sql.rfind(';') != string::npos))
 	{
 		vector<string> name;
+		name.push_back("drop");
 		string s = sql.substr(11, sql.size() - 12);
 		name.push_back(s);
 		vDrop.push_back(name);
@@ -196,6 +196,7 @@ string CmdParse::tableInsert()
 	if ((off1 = sql.find(" values (")) != string::npos)
 	{
 		vector<string> insert;
+		insert.push_back("insert");
 		//regex rr("(?<=\\().+(?=\\))");
 		smatch rsm;
 		string s = sql.substr(12, off1 - 12);
@@ -292,6 +293,7 @@ string CmdParse::tableDelete()
 	if ((off1 = sql.find("where ")) != string::npos)
 	{
 		vector<string> vdelete;
+		vdelete.push_back("delete");
 		string s = sql.substr(12, off1 - 12);
 		vdelete.push_back(s);
 		vDelete.push_back(vdelete);
@@ -345,6 +347,7 @@ string CmdParse::tableUpdate()
 	if ((off1 = sql.find(" set")) != string::npos)
 	{
 		vector<string> update;
+		update.push_back("update");
 		string s = sql.substr(7, off1 - 7);
 		update.push_back(s);
 		vUpdate.push_back(update);
@@ -417,6 +420,7 @@ string CmdParse::tableSelect()
 	if ((off1 = sql.find(" from")) != string::npos)
 	{
 		vector<string> attribute;
+		attribute.push_back("select");
 		string stt = "";
 		string s = sql.substr(7, off1 - 7);
 		for (int i = 0; i < s.size(); i++)

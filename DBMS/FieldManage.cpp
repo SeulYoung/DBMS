@@ -2,10 +2,9 @@
 
 
 
-FieldManage::FieldManage(string s, string db_name)
+FieldManage::FieldManage(vector<vector<string>> s)
 {
 	sql = s;
-	this->db_name = db_name;
 }
 
 FieldManage::~FieldManage()

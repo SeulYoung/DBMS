@@ -2,8 +2,9 @@
 
 
 
-DataManage::DataManage()
+DataManage::DataManage(vector<vector<string>> s)
 {
+	sql = s;
 }
 
 

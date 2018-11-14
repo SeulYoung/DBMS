@@ -2,8 +2,9 @@
 
 
 
-DbManage::DbManage()
+DbManage::DbManage(vector<vector<string>> s)
 {
+	sql = s;
 }
 
 
