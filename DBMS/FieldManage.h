@@ -17,6 +17,7 @@ private:
 	void field_Modify();
 	void field_Delete();
 
-	vector<vector<string>> sql;
+	vector<vector<string>> sql1;
+	string sql;
 };
 

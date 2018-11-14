@@ -4,7 +4,8 @@
 
 FieldManage::FieldManage(vector<vector<string>> s)
 {
-	sql = s;
+	sql1 = s;
+	sql = "dddd";
 }
 
 FieldManage::~FieldManage()
