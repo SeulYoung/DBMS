@@ -2,6 +2,7 @@
 #include<string>
 #include"io.h"
 #include<vector>
+#include<list>
 using namespace std;
 
 
@@ -38,4 +39,22 @@ private:
 	vector<vector<string>> sql;
 	char DataBaseName[128];
 	char Table[128];
+};
+
+typedef	list<string> StringList;
+typedef	list<string> ColumnList;
+
+class Record {
+private:
+	const char *tableName;
+public:
+	Record(const char *tableName);
+	void writeRecord(list<list<string>> recordList);
+	list<ColumnList> getRecord();
+	void updateRecord(string sourceContext, string rContext); //update
+	list<list<string>> getLines();
+
+
+
+
 };

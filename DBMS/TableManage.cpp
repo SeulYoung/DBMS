@@ -430,3 +430,74 @@ string TableManage::CharToStr(char * contentChar) {
 
 
 }
+
+Record::Record(const char * tableName)
+{
+	this->tableName = tableName;
+}
+
+void Record::writeRecord(list<list<string>> recordList)
+{
+	string name(tableName);
+	string path = name + ".trd";
+	ifstream fin1(path);
+	string line;
+	int i = 0, j = 0;
+	if (fin1) //更新表中字段数   
+	{
+		while (getline(fin1, line)) // line中不包括每行的换行符  
+		{
+			i++;
+			//cout << line << endl;
+		}
+	}
+	else // 没有该文件  
+	{
+		cout << "no such file" << endl;
+	}
+	fin1.close();
+
+	getchar();
+}
+
+list<ColumnList> Record::getRecord()
+{
+	ColumnList theColumnList;
+	list<ColumnList> resultList;
+
+	list<list<string>> everyLine = getLines();
+
+	for (list<list<string>>::iterator ci = everyLine.begin(); ci != everyLine.end(); ++ci) {
+		//StringList temp = getStringsSpiteByBlank(*ci);
+		/*for (StringList::const_iterator zz = temp.begin(); zz != temp.end(); ++zz) {
+		theColumnList.push_back(*zz);
+		}
+		resultList.push_back(theColumnList);*/
+	}
+	return resultList;
+}
+
+
+list<list<string>> Record::getLines()
+{
+	string name(tableName);
+	string path = name + ".trd";
+	list<list<string>> rst;
+	StringList returnlist;
+	ifstream fin1(path);
+	string line;
+	int fieldNum = 5;
+	while (!fin1.eof()) {
+		list<string> oneLine;
+		for (int i = 0; i < 5; i++) {
+			string temp;
+			fin1 >> temp;
+			if (!temp.compare(""))
+				break;
+			oneLine.push_back(temp);
+		}
+		rst.push_back(oneLine);
+	}
+	return rst;
+}
+
