@@ -10,7 +10,7 @@ string CmdParse::sqlCheck()
 	regex dCreate("^create database \\w+;$");
 	regex dDrop("^drop database \\w+;$");
 	regex tCreate("^create table \\w+\\s?\\(.+\\);$");
-	regex tAlter("^alter table \\w+\\s(add|drop)\\s;$");
+	regex tAlter("^alter table \\w+\\s(add|drop)\\s(column|constraint)\\s.+;$");
 	regex tDrop("^drop table \\w+;$");
 	regex tInsert("^insert into \\w+\\s?(\\(.+\\))?\\svalues\\s\\(.+\\);$");
 	regex tDelete("^delete from \\w+\\swhere\\s.+;$");
@@ -55,7 +55,7 @@ string CmdParse::dbCreate()
 	else
 		return "create语句后存在错误";
 
-	result = vCreate;
+	DbManage dbManage(vCreate);
 	return "Create database成功";
 }
 
@@ -75,7 +75,7 @@ string CmdParse::dbDrop()
 	else
 		return "drop语句后存在错误";
 
-	result = vDrop;
+	DbManage dbManage(vDrop);
 	return "Drop database成功";
 }
 
@@ -160,7 +160,77 @@ string CmdParse::tableCreate()
 
 string CmdParse::tableAlter()
 {
-	return string();
+	regex tAlter("^alter table \\w+\\s(add|drop)\\s(column|constraint)\\s.+;$");
+	vector<vector<string>> vAlter;
+
+	int off1;
+	if ((off1 = sql.find(' ', 12)) != string::npos)
+	{
+		vector<string> alter;
+		alter.push_back("alter");
+		string s = sql.substr(12, off1 - 12);
+		alter.push_back(s);
+		vAlter.push_back(alter);
+	}
+	else
+		return "alter table语句后存在错误";
+
+	int off2;
+	if ((off2 = sql.rfind(';')) != string::npos)
+	{
+		regex rer("(.+?,)|(.+)");
+		smatch rsm;
+		string s = sql.substr(off1 + 1, off2 - off1 - 1);
+		string::const_iterator st = s.begin();
+		string::const_iterator en = s.end();
+
+		while (regex_search(st, en, rsm, rer))
+		{
+			vector<string> alter;
+			string ss = rsm.str();
+			bool isname = true;
+			bool isatt = false;
+			bool iscap = false;
+			string name = "";
+			string attribute = "";
+			string capacity = "";
+			for (int i = 0; i < ss.size(); i++)
+			{
+				if (isname == true && ss[i] != ' ')
+					name = name + ss[i];
+
+				if (isname == true && name != "" && ss[i] == ' ')
+				{
+					isname = false;
+					isatt = true;
+					alter.push_back(name);
+				}
+				if (isatt == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ',')
+					attribute = attribute + ss[i];
+
+				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ','))
+				{
+					isatt = false;
+					iscap = true;
+					alter.push_back(attribute);
+				}
+				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')')
+					capacity = capacity + ss[i];
+
+				if (iscap == true && ss[i] == ')' && capacity != "")
+				{
+					iscap = false;
+					alter.push_back(capacity);
+				}
+			}
+			vAlter.push_back(alter);
+			st = rsm[0].second;
+		}
+	}
+	else
+		return "参数语句存在错误";
+	TableManage tableManage(vAlter);
+	return "Alter table成功";
 }
 
 string CmdParse::tableDrop()
@@ -181,7 +251,7 @@ string CmdParse::tableDrop()
 	else
 		return "drop语句后存在错误";
 
-	result = vDrop;
+	TableManage tableManage(vDrop);
 	return "Drop table成功";
 }
 
@@ -275,7 +345,7 @@ string CmdParse::tableInsert()
 	else
 		return "values语句后存在错误";
 
-	result = vInsert;
+	DataManage dataManage(vInsert);
 	return "Insert数据成功";
 }
 
@@ -331,7 +401,7 @@ string CmdParse::tableDelete()
 	else
 		return "where语句后存在错误";
 
-	result = vDelete;
+	DataManage dataManage(vDelete);
 	return "Delete 数据成功";
 }
 
@@ -405,7 +475,7 @@ string CmdParse::tableUpdate()
 		vUpdate.push_back(update);
 	}
 
-	result = vUpdate;
+	DataManage dataManage(vUpdate);
 	return "Update 数据成功";
 }
 
@@ -488,7 +558,7 @@ string CmdParse::tableSelect()
 
 		vSelect.push_back(condition);
 	}
-	result = vSelect;
+	DataManage dataManage(vSelect);
 	return "Select数据成功";
 }
 

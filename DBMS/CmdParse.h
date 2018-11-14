@@ -2,9 +2,10 @@
 
 #include <iostream>
 #include <regex>
+#include "DbManage.h"
 #include "TableManage.h"
-
-using namespace std;
+#include "FieldManage.h"
+#include "DataManage.h"
 
 class CmdParse
 {
@@ -25,6 +26,5 @@ private:
 	string tableSelect();
 	string preSql(string s);
 
-	vector<vector<string>> result;
 	string sql;
 };
