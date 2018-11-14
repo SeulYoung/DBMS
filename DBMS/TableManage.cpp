@@ -35,6 +35,8 @@ TableManage::~TableManage()
 {
 }
 
+
+
 void TableManage::ListDatebase(string s)
 {
 	string path = "C:\\Users\\lxy94\\Desktop";
@@ -158,8 +160,84 @@ int TableManage::AlterDatebase(string s)
 		cout << "not exist";
 		return 0;
 	}
+	string path = s + ".tb";
+	string path1 = s + ".tdf";
+	string path2 = s + ".trd";
+	ifstream fin1(path1), fin2(path2);
+	string line;
+	int i = 0, j = 0;
+	if (fin1) //更新表中字段数   
+	{
+		while (getline(fin1, line)) // line中不包括每行的换行符  
+		{
+			i++;
+			//cout << line << endl;
+		}
+	}
+	else // 没有该文件  
+	{
+		cout << "no such file" << endl;
+	}
+	fin1.close();
+	if (fin2) //更新表中记录数   
+	{
+		while (getline(fin2, line)) // line中不包括每行的换行符  
+		{
+			j++;
+			//cout << line << endl;
+		}
+	}
+	else // 没有该文件  
+	{
+		cout << "no such file" << endl;
+	}
+	fin2.close();
+	ifstream in;
+	in.open(path);
+	string strFileData = "";
+	string num_1, num_2, num_3 = "";
+	int Cline = 1, lineNum_1 = 1, lineNum_2 = 2, lineNum_3 = 3;
+	num_1 = std::to_string(i);
+	num_2 = std::to_string(j);
+	num_3 = getCurenttime();
 
 
+	char tmpLineData[1024] = { 0 };
+
+	while (in.getline(tmpLineData, sizeof(tmpLineData)))
+	{
+		if (Cline == lineNum_1)
+		{
+			strFileData += num_1;
+			strFileData += "\n";
+		}
+		else if (Cline == lineNum_2)
+		{
+			strFileData += num_2;
+			strFileData += "\n";
+		}
+		else if (Cline == lineNum_3)
+		{
+			strFileData += num_3;
+			strFileData += "\n";
+		}
+		else
+		{
+			strFileData += CharToStr(tmpLineData);
+			strFileData += "\n";
+		}
+		Cline++;
+	}
+	in.close();
+	//写入文件
+	ofstream out;
+	out.open(path);
+	out.flush();
+	out << strFileData;
+	out.close();
+
+
+	getchar();
 	return 1;
 }
 
@@ -333,4 +411,22 @@ int TableManage::DeleteDir(string s)
 	cout << " next good time" << endl;
 	getchar();
 	return 0;
+}
+
+
+string TableManage::CharToStr(char * contentChar) {
+	string tempStr;
+
+	for (int i = 0; contentChar[i] != '\0'; i++)
+
+	{
+
+		tempStr += contentChar[i];
+
+	}
+
+	return tempStr;
+
+
+
 }
