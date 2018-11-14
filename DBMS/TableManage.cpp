@@ -12,19 +12,19 @@
 #include<ctime>
 
 using namespace std;
-int main()
-{
-	string s = "test";
-	string str = "hello";
-	TableManage tb;
-	//tb.CheckExist(s);
-	tb.CreatDatebase(s, str);
-	//tb.DeleteDatebase(s);
-	//tb.DeleteDir(s);
-	//tb.SaveInfo(s);
-	//tb.SearchDatebase(s);
-	return 0;
-}
+//int main()
+//{
+//	string s = "test";
+//	string str = "hello";
+//	TableManage tb;
+//	//tb.CheckExist(s);
+//	tb.CreatDatebase(s, str);
+//	//tb.DeleteDatebase(s);
+//	//tb.DeleteDir(s);
+//	//tb.SaveInfo(s);
+//	//tb.SearchDatebase(s);
+//	return 0;
+//}
 
 TableManage::TableManage()
 {
