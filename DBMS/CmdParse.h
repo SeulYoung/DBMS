@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <regex>
+#include "TableManage.h"
 
 using namespace std;
 

@@ -85,6 +85,10 @@ string CmdParse::tableCreate()
 	smatch csm1;
 	smatch csm2;
 	string cstr[2];*/
+	vector<string> create;
+	create.push_back("create");
+	vCreate.push_back(create);
+
 	int off1;
 	if ((off1 = sql.find('(')) != string::npos)
 	{
@@ -151,7 +155,7 @@ string CmdParse::tableCreate()
 	else
 		return "À¨ºÅÖĞÓï¾ä´æÔÚ´íÎó";
 
-	result = vCreate;
+	TableManage tableManage(vCreate);
 	return "Create table³É¹¦";
 }
 

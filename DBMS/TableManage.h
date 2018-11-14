@@ -8,7 +8,7 @@ using namespace std;
 class TableManage
 {
 public:
-	TableManage();
+	TableManage(vector<vector<string>> s);
 	~TableManage();
 	void ListDatebase(string s);	//列出表
 	string getCurenttime();      //得到当前时间
@@ -22,8 +22,9 @@ public:
 	int AlterDatebase();
 	int DeleteDatebase(string s, string & str);	//删除表
 	int DeleteDir(string s);		//删除文件夹
+
 private:
+	vector<vector<string>> sql;
 	char DataBaseName[128];
 	char Table[128];
-
 };

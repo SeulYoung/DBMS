@@ -26,8 +26,9 @@ using namespace std;
 //	return 0;
 //}
 
-TableManage::TableManage()
+TableManage::TableManage(vector<vector<string>> s)
 {
+	sql = s;
 }
 
 TableManage::~TableManage()
