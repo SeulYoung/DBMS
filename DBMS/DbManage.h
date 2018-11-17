@@ -7,7 +7,7 @@
 #include<fstream>
 #include<time.h>
 #include<vector>
-#include<afx.h>
+//#include<afx.h>
 
 using namespace std;
 class DbManage

@@ -1,6 +1,6 @@
 #include "DbManage.h"
 
-int main() {
+/*int main() {
 	string count;
 	while (1) {
 		cout << "Create a database use '-c' and delete a database use '-d'" << endl;
@@ -15,7 +15,7 @@ int main() {
 	}
 
 	return 0;
-}
+}*/
 
 
 DbManage::DbManage(vector<vector<string>> s)
@@ -129,14 +129,14 @@ void DbManage::DeleteDatabase()
 	}
 	fclose(f);
 	//检测是否有人正在使用库
-	CString strFilename = _T(new_name);
+	/*CString strFilename = _T(new_name);
 	CFile file;
 	file.Open(strFilename, CFile::modeReadWrite);
 	if (!file.GetFileName().IsEmpty())
 	{
 		cout << "文件被占用" << endl;
 		return;
-	}
+	}*/
 	//file.Close();
 
 	string d_file;

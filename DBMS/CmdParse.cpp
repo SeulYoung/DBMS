@@ -10,7 +10,7 @@ string CmdParse::sqlCheck()
 	regex dCreate("^create database \\w+;$");
 	regex dDrop("^drop database \\w+;$");
 	regex tCreate("^create table \\w+\\s?\\(.+\\);$");
-	regex tAlter("^alter table \\w+\\s(add|drop)\\s(column|constraint)\\s.+;$");
+	regex tAlter("^alter table \\w+\\s(add|modify|drop)\\s(column|constraint)\\s.+;$");
 	regex tDrop("^drop table \\w+;$");
 	regex tInsert("^insert into \\w+\\s?(\\(.+\\))?\\svalues\\s\\(.+\\);$");
 	regex tDelete("^delete from \\w+\\swhere\\s.+;$");
@@ -36,7 +36,7 @@ string CmdParse::sqlCheck()
 	else if (regex_search(sql, tSelect))
 		return tableSelect();
 
-	return "Sql语句错误";
+	return "不支持的Sql语句";
 }
 
 string CmdParse::dbCreate()
@@ -128,15 +128,17 @@ string CmdParse::tableCreate()
 					isname = false;
 					isatt = true;
 					create.push_back(name);
+					continue;
 				}
 				if (isatt == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ',')
 					attribute = attribute + ss[i];
 
-				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ','))
+				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ',' || i == ss.size() - 1))
 				{
 					isatt = false;
 					iscap = true;
 					create.push_back(attribute);
+					continue;
 				}
 				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')')
 					capacity = capacity + ss[i];
@@ -145,6 +147,7 @@ string CmdParse::tableCreate()
 				{
 					iscap = false;
 					create.push_back(capacity);
+					continue;
 				}
 			}
 			vCreate.push_back(create);
@@ -160,7 +163,6 @@ string CmdParse::tableCreate()
 
 string CmdParse::tableAlter()
 {
-	regex tAlter("^alter table \\w+\\s(add|drop)\\s(column|constraint)\\s.+;$");
 	vector<vector<string>> vAlter;
 
 	int off1;
@@ -176,11 +178,15 @@ string CmdParse::tableAlter()
 		return "alter table语句后存在错误";
 
 	int off2;
-	if ((off2 = sql.rfind(';')) != string::npos)
+	if ((off2 = sql.find("column ")) != string::npos)
 	{
+		vector<string> temp;
+		temp.push_back(sql.substr(off1 + 1, off2 - off1 + 5));
+		vAlter.push_back(temp);
+
 		regex rer("(.+?,)|(.+)");
 		smatch rsm;
-		string s = sql.substr(off1 + 1, off2 - off1 - 1);
+		string s = sql.substr(off2 + 7, sql.size() - off2 - 8);
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 
@@ -196,23 +202,25 @@ string CmdParse::tableAlter()
 			string capacity = "";
 			for (int i = 0; i < ss.size(); i++)
 			{
-				if (isname == true && ss[i] != ' ')
+				if (isname == true && ss[i] != ' ' && ss[i] != ',')
 					name = name + ss[i];
 
-				if (isname == true && name != "" && ss[i] == ' ')
+				if (isname == true && name != "" && (ss[i] == ' ' || ss[i] == ',' || i == ss.size() - 1))
 				{
 					isname = false;
 					isatt = true;
 					alter.push_back(name);
+					continue;
 				}
 				if (isatt == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ',')
 					attribute = attribute + ss[i];
 
-				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ','))
+				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ',' || i == ss.size() - 1))
 				{
 					isatt = false;
 					iscap = true;
 					alter.push_back(attribute);
+					continue;
 				}
 				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')')
 					capacity = capacity + ss[i];
@@ -221,14 +229,59 @@ string CmdParse::tableAlter()
 				{
 					iscap = false;
 					alter.push_back(capacity);
+					continue;
 				}
 			}
 			vAlter.push_back(alter);
 			st = rsm[0].second;
 		}
 	}
+	else if ((off2 = sql.find("constraint ")) != string::npos)
+	{
+		vector<string> temp;
+		temp.push_back(sql.substr(off1 + 1, off2 - off1 + 9));
+		int off3;
+		if ((off3 = sql.find(' ', off2 + 11)) != string::npos)
+		{
+			temp.push_back(sql.substr(off2 + 11, off3 - off2 - 11));
+			vAlter.push_back(temp);
+
+			bool isadd = false;
+			while (true)
+			{
+				int off4;
+				if ((off4 = sql.find('(', off3 + 1)) != string::npos)
+				{
+					vector<string> alter;
+					alter.push_back(sql.substr(off3 + 1, off4 - off3 - 2));
+					int off5 = sql.find(')', off4 + 1);
+					alter.push_back(sql.substr(off4 + 1, off5 - off4 - 1));
+					vAlter.push_back(alter);
+					off3 = off5 + 1;
+					isadd = true;
+				}
+				else if (!isadd)
+				{
+					vector<string> alter;
+					off4 = sql.find(' ', off3 + 1);
+					alter.push_back(sql.substr(off3 + 1, off4 - off3 - 1));
+					alter.push_back(sql.substr(off4 + 1, sql.size() - off4 - 2));
+					vAlter.push_back(alter);
+					isadd = true;
+				}
+				else
+					break;
+			}
+		}
+		else
+		{
+			temp.push_back(sql.substr(off2 + 11, sql.size() - off2 - 12));
+			vAlter.push_back(temp);
+		}
+	}
 	else
 		return "参数语句存在错误";
+
 	TableManage tableManage(vAlter);
 	return "Alter table成功";
 }
