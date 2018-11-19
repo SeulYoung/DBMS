@@ -13,14 +13,22 @@ FieldManage::~FieldManage()
 
 string FieldManage::manage()
 {
-	if (sql.at(1).at(0).find("add") != string::npos || sql.at(1).at(0).find("ADD") != string::npos)
+	if (sql.at(1).at(0).find("add") != string::npos && sql.at(1).at(0).find("constraint") != string::npos)
+		isSuc = constraint_Add();
+	else if (sql.at(1).at(0).find("ADD") != string::npos && sql.at(1).at(0).find("constraint") != string::npos)
+		isSuc = constraint_Add();
+	else if (sql.at(1).at(0).find("add") != string::npos || sql.at(1).at(0).find("ADD") != string::npos)
 		isSuc = field_Add();
 	else if (sql.at(1).at(0).find("modify") != string::npos || sql.at(1).at(0).find("MODIFY") != string::npos)
 		isSuc = field_Modify();
+	else if (sql.at(1).at(0).find("drop") != string::npos && sql.at(1).at(0).find("constraint") != string::npos)
+		isSuc = constraint_drop();
+	else if (sql.at(1).at(0).find("DROP") != string::npos && sql.at(1).at(0).find("constraint") != string::npos)
+		isSuc = constraint_drop();
 	else if (sql.at(1).at(0).find("drop") != string::npos || sql.at(1).at(0).find("DROP") != string::npos)
-		isSuc = field_Delete();
+		isSuc = field_drop();
 	else if (sql.at(0).at(0) == "create")
-		isSuc=field_Add1();
+		isSuc = field_Add1();
 	return isSuc;
 }
 
@@ -266,7 +274,7 @@ string FieldManage::field_Modify()
 	return "字段修改成功";
 }
 
-string FieldManage::field_Delete()
+string FieldManage::field_drop()
 {
 	string file_Path = sql.at(0).at(1) + ".tdf";
 
@@ -328,4 +336,122 @@ string FieldManage::field_Delete()
 	}
 	out_file.close();
 	return "字段删除成功";
+}
+
+string FieldManage::constraint_Add()
+{
+	
+	vector<string> vec1;
+	ifstream in(sql.at(0).at(1) + ".tdf");
+	if (!in.is_open())
+	{
+		return "请求表不存在";
+	}
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec1.push_back(buffer);
+	}
+	in.close();
+
+	//检查文件中是否已有要添加的字段
+	bool isExist = false;
+	for (int j = 0; j < vec1.size(); j++) {
+		if (vec1.at(j).find(sql.at(1).at(1)) != string::npos) {
+			isExist = true;
+			break;
+		}
+	}
+	if(!isExist)
+		return "错误！请求添加的字段不存在";
+	
+	//生成信息
+	string s;
+	s = sql.at(1).at(1);
+	s += " ";
+	for (int i = 0; i < sql.at(2).size(); i++) {
+		s += sql.at(2).at(i);
+		s += " ";
+	}
+	s += "\n";
+
+	string file_Path = sql.at(0).at(1) + ".tic";
+	ofstream out_file;
+	out_file.open(file_Path);
+
+	if (out_file.is_open())
+		out_file << (char*)s.data();
+
+	out_file.close();
+	return "约束添加成功";
+}
+
+string FieldManage::constraint_drop()
+{
+	vector<string> vec1;
+	ifstream in(sql.at(0).at(1) + ".tdf");
+	if (!in.is_open())
+	{
+		return "请求表不存在";
+	}
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec1.push_back(buffer);
+	}
+	in.close();
+
+	//检查文件中是否已有要删除约束的字段
+	bool isExist = false;
+	for (int j = 0; j < vec1.size(); j++) {
+		if (vec1.at(j).find(sql.at(1).at(1)) != string::npos) {
+			isExist = true;
+			break;
+		}
+	}
+	if (!isExist)
+		return "错误！请求删除约束的字段不存在";
+
+	//读取约束文件
+	vector<string> vec3;
+	ifstream in1(sql.at(0).at(1) + ".tic");
+	if (!in1.is_open())
+	{
+		return "请求表不存在";
+	}
+	while (!in1.eof())
+	{
+		char buffer[100];
+		in1.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec3.push_back(buffer);
+	}
+	in1.close();
+
+	//删除约束
+	for (int i = 0; i < vec3.size(); i++)
+		if (vec3.at(i).find(sql.at(1).at(1)) != string::npos) 
+			vec3.erase(vec3.begin() + i);
+
+	//生成输出信息
+	string s;
+	for (int i = 0; i < vec3.size(); i++) {
+		s += vec3.at(i);
+		s += "\n";
+	}
+
+	ofstream out_file;
+	out_file.open(sql.at(0).at(1) + ".tic");
+	if (out_file.is_open())
+	{
+		if (s != "")
+			out_file << (char*)s.data();;
+	}
+	out_file.close();
+	return "约束删除成功";
+	
 }
