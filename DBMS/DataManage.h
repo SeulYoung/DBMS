@@ -9,6 +9,7 @@ class DataManage
 public:
 	DataManage(vector<vector<string>> s);
 	~DataManage();
+	void select();
 
 private:
 	vector<vector<string>> sql;

@@ -11,3 +11,8 @@ DataManage::DataManage(vector<vector<string>> s)
 DataManage::~DataManage()
 {
 }
+
+void DataManage::select()
+{
+
+}

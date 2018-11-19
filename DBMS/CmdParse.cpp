@@ -56,6 +56,7 @@ string CmdParse::dbCreate()
 		return "create语句后存在错误";
 
 	DbManage dbManage(vCreate);
+	dbManage.CreateDatabase();
 	return "Create database成功";
 }
 

@@ -7,6 +7,7 @@
 #include<fstream>
 #include<time.h>
 #include<vector>
+#include<direct.h>
 //#include<afx.h>
 
 using namespace std;

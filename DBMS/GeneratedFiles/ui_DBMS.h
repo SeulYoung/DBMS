@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'DBMS.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.9.5
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -113,13 +113,13 @@ public:
 
     void retranslateUi(QMainWindow *DBMSClass)
     {
-        DBMSClass->setWindowTitle(QApplication::translate("DBMSClass", "DBMS", nullptr));
-        menu->setTitle(QApplication::translate("DBMSClass", "\347\263\273\347\273\237", nullptr));
-        menu_2->setTitle(QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", nullptr));
-        menu_3->setTitle(QApplication::translate("DBMSClass", "\350\241\250", nullptr));
-        menu_4->setTitle(QApplication::translate("DBMSClass", "\345\255\227\346\256\265", nullptr));
-        menu_5->setTitle(QApplication::translate("DBMSClass", "\350\256\260\345\275\225", nullptr));
-        menu_6->setTitle(QApplication::translate("DBMSClass", "\345\270\256\345\212\251", nullptr));
+        DBMSClass->setWindowTitle(QApplication::translate("DBMSClass", "DBMS", Q_NULLPTR));
+        menu->setTitle(QApplication::translate("DBMSClass", "\347\263\273\347\273\237", Q_NULLPTR));
+        menu_2->setTitle(QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", Q_NULLPTR));
+        menu_3->setTitle(QApplication::translate("DBMSClass", "\350\241\250", Q_NULLPTR));
+        menu_4->setTitle(QApplication::translate("DBMSClass", "\345\255\227\346\256\265", Q_NULLPTR));
+        menu_5->setTitle(QApplication::translate("DBMSClass", "\350\256\260\345\275\225", Q_NULLPTR));
+        menu_6->setTitle(QApplication::translate("DBMSClass", "\345\270\256\345\212\251", Q_NULLPTR));
     } // retranslateUi
 
 };
