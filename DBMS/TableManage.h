@@ -29,7 +29,7 @@ public:
 	int AlterDatebase(string s);	//修改表
 	void getFiles(string path, vector<string>& files);
 	int CheckExist(string s);
-	int CreatDatebase(string s, string & str);	//创建表
+	int CreatDatebase( string & str);	//创建表
 	int ValidDatebase(string s);	//表明小于128
 	int AlterDatebase();
 	int DeleteDatebase(string s, string & str);	//删除表

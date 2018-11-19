@@ -49,7 +49,8 @@ string CmdParse::dbCreate()
 	name.push_back(s);
 	vCreate.push_back(name);
 
-	DbManage dbManage(vCreate);
+	TableManage tm(vCreate);
+	//tm.CreatDatebase();
 	return "Create database成功";
 }
 
@@ -142,7 +143,16 @@ string CmdParse::tableCreate()
 		return "括号中语句存在错误";
 
 	TableManage tableManage(vCreate);
-	return "Create table成功";
+	string str;
+	if (tableManage.CreatDatebase(str) == 1) {
+		FieldManage fm(vCreate);
+		string s=fm.manage();
+		return s;
+	}
+	else
+	{
+		return str;
+	}
 }
 
 string CmdParse::tableAlter()
@@ -586,6 +596,7 @@ string CmdParse::tableSelect()
 		vSelect.push_back(condition);
 	}
 	DataManage dataManage(vSelect);
+	dataManage.manage();
 	return "Select数据成功";
 }
 
