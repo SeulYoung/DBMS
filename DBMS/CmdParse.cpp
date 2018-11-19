@@ -392,27 +392,7 @@ string CmdParse::tableDelete()
 		vector<string> vdelete;
 		regex rr("(.+?and )|(.+?or )");
 		smatch rrsm;
-		string t = sql.substr(off1 + 6, off2 - off1);
-		int off3 = 0, len = t.size();
-		for (int i = 0;; i++)
-		{
-			bool ismodify = false;
-			if (t[i] == ' ' || t[i] == '(')
-			{
-				off3 = i + 1;
-				len--;
-				ismodify = true;
-			}
-			if (t[t.size() - 1 - i] == ';' || t[t.size() - 1 - i] == ')' || t[t.size() - 1 - i] == ' ')
-			{
-				len--;
-				ismodify = true;
-			}
-			if(!ismodify)
-				break;
-		}
-
-		string s = t.substr(off3, len);
+		string s = preWhere(sql.substr(off1 + 6, off2 - off1));
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 		bool flag = false;
@@ -445,17 +425,13 @@ string CmdParse::tableDelete()
 string CmdParse::tableUpdate()
 {
 	vector<vector<string>> vUpdate;
-	/*string str[3];
-	smatch sm[3];
-	regex re1("(?<=update )\.+(?= set)");
-	regex re2("((?<=set )\.+(?= where))|((?<=set )\.+(?=;))");
-	regex re3("(?<=where )\.+(?=;)");*/
+
 	int off1;
-	if ((off1 = sql.find(" set")) != string::npos)
+	if ((off1 = sql.find("set")) != string::npos)
 	{
 		vector<string> update;
 		update.push_back("update");
-		string s = sql.substr(7, off1 - 7);
+		string s = sql.substr(7, off1 - 8);
 		update.push_back(s);
 		vUpdate.push_back(update);
 	}
@@ -463,10 +439,10 @@ string CmdParse::tableUpdate()
 		return "update”Îset”Ôæ‰º‰¥Ê‘⁄¥ÌŒÛ";
 
 	int off2;
-	if ((off2 = sql.rfind(" where")) != string::npos || (off2 = sql.rfind(";")) != string::npos)
+	if ((off2 = sql.rfind("where")) != string::npos || (off2 = sql.rfind(";")) != string::npos)
 	{
 		vector<string> update;
-		string s = sql.substr(off1 + 5, off2 - off1 - 5);
+		string s = sql.substr(off1 + 4, off2 - off1 - 5);
 		string stt = "";
 		for (int i = 0; i < s.size(); i++)
 		{
@@ -485,12 +461,12 @@ string CmdParse::tableUpdate()
 		return "set◊÷∂Œ¥Ê‘⁄¥ÌŒÛ";
 
 	int off3;
-	if (sql.rfind(" where") != string::npos && (off3 = sql.rfind(";")) != string::npos)
+	if (sql.rfind("where") != string::npos && (off3 = sql.rfind(";")) != string::npos)
 	{
 		vector<string> update;
 		regex rr("(.+?and )|(.+?or )");
 		smatch rrsm;
-		string s = sql.substr(off2 + 7, off3 - off2 - 7);
+		string s = preWhere(sql.substr(off2 + 6, off3 - off2 - 6));
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 		bool flag = false;
@@ -519,12 +495,9 @@ string CmdParse::tableUpdate()
 string CmdParse::tableSelect()
 {
 	vector<vector<string>> vSelect;
-	/*regex reg1("(?<=select )\.+?(?= from)");
-	regex reg2("((?<=from )\.+?(?= where))|((?<=from )\.+?(?=;))");
-	regex reg3("(?<=where )\.+?(?=;)");
-	smatch ssm[3];*/
+
 	int off1;
-	if ((off1 = sql.find(" from")) != string::npos)
+	if ((off1 = sql.find("from")) != string::npos)
 	{
 		vector<string> attribute;
 		attribute.push_back("select");
@@ -547,7 +520,7 @@ string CmdParse::tableSelect()
 		return "select from”Ôæ‰∫Û¥Ê‘⁄¥ÌŒÛ";
 
 	int off2;
-	if ((off2 = sql.rfind(" where")) != string::npos || (off2 = sql.rfind(";")) != string::npos)
+	if ((off2 = sql.rfind("where")) != string::npos || (off2 = sql.rfind(";")) != string::npos)
 	{
 		vector<string> tablename;
 		string stt = "";
@@ -569,12 +542,12 @@ string CmdParse::tableSelect()
 		return "from”Ôæ‰∫Û¥Ê‘⁄¥ÌŒÛ";
 
 	int off3;
-	if (sql.rfind(" where") != string::npos && (off3 = sql.rfind(";")) != string::npos)
+	if (sql.rfind("where") != string::npos && (off3 = sql.rfind(";")) != string::npos)
 	{
 		vector<string> condition;
 		regex sr("(.+?and )|(.+?or )");
 		smatch srsm;
-		string s = sql.substr(off2 + 7, off3 - off2 - 7);
+		string s = preWhere(sql.substr(off2 + 6, off3 - off2 - 6));
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 		bool flag = false;
@@ -623,4 +596,28 @@ string CmdParse::preSql(string s) //”Ôæ‰‘§¥¶¿Ì
 	if (sql[n - 1] == ' ')
 		sql.erase(n - 1, 1);
 	return sql;
+}
+
+string CmdParse::preWhere(string s)
+{
+	int off3 = 0, len = s.size();
+	for (int i = 0;; i++)
+	{
+		bool ismodify = false;
+		if (s[i] == ' ' || s[i] == '(')
+		{
+			off3 = i + 1;
+			len--;
+			ismodify = true;
+		}
+		if (s[s.size() - 1 - i] == ';' || s[s.size() - 1 - i] == ')' || s[s.size() - 1 - i] == ' ')
+		{
+			len--;
+			ismodify = true;
+		}
+		if (!ismodify)
+			break;
+	}
+
+	return s.substr(off3, len);
 }

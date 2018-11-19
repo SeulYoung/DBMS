@@ -25,6 +25,7 @@ private:
 	string tableUpdate();
 	string tableSelect();
 	string preSql(string s);
+	string preWhere(string s);
 
 	string sql;
 };

@@ -36,11 +36,3 @@
 .vs/
 x64/
 Debug/
-
-# DBMS
-*.db
-*.tdf
-*.tic
-*.trd
-*.tid
-*.tb
