@@ -89,7 +89,7 @@ string CmdParse::tableCreate()
 	{
 		regex rer("(.+?,)|(.+)");
 		smatch rsm;
-		string s = sql.substr(off1 + 1, off2 - off1 - 1);
+		string s = sql.substr(off1 + 1, off2 - off1);
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 
@@ -100,14 +100,15 @@ string CmdParse::tableCreate()
 			bool isname = true;
 			bool isatt = false;
 			bool iscap = false;
+			bool iscon = false;
 			string name = "";
 			string attribute = "";
 			string capacity = "";
+			string constraint = "";
 			for (int i = 0; i < ss.size(); i++)
 			{
 				if (isname == true && ss[i] != ' ')
 					name = name + ss[i];
-
 				if (isname == true && name != "" && ss[i] == ' ')
 				{
 					isname = false;
@@ -115,23 +116,36 @@ string CmdParse::tableCreate()
 					create.push_back(name);
 					continue;
 				}
+
 				if (isatt == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ',')
 					attribute = attribute + ss[i];
-
-				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ',' || i == ss.size() - 1))
+				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ',' || ss[i] == ' ' || i == ss.size() - 1))
 				{
 					isatt = false;
-					iscap = true;
+					if (ss[i] == '(')
+						iscap = true;
+					else
+						iscon = true;
 					create.push_back(attribute);
 					continue;
 				}
+
 				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')')
 					capacity = capacity + ss[i];
-
-				if (iscap == true && ss[i] == ')' && capacity != "")
+				if (iscap == true && capacity != "" && ss[i] == ')')
 				{
 					iscap = false;
+					iscon = true;
 					create.push_back(capacity);
+					continue;
+				}
+
+				if (iscon == true && ss[i] != ',' && ss[i] != ')')
+					constraint = constraint + ss[i];
+				if (iscon == true && constraint != "" && (ss[i] == ',' || ss[i] == ')'))
+				{
+					iscon = false;
+					create.push_back(constraint);
 					continue;
 				}
 			}
@@ -198,7 +212,6 @@ string CmdParse::tableAlter()
 			{
 				if (isname == true && ss[i] != ' ' && ss[i] != ',')
 					name = name + ss[i];
-
 				if (isname == true && name != "" && (ss[i] == ' ' || ss[i] == ',' || i == ss.size() - 1))
 				{
 					isname = false;
@@ -206,9 +219,9 @@ string CmdParse::tableAlter()
 					alter.push_back(name);
 					continue;
 				}
+
 				if (isatt == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ',')
 					attribute = attribute + ss[i];
-
 				if (isatt == true && attribute != "" && (ss[i] == '(' || ss[i] == ',' || i == ss.size() - 1))
 				{
 					isatt = false;
@@ -216,10 +229,10 @@ string CmdParse::tableAlter()
 					alter.push_back(attribute);
 					continue;
 				}
+
 				if (iscap == true && ss[i] != ' ' && ss[i] != '(' && ss[i] != ')')
 					capacity = capacity + ss[i];
-
-				if (iscap == true && ss[i] == ')' && capacity != "")
+				if (iscap == true && capacity != "" && ss[i] == ')')
 				{
 					iscap = false;
 					alter.push_back(capacity);
