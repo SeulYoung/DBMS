@@ -17,7 +17,9 @@ private:
 	string field_Add();
 	string field_Add1();
 	string field_Modify();
-	string field_Delete();
+	string field_drop();
+	string constraint_Add();
+	string constraint_drop();
 
 	vector<vector<string>> sql;
 	string isSuc;
