@@ -2,6 +2,7 @@
 #include<iostream>
 #include<fstream>
 #include<vector>
+#include<string>
 
 using namespace std;
 
@@ -10,14 +11,14 @@ class FieldManage
 public:
 	FieldManage(vector<vector<string>> s);
 	~FieldManage();
-	void manage();
+	string manage();
 	
 private:
-	void field_Add();
-	void field_Modify();
-	void field_Delete();
+	string field_Add();
+	string field_Modify();
+	string field_Delete();
 
-	vector<vector<string>> sql1;
-	string sql;
+	vector<vector<string>> sql;
+	string isSuc;
 };
 

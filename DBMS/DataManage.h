@@ -1,7 +1,7 @@
 #pragma once
-
-#include<vector>
-
+#include <iostream>
+#include <fstream>
+#include <vector>
 using namespace std;
 
 class DataManage
@@ -9,8 +9,16 @@ class DataManage
 public:
 	DataManage(vector<vector<string>> s);
 	~DataManage();
-
+	string manage();
+	
 private:
 	vector<vector<string>> sql;
+	vector<vector<string>> vec2;
+
+	string data_insert();
+	string data_delete();
+	string data_update();
+	string data_select();
+	bool isColumn();					
 };
 

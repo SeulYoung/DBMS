@@ -4,87 +4,89 @@
 
 FieldManage::FieldManage(vector<vector<string>> s)
 {
-	sql1 = s;
-	sql = "dddd";
+	sql = s;
 }
 
 FieldManage::~FieldManage()
 {
 }
 
-void FieldManage::manage()
+string FieldManage::manage()
 {
-	if (sql.find("add") != string::npos || sql.find("ADD") != string::npos)
-		field_Add();
-	else if (sql.find("modify") != string::npos || sql.find("MODIFY") != string::npos)
-		field_Modify();
-	else if (sql.find("drop") != string::npos || sql.find("DROP") != string::npos)
-		field_Delete();
+	if (sql.at(1).at(0).find("add") != string::npos || sql.at(1).at(0).find("ADD") != string::npos)
+		isSuc = field_Add();
+	else if (sql.at(1).at(0).find("modify") != string::npos || sql.at(1).at(0).find("MODIFY") != string::npos)
+		isSuc = field_Modify();
+	else if (sql.at(1).at(0).find("drop") != string::npos || sql.at(1).at(0).find("DROP") != string::npos)
+		isSuc = field_Delete();
+	return isSuc;
 }
 
-void FieldManage::field_Add()
+string FieldManage::field_Add()
 {
-	vector<char*> vec;
-	int i = 1;
 	ofstream out_file;
-	char tb[100] = "";
-	char *sqlc = (char*)sql.data();
-	char *temp;
-	
-	temp = strtok(sqlc, " ");
-	while (temp) {
-		if (i == 3)
-			vec.push_back(temp);
-		else if (i == 5)
-			vec.push_back(temp);	
-		else if (i >= 6)
-			vec.push_back(temp);
-		
-		temp = strtok(NULL, " ");
-		i++;
-	}
-	//生成输出信息
-	strcpy(tb, vec.at(1));
-	for (size_t i = 2; i < vec.size(); i++) {
-		strcat(tb, " ");
-		strcat(tb, vec.at(i));	
-	}
-	strcat(tb, "\n");
+	string s;
+	string file_Path = sql.at(0).at(1)+".tdf";
 
-	char *file_Path = strcat(vec.at(0), ".tdf");
+	//检查未加入的列是否重复
+	for (int i = 2; i < sql.size(); i++) 
+		for (int j = i + 1; j < sql.size(); j++) 
+			if (sql.at(i).at(0) == sql.at(j).at(0))
+				return "错误！请求添加的字段名称重复。";
+
+	//检查文件中是否已有为未加入的列
+	vector<string> vec1;
+	ifstream in(file_Path);
+	if (!in.is_open())
+	{
+		cout << "Error opening file"; 
+		exit(1);
+	}
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec1.push_back(buffer);
+	}
+	in.close();
+	for (int j = 0; j < vec1.size(); j++) {
+		for (int i = 2; i < sql.size(); i++) {
+			if (vec1.at(j).find(sql.at(i).at(0)) != string::npos)
+				return "错误！请求添加的字段中存在已添加的字段。";
+		}
+	}
+
+	//生成信息
+	int order;
+	for (int i = 2; i < sql.size(); i++) {
+		order = i - 1;
+		order += vec1.size();
+		s += std::to_string(order);
+		s += " ";
+		for (int j = 0; j < sql.at(i).size(); j++) {		
+				s += sql.at(i).at(j);
+				s += " ";
+		}
+		if (sql.at(i).size() == 2)
+			s += "NULL";
+		s = s + "\n";
+	}
 	
 	out_file.open(file_Path, ios::out | ios::app);
 	if (out_file.is_open())
 	{
-		out_file << tb;
+		out_file << (char*)s.data();
 	}
-
 	out_file.close();
+	return "字段添加成功";
 }
 
-void FieldManage::field_Modify()
+string FieldManage::field_Modify()
 {
-
-	int i = 1;
 	vector<char*> vec;
-	char tb[100] = "";
-	char *sqlc = (char*)sql.data();
-	char *temp;
 
-	temp = strtok(sqlc, " ");
-	while (temp) {
-		if (i == 3)
-			vec.push_back(temp);
-		else if (i == 5)
-			vec.push_back(temp);
-		else if (i >= 6)
-			vec.push_back(temp);
-
-		temp = strtok(NULL, " ");
-		i++;
-	}
-
-	char *file_Path = strcat(vec.at(0), ".tdf");
+	string file_Path = sql.at(0).at(1) + ".tdf";
 
 	//读取文件
 	
@@ -106,13 +108,12 @@ void FieldManage::field_Modify()
 	}
 	in.close();
 
-	
 	for (size_t j = 0; j < vec1.size(); j++) {
 		vector<string> temp2;
 		int m = 0;
 		char *temp3;
 		char temp4[100];
-		for (i = 0; i<vec1.at(j).length(); i++)
+		for (int i = 0; i<vec1.at(j).length(); i++)
 			        temp4[i] = vec1.at(j)[i];
 		 temp4[vec1.at(j).length()] = '\0';
 
@@ -123,39 +124,58 @@ void FieldManage::field_Modify()
 		}
 		vec2.push_back(temp2);
 	}
-	
-	for (size_t j = 0; j < vec2.size(); j++) {
-		if (vec2.at(j).at(0) == vec.at(1))
-		{
-			vec1.erase(vec1.begin() + j);
-			//生成新条件
-			string s;
-			s = vec.at(1);
-			for (size_t i = 1; i < vec2.at(j).size(); i++) {
-				if (i == 1){
-					//strcat(s, " ");
-					//strcat(s, (char*)vec1.at(2).data());
-					s = s + " ";
-					s = s + vec.at(2);
-				}
-				else {
-					//strcat(s, " ");
-					//strcat(s, (char*)vec2.at(j).at(i).data());
-					s = s + " ";
-					s = s + vec2.at(j).at(i);
-				}
-			}
 
-			vec1.insert(vec1.begin() + j, s);
+	//检查要更新的列是否已存在
+	bool isExist = false;
+	
+	for (int i = 2; i < sql.size(); i++) {
+		for (int j = 0; j < vec1.size(); j++)
+			if (vec1.at(j).find(sql.at(i).at(0)) != string::npos)
+				isExist = true;
+		if(!isExist)
+			return "错误！请求更新的字段中有不存在的。";
+		isExist = false;
+	}
+	
+	
+	//修改信息
+	for (int i = 2; i < sql.size(); i++) {
+		for (int j = 0; j < vec2.size(); j++) {
+			if (vec2.at(j).at(1) == sql.at(i).at(0))
+			{
+				vec1.erase(vec1.begin() + j);
+
+				string s;
+				s = std::to_string(j + 1);
+				s += " ";
+				s += sql.at(i).at(0);
+				for (int m = 2; m < vec2.at(j).size(); m++) {
+					if (m == 2) {
+						s += " ";
+						s += sql.at(i).at(1);
+					}
+					else if (m == 3) {
+						s += " ";
+						if (sql.at(i).size() > 2)
+							s += sql.at(i).at(2);
+						else
+							s += "NULL";
+					}
+					else {
+						s = s + " ";
+						s = s + vec2.at(j).at(m);
+					}
+				}
+				vec1.insert(vec1.begin() + j, s);
+			}
 		}
-			
 	}
 	
 	//生成输出信息
-	strcpy(tb, (char*)vec1.at(0).data());
-	for (size_t i = 1; i < vec1.size(); i++) {
-		strcat(tb, "\n");
-		strcat(tb, (char*)vec1.at(i).data());
+	string s;
+	for (int i = 0; i < vec1.size(); i++) {
+		s += vec1.at(i);
+		s += "\n";
 	}
 
 	//修改文件
@@ -163,42 +183,20 @@ void FieldManage::field_Modify()
 	out_file.open(file_Path);
 	if (out_file.is_open())
 	{
-		out_file << tb;
+		out_file << (char*)s.data();
 	}
 
 	out_file.close();
+	return "字段修改成功";
 }
 
-void FieldManage::field_Delete()
+string FieldManage::field_Delete()
 {
-	vector<char*> vec;
-	vector<string> vec1;
-	int i = 1;
-	ofstream out_file;
-	char tb[100] = "";
-	string sqll;
-	for (int i = 0; i<sql.size() - 1; i++)
-		sqll += sql[i];
+	string file_Path = sql.at(0).at(1) + ".tdf";
 
-	char *sqlc = (char*)sqll.data();
-	char *temp;
-
-	temp = strtok(sqlc, " ");
-	while (temp) {
-		if (i == 3)
-			vec.push_back(temp);
-		else if (i == 5)
-			vec.push_back(temp);
-		else if (i >= 6)
-			vec.push_back(temp);
-
-		temp = strtok(NULL, " ");
-		i++;
-	}
-
-	char *file_Path = strcat(vec.at(0), ".tdf");
-
+	//读取文件
 	ifstream in(file_Path);
+	vector<string> vec1;
 	if (!in.is_open())
 	{
 		cout << "Error opening file"; exit(1);
@@ -213,26 +211,37 @@ void FieldManage::field_Delete()
 	}
 	in.close();
 
-	for (int i = 0; i < vec1.size(); i++)
-		if (vec1.at(i).find(vec.at(2)) != string::npos)
-			vec1.erase(vec1.begin() + i);
-		
-	//生成输出信息
-	if (vec.size() < 1) {
-		strcpy(tb, (char*)vec1.at(0).data());
-		for (size_t i = 1; i < vec1.size(); i++) {
-			strcat(tb, "\n");
-			strcat(tb, (char*)vec1.at(i).data());
-		}
+	//检查要删除的列是否已存在
+	bool isExist = false;
+	for (int i = 2; i < sql.size(); i++) {
+		for (int j = 0; j < vec1.size(); j++)
+			if (vec1.at(j).find(sql.at(i).at(0)) != string::npos)
+				isExist = true;
+		if (!isExist)
+			return "错误！请求删除的字段中有不存在的。";
+		isExist = false;
 	}
-	
 
+	//删除列
+	for (int i = 0; i < vec1.size(); i++)
+		for (int j = 2; j < sql.size(); j++) 
+			if (vec1.at(i).find(sql.at(j).at(0)) != string::npos)
+				vec1.erase(vec1.begin() + i);
+
+	//生成输出信息
+	string s;	
+	for (size_t i = 0; i < vec1.size(); i++) {
+		s += vec1.at(i);
+		s += "\n";
+	}
+
+	ofstream out_file;
 	out_file.open(file_Path);
 	if (out_file.is_open())
 	{
-		if(tb!="")
-			out_file << tb;
+		if (s != "")
+			out_file << (char*)s.data();;
 	}
-
 	out_file.close();
+	return "字段删除成功";
 }

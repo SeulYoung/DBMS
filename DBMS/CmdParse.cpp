@@ -283,7 +283,10 @@ string CmdParse::tableAlter()
 		return "参数语句存在错误";
 
 	TableManage tableManage(vAlter);
-	return "Alter table成功";
+	FieldManage fm(vAlter);
+	string msg = fm.manage();
+	return msg;
+	//return "Alter table成功";
 }
 
 string CmdParse::tableDrop()
@@ -399,7 +402,9 @@ string CmdParse::tableInsert()
 		return "values语句后存在错误";
 
 	DataManage dataManage(vInsert);
-	return "Insert数据成功";
+	string msg = dataManage.manage();
+	return msg;
+	//return "Insert数据成功";
 }
 
 
@@ -455,7 +460,9 @@ string CmdParse::tableDelete()
 		return "where语句后存在错误";
 
 	DataManage dataManage(vDelete);
-	return "Delete 数据成功";
+	string msg = dataManage.manage();
+	return msg;
+	//return "Delete 数据成功";
 }
 
 string CmdParse::tableUpdate()

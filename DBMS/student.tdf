@@ -1,0 +1,5 @@
+1 sno varcahr 20 
+2 sname varchar 15
+3 sex varchar 10 
+4 classno varchar 10 
+5 aa int NULL
