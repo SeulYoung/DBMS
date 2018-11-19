@@ -15,6 +15,7 @@ public:
 	
 private:
 	string field_Add();
+	string field_Add1();
 	string field_Modify();
 	string field_Delete();
 

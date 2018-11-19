@@ -19,6 +19,8 @@ string FieldManage::manage()
 		isSuc = field_Modify();
 	else if (sql.at(1).at(0).find("drop") != string::npos || sql.at(1).at(0).find("DROP") != string::npos)
 		isSuc = field_Delete();
+	else if (sql.at(0).at(0) == "create")
+		isSuc=field_Add1();
 	return isSuc;
 }
 
@@ -39,8 +41,7 @@ string FieldManage::field_Add()
 	ifstream in(file_Path);
 	if (!in.is_open())
 	{
-		cout << "Error opening file"; 
-		exit(1);
+		return "请求表不存在";
 	}
 	while (!in.eof())
 	{
@@ -55,6 +56,11 @@ string FieldManage::field_Add()
 			if (vec1.at(j).find(sql.at(i).at(0)) != string::npos)
 				return "错误！请求添加的字段中存在已添加的字段。";
 		}
+	}
+	//检查是否缺少属性
+	for (int i = 2; i < sql.size(); i++) {	
+		if (sql.at(i).size() < 2)
+			return "请求添加的列缺少属性。";
 	}
 
 	//生成信息
@@ -82,6 +88,70 @@ string FieldManage::field_Add()
 	return "字段添加成功";
 }
 
+string FieldManage::field_Add1()
+{
+	ofstream out_file;
+	string s;
+	string file_Path = sql.at(0).at(1) + ".tdf";
+
+	//检查未加入的列是否重复
+	for (int i = 1; i < sql.size(); i++)
+		for (int j = i + 1; j < sql.size(); j++)
+			if (sql.at(i).at(0) == sql.at(j).at(0))
+				return "错误！请求添加的字段名称重复。";
+
+	//检查文件中是否已有为未加入的列
+	vector<string> vec1;
+	ifstream in(file_Path);
+	if (!in.is_open())
+	{
+		return "请求表不存在";
+	}
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec1.push_back(buffer);
+	}
+	in.close();
+	for (int j = 0; j < vec1.size(); j++) {
+		for (int i = 1; i < sql.size(); i++) {
+			if (vec1.at(j).find(sql.at(i).at(0)) != string::npos)
+				return "错误！请求添加的字段中存在已添加的字段。";
+		}
+	}
+	//检查是否缺少属性
+	for (int i = 2; i < sql.size(); i++) {
+		if (sql.at(i).size() < 2)
+			return "请求添加的列缺少属性。";
+	}
+
+	//生成信息
+	int order;
+	for (int i = 1; i < sql.size(); i++) {
+		order = i;
+		order += vec1.size();
+		s += std::to_string(order);
+		s += " ";
+		for (int j = 0; j < sql.at(i).size(); j++) {
+			s += sql.at(i).at(j);
+			s += " ";
+		}
+		if (sql.at(i).size() == 2)
+			s += "NULL";
+		s = s + "\n";
+	}
+
+	out_file.open(file_Path, ios::out | ios::app);
+	if (out_file.is_open())
+	{
+		out_file << (char*)s.data();
+	}
+	out_file.close();
+	return "创建表成功";
+}
+
 string FieldManage::field_Modify()
 {
 	vector<char*> vec;
@@ -95,7 +165,7 @@ string FieldManage::field_Modify()
 	ifstream in(file_Path);
 	if (!in.is_open())
 	{
-		cout << "Error opening file"; exit(1);
+		return "请求表不存在";
 	}
 	
 	while (!in.eof())
@@ -133,9 +203,15 @@ string FieldManage::field_Modify()
 			if (vec1.at(j).find(sql.at(i).at(0)) != string::npos)
 				isExist = true;
 		if(!isExist)
-			return "错误！请求更新的字段中有不存在的。";
+			return "错误！请求更新的字段中有不存在";
 		isExist = false;
 	}
+
+	/*检查是否缺少属性
+	for (int i = 2; i < sql.size(); i++) {
+		if (sql.at(i).size() < 2)
+			return "请求添加的列缺少属性。";
+	}*/
 	
 	
 	//修改信息
@@ -199,7 +275,7 @@ string FieldManage::field_Delete()
 	vector<string> vec1;
 	if (!in.is_open())
 	{
-		cout << "Error opening file"; exit(1);
+		return "请求表不存在";
 	}
 
 	while (!in.eof())
@@ -223,11 +299,19 @@ string FieldManage::field_Delete()
 	}
 
 	//删除列
+	int order;
 	for (int i = 0; i < vec1.size(); i++)
 		for (int j = 2; j < sql.size(); j++) 
-			if (vec1.at(i).find(sql.at(j).at(0)) != string::npos)
+			if (vec1.at(i).find(sql.at(j).at(0)) != string::npos) {
 				vec1.erase(vec1.begin() + i);
-
+				order = i;
+			}
+	for (int i = order; i < vec1.size(); i++) {
+		string subS = std::to_string(i+1);
+		subS += vec1.at(i).substr(1, vec1.at(i).size() - 1);
+		vec1.at(i) =subS ;
+	}
+		
 	//生成输出信息
 	string s;	
 	for (size_t i = 0; i < vec1.size(); i++) {

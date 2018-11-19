@@ -297,8 +297,9 @@ int TableManage::CheckExist(string s)
 	return 0;
 }
 
-int TableManage::CreatDatebase(string s, string & str)
+int TableManage::CreatDatebase( string & str)
 {
+	string s = sql[0][1];
 	string frontpath;
 	string endpath = ".txt";
 	string endpath1 = ".tb";
@@ -313,10 +314,10 @@ int TableManage::CreatDatebase(string s, string & str)
 	string path4 = s + endpath4;
 	string path5 = s + endpath5;
 	int temp = SearchDatebase(s);
-	/*if (temp == 1) {
+	if (temp == 1) {
 	str = "table already exist";
 	return false;
-	}*/
+	}
 	if (ValidDatebase(s) == -1) {
 		str = "tablename over 128";
 		return false;
