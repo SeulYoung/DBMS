@@ -12,9 +12,9 @@ string CmdParse::sqlCheck()
 	regex tCreate("^create table \\w+\\s?\\(.+\\);$");
 	regex tAlter("^alter table \\w+\\s(add|modify|drop)\\s(column|constraint)\\s.+;$");
 	regex tDrop("^drop table \\w+;$");
-	regex tInsert("^insert into \\w+\\s?(\\(.+\\))?\\svalues\\s\\(.+\\);$");
-	regex tDelete("^delete from \\w+\\swhere\\s.+;$");
-	regex tUpdate("^update \\w+\\sset(\\s\\w+=\\w+\\s?,)*(\\s\\w+=\\w+\\s?)(where.+)?;$");
+	regex tInsert("^insert into \\w+\\s?(\\(.+\\))?\\svalues\\s?\\(.+\\);$");
+	regex tDelete("^delete from \\w+\\swhere\\s?\\(?.+\\)?;$");
+	regex tUpdate("^update \\w+\\sset\\s(\\s?\\w+=\\w+\\s?,)*(\\s?\\w+=\\w+\\s)(where.+)?;$");
 	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
 	if (regex_match(sql, dCreate))
@@ -43,17 +43,11 @@ string CmdParse::dbCreate()
 {
 	vector<vector<string>> vCreate;
 
-	int off;
-	if ((off = sql.rfind(';') != string::npos))
-	{
-		vector<string> name;
-		name.push_back("create");
-		string s = sql.substr(16, sql.size() - 17);
-		name.push_back(s);
-		vCreate.push_back(name);
-	}
-	else
-		return "create语句后存在错误";
+	vector<string> name;
+	name.push_back("create");
+	string s = sql.substr(16, sql.size() - 17);
+	name.push_back(s);
+	vCreate.push_back(name);
 
 	DbManage dbManage(vCreate);
 	return "Create database成功";
@@ -63,17 +57,11 @@ string CmdParse::dbDrop()
 {
 	vector<vector<string>> vDrop;
 
-	int off;
-	if ((off = sql.rfind(';') != string::npos))
-	{
-		vector<string> name;
-		name.push_back("drop");
-		string s = sql.substr(14, sql.size() - 15);
-		name.push_back(s);
-		vDrop.push_back(name);
-	}
-	else
-		return "drop语句后存在错误";
+	vector<string> name;
+	name.push_back("drop");
+	string s = sql.substr(14, sql.size() - 15);
+	name.push_back(s);
+	vDrop.push_back(name);
 
 	DbManage dbManage(vDrop);
 	return "Drop database成功";
@@ -82,11 +70,7 @@ string CmdParse::dbDrop()
 string CmdParse::tableCreate()
 {
 	vector<vector<string>> vCreate;
-	/*regex re1("(?<=create table ).+?(?=\\()");
-	regex re2("(?<=\\().+(?=\\))");
-	smatch csm1;
-	smatch csm2;
-	string cstr[2];*/
+
 	int off1;
 	if ((off1 = sql.find('(')) != string::npos)
 	{
@@ -292,20 +276,12 @@ string CmdParse::tableAlter()
 string CmdParse::tableDrop()
 {
 	vector<vector<string>> vDrop;
-	/*regex dre("(?<=drop table )\\w+(?=;)");
-	smatch dsm;*/
 
-	int off;
-	if ((off = sql.rfind(';') != string::npos))
-	{
-		vector<string> name;
-		name.push_back("drop");
-		string s = sql.substr(11, sql.size() - 12);
-		name.push_back(s);
-		vDrop.push_back(name);
-	}
-	else
-		return "drop语句后存在错误";
+	vector<string> name;
+	name.push_back("drop");
+	string s = sql.substr(11, sql.size() - 12);
+	name.push_back(s);
+	vDrop.push_back(name);
 
 	TableManage tableManage(vDrop);
 	return "Drop table成功";
@@ -314,16 +290,12 @@ string CmdParse::tableDrop()
 string CmdParse::tableInsert()
 {
 	vector<vector<string>> vInsert;
-	/*regex re1("(?<=insert into )\.+(?=values)");
-	regex re2("(?<=values\\()\.+(?=\\);)");
-	string istr[2];
-	smatch ism[2];*/
+
 	int off1;
-	if ((off1 = sql.find(" values (")) != string::npos)
+	if ((off1 = sql.find("values")) != string::npos)
 	{
 		vector<string> insert;
 		insert.push_back("insert");
-		//regex rr("(?<=\\().+(?=\\))");
 		smatch rsm;
 		string s = sql.substr(12, off1 - 12);
 
@@ -337,20 +309,10 @@ string CmdParse::tableInsert()
 
 			string ss = s.substr(off2 + 1, s.size() - off2 - 2);
 			smatch rsm1;
-			/*regex rr1("(?<=').+?(?=')");
-			string::const_iterator st = s.begin();
-			string::const_iterator en = s.end();
-
-			while (regex_search(st, en, rsm1, rr1))
-			{
-				if (rsm1.str() != ",")
-					insert.push_back(rsm1.str());
-				st = rsm1[0].second;
-			}*/
 			string stt = "";
 			for (int i = 0; i < ss.size(); i++)
 			{
-				if (ss[i] != ' ' && ss[i] != ',')
+				if (ss[i] != ' ' && ss[i] != ',' && ss[i] != '(' && ss[i] != ')')
 					stt = stt + ss[i];
 
 				if ((ss[i] == ',' || i == ss.size() - 1) && stt != "")
@@ -369,25 +331,15 @@ string CmdParse::tableInsert()
 		return "insert into语句后存在错误";
 
 	int off2;
-	if ((off2 = sql.rfind(");")) != string::npos)
+	if ((off2 = sql.rfind(")")) != string::npos)
 	{
 		vector<string> insert;
-		string s = sql.substr(off1 + 9, off2 - off1 - 9);
-		/*smatch rsm3;
-		regex rr3("(?<=').+?(?=')");
-		string::const_iterator st = s.begin();
-		string::const_iterator en = s.end();
+		string s = sql.substr(off1 + 7, off2 - off1 - 7);
 
-		while (regex_search(st, en, rsm3, rr3))
-		{
-			if (rsm3.str() != ",")
-				insert.push_back(rsm3.str());
-			st = rsm3[0].second;
-		}*/
 		string stt = "";
 		for (int i = 0; i < s.size(); i++)
 		{
-			if (s[i] != ' ' && s[i] != ',')
+			if (s[i] != ' ' && s[i] != ',' && s[i] != '(' && s[i] != ')')
 				stt = stt + s[i];
 
 			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
@@ -411,18 +363,13 @@ string CmdParse::tableInsert()
 string CmdParse::tableDelete()
 {
 	vector<vector<string>> vDelete;
-	/*regex re1("(?<=delete from )\.+(?=where )");
-	regex re2("(?<=where )\.+(?=;)");
-	string dstr[2];
-	smatch dsm[2];
-	string::const_iterator st = sql.begin();
-	string::const_iterator en = sql.end();*/
+
 	int off1;
-	if ((off1 = sql.find("where ")) != string::npos)
+	if ((off1 = sql.find("where")) != string::npos)
 	{
 		vector<string> vdelete;
 		vdelete.push_back("delete");
-		string s = sql.substr(12, off1 - 12);
+		string s = sql.substr(12, off1 - 13);
 		vdelete.push_back(s);
 		vDelete.push_back(vdelete);
 	}
@@ -435,7 +382,27 @@ string CmdParse::tableDelete()
 		vector<string> vdelete;
 		regex rr("(.+?and )|(.+?or )");
 		smatch rrsm;
-		string s = sql.substr(off1 + 6, off2 - off1);
+		string t = sql.substr(off1 + 6, off2 - off1);
+		int off3 = 0, len = t.size();
+		for (int i = 0;; i++)
+		{
+			bool ismodify = false;
+			if (t[i] == ' ' || t[i] == '(')
+			{
+				off3 = i + 1;
+				len--;
+				ismodify = true;
+			}
+			if (t[t.size() - 1 - i] == ';' || t[t.size() - 1 - i] == ')' || t[t.size() - 1 - i] == ' ')
+			{
+				len--;
+				ismodify = true;
+			}
+			if(!ismodify)
+				break;
+		}
+
+		string s = t.substr(off3, len);
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 		bool flag = false;
