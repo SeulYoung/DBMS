@@ -7,6 +7,8 @@ CmdParse::CmdParse(string s)
 
 string CmdParse::sqlCheck()
 {
+	regex dShow("^use \\w+;$");
+	regex dUse("^show databases;$");
 	regex dCreate("^create database \\w+;$");
 	regex dDrop("^drop database \\w+;$");
 	regex tCreate("^create table \\w+\\s?\\(.+\\);$");

@@ -25,7 +25,7 @@
     </property>
     <column>
      <property name="text">
-      <string notr="true">1</string>
+      <string>数据库</string>
      </property>
     </column>
    </widget>
@@ -87,42 +87,50 @@
      <height>23</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="systemMenu">
     <property name="title">
      <string>系统</string>
     </property>
+    <addaction name="refresh"/>
+    <addaction name="exit"/>
    </widget>
-   <widget class="QMenu" name="menu_2">
+   <widget class="QMenu" name="databaseMenu">
     <property name="title">
      <string>数据库</string>
     </property>
+    <addaction name="newDb"/>
+    <addaction name="deleteDb"/>
    </widget>
-   <widget class="QMenu" name="menu_3">
+   <widget class="QMenu" name="tableMenu">
     <property name="title">
      <string>表</string>
     </property>
+    <addaction name="newTable"/>
+    <addaction name="deleteTable"/>
    </widget>
-   <widget class="QMenu" name="menu_4">
+   <widget class="QMenu" name="fieldMenu">
     <property name="title">
      <string>字段</string>
     </property>
+    <addaction name="newField"/>
+    <addaction name="deleteField"/>
    </widget>
-   <widget class="QMenu" name="menu_5">
+   <widget class="QMenu" name="recordMenu">
     <property name="title">
      <string>记录</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menu_6">
+   <widget class="QMenu" name="helpMenu">
     <property name="title">
      <string>帮助</string>
     </property>
    </widget>
-   <addaction name="menu"/>
-   <addaction name="menu_2"/>
-   <addaction name="menu_3"/>
-   <addaction name="menu_4"/>
-   <addaction name="menu_5"/>
-   <addaction name="menu_6"/>
+   <addaction name="systemMenu"/>
+   <addaction name="databaseMenu"/>
+   <addaction name="tableMenu"/>
+   <addaction name="fieldMenu"/>
+   <addaction name="recordMenu"/>
+   <addaction name="helpMenu"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -133,6 +141,46 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="exit">
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
+  <action name="newDb">
+   <property name="text">
+    <string>新建库</string>
+   </property>
+  </action>
+  <action name="refresh">
+   <property name="text">
+    <string>刷新</string>
+   </property>
+  </action>
+  <action name="deleteDb">
+   <property name="text">
+    <string>删除库</string>
+   </property>
+  </action>
+  <action name="newTable">
+   <property name="text">
+    <string>新建表</string>
+   </property>
+  </action>
+  <action name="deleteTable">
+   <property name="text">
+    <string>删除表</string>
+   </property>
+  </action>
+  <action name="newField">
+   <property name="text">
+    <string>新建字段</string>
+   </property>
+  </action>
+  <action name="deleteField">
+   <property name="text">
+    <string>删除字段</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -155,8 +203,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>menuBar</sender>
+   <signal>triggered(QAction*)</signal>
+   <receiver>DBMSClass</receiver>
+   <slot>menuClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>808</x>
+     <y>11</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1061</x>
+     <y>10</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>getCmd()</slot>
+  <slot>menuClicked()</slot>
  </slots>
 </ui>

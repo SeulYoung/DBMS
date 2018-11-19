@@ -13,9 +13,11 @@ public:
 	DBMS(QWidget *parent = Q_NULLPTR);
 
 private:
+	void initTree();
 	Ui::DBMSClass ui;
 	string sql;
 
 public slots:
 	void getCmd();
+	void menuClicked();
 };

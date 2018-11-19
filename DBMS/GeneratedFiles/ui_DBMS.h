@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'DBMS.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.11.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -12,7 +12,6 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
@@ -30,18 +29,26 @@ QT_BEGIN_NAMESPACE
 class Ui_DBMSClass
 {
 public:
+    QAction *exit;
+    QAction *newDb;
+    QAction *refresh;
+    QAction *deleteDb;
+    QAction *newTable;
+    QAction *deleteTable;
+    QAction *newField;
+    QAction *deleteField;
     QWidget *centralWidget;
     QTreeWidget *tree;
     QTableWidget *table;
     QTextEdit *cmdLine;
     QLineEdit *inputLine;
     QMenuBar *menuBar;
-    QMenu *menu;
-    QMenu *menu_2;
-    QMenu *menu_3;
-    QMenu *menu_4;
-    QMenu *menu_5;
-    QMenu *menu_6;
+    QMenu *systemMenu;
+    QMenu *databaseMenu;
+    QMenu *tableMenu;
+    QMenu *fieldMenu;
+    QMenu *recordMenu;
+    QMenu *helpMenu;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -50,12 +57,25 @@ public:
         if (DBMSClass->objectName().isEmpty())
             DBMSClass->setObjectName(QStringLiteral("DBMSClass"));
         DBMSClass->resize(1000, 800);
+        exit = new QAction(DBMSClass);
+        exit->setObjectName(QStringLiteral("exit"));
+        newDb = new QAction(DBMSClass);
+        newDb->setObjectName(QStringLiteral("newDb"));
+        refresh = new QAction(DBMSClass);
+        refresh->setObjectName(QStringLiteral("refresh"));
+        deleteDb = new QAction(DBMSClass);
+        deleteDb->setObjectName(QStringLiteral("deleteDb"));
+        newTable = new QAction(DBMSClass);
+        newTable->setObjectName(QStringLiteral("newTable"));
+        deleteTable = new QAction(DBMSClass);
+        deleteTable->setObjectName(QStringLiteral("deleteTable"));
+        newField = new QAction(DBMSClass);
+        newField->setObjectName(QStringLiteral("newField"));
+        deleteField = new QAction(DBMSClass);
+        deleteField->setObjectName(QStringLiteral("deleteField"));
         centralWidget = new QWidget(DBMSClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         tree = new QTreeWidget(centralWidget);
-        QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
-        __qtreewidgetitem->setText(0, QStringLiteral("1"));
-        tree->setHeaderItem(__qtreewidgetitem);
         tree->setObjectName(QStringLiteral("tree"));
         tree->setGeometry(QRect(0, 0, 341, 451));
         table = new QTableWidget(centralWidget);
@@ -78,18 +98,18 @@ public:
         menuBar = new QMenuBar(DBMSClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 1000, 23));
-        menu = new QMenu(menuBar);
-        menu->setObjectName(QStringLiteral("menu"));
-        menu_2 = new QMenu(menuBar);
-        menu_2->setObjectName(QStringLiteral("menu_2"));
-        menu_3 = new QMenu(menuBar);
-        menu_3->setObjectName(QStringLiteral("menu_3"));
-        menu_4 = new QMenu(menuBar);
-        menu_4->setObjectName(QStringLiteral("menu_4"));
-        menu_5 = new QMenu(menuBar);
-        menu_5->setObjectName(QStringLiteral("menu_5"));
-        menu_6 = new QMenu(menuBar);
-        menu_6->setObjectName(QStringLiteral("menu_6"));
+        systemMenu = new QMenu(menuBar);
+        systemMenu->setObjectName(QStringLiteral("systemMenu"));
+        databaseMenu = new QMenu(menuBar);
+        databaseMenu->setObjectName(QStringLiteral("databaseMenu"));
+        tableMenu = new QMenu(menuBar);
+        tableMenu->setObjectName(QStringLiteral("tableMenu"));
+        fieldMenu = new QMenu(menuBar);
+        fieldMenu->setObjectName(QStringLiteral("fieldMenu"));
+        recordMenu = new QMenu(menuBar);
+        recordMenu->setObjectName(QStringLiteral("recordMenu"));
+        helpMenu = new QMenu(menuBar);
+        helpMenu->setObjectName(QStringLiteral("helpMenu"));
         DBMSClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(DBMSClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -98,15 +118,24 @@ public:
         statusBar->setObjectName(QStringLiteral("statusBar"));
         DBMSClass->setStatusBar(statusBar);
 
-        menuBar->addAction(menu->menuAction());
-        menuBar->addAction(menu_2->menuAction());
-        menuBar->addAction(menu_3->menuAction());
-        menuBar->addAction(menu_4->menuAction());
-        menuBar->addAction(menu_5->menuAction());
-        menuBar->addAction(menu_6->menuAction());
+        menuBar->addAction(systemMenu->menuAction());
+        menuBar->addAction(databaseMenu->menuAction());
+        menuBar->addAction(tableMenu->menuAction());
+        menuBar->addAction(fieldMenu->menuAction());
+        menuBar->addAction(recordMenu->menuAction());
+        menuBar->addAction(helpMenu->menuAction());
+        systemMenu->addAction(refresh);
+        systemMenu->addAction(exit);
+        databaseMenu->addAction(newDb);
+        databaseMenu->addAction(deleteDb);
+        tableMenu->addAction(newTable);
+        tableMenu->addAction(deleteTable);
+        fieldMenu->addAction(newField);
+        fieldMenu->addAction(deleteField);
 
         retranslateUi(DBMSClass);
         QObject::connect(inputLine, SIGNAL(returnPressed()), DBMSClass, SLOT(getCmd()));
+        QObject::connect(menuBar, SIGNAL(triggered(QAction*)), DBMSClass, SLOT(menuClicked()));
 
         QMetaObject::connectSlotsByName(DBMSClass);
     } // setupUi
@@ -114,12 +143,22 @@ public:
     void retranslateUi(QMainWindow *DBMSClass)
     {
         DBMSClass->setWindowTitle(QApplication::translate("DBMSClass", "DBMS", nullptr));
-        menu->setTitle(QApplication::translate("DBMSClass", "\347\263\273\347\273\237", nullptr));
-        menu_2->setTitle(QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", nullptr));
-        menu_3->setTitle(QApplication::translate("DBMSClass", "\350\241\250", nullptr));
-        menu_4->setTitle(QApplication::translate("DBMSClass", "\345\255\227\346\256\265", nullptr));
-        menu_5->setTitle(QApplication::translate("DBMSClass", "\350\256\260\345\275\225", nullptr));
-        menu_6->setTitle(QApplication::translate("DBMSClass", "\345\270\256\345\212\251", nullptr));
+        exit->setText(QApplication::translate("DBMSClass", "\351\200\200\345\207\272", nullptr));
+        newDb->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\345\272\223", nullptr));
+        refresh->setText(QApplication::translate("DBMSClass", "\345\210\267\346\226\260", nullptr));
+        deleteDb->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\345\272\223", nullptr));
+        newTable->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\350\241\250", nullptr));
+        deleteTable->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\350\241\250", nullptr));
+        newField->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\345\255\227\346\256\265", nullptr));
+        deleteField->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\345\255\227\346\256\265", nullptr));
+        QTreeWidgetItem *___qtreewidgetitem = tree->headerItem();
+        ___qtreewidgetitem->setText(0, QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", nullptr));
+        systemMenu->setTitle(QApplication::translate("DBMSClass", "\347\263\273\347\273\237", nullptr));
+        databaseMenu->setTitle(QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", nullptr));
+        tableMenu->setTitle(QApplication::translate("DBMSClass", "\350\241\250", nullptr));
+        fieldMenu->setTitle(QApplication::translate("DBMSClass", "\345\255\227\346\256\265", nullptr));
+        recordMenu->setTitle(QApplication::translate("DBMSClass", "\350\256\260\345\275\225", nullptr));
+        helpMenu->setTitle(QApplication::translate("DBMSClass", "\345\270\256\345\212\251", nullptr));
     } // retranslateUi
 
 };
