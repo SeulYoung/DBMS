@@ -341,12 +341,34 @@ string FieldManage::field_drop()
 string FieldManage::constraint_Add()
 {
 	
-	vector<string> vec1;
-	ifstream in(sql.at(0).at(1) + ".tdf");
-	if (!in.is_open())
+
+	//检查是否存在重复的约束名
+	vector<string> vec3;
+	ifstream in1(sql.at(0).at(1) + ".tic");
+	if (!in1.is_open())
 	{
 		return "请求表不存在";
 	}
+	while (!in1.eof())
+	{
+		char buffer[100];
+		in1.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec3.push_back(buffer);
+	}
+	in1.close();
+
+	for (int i = 0; i < vec3.size(); i++) {
+		if (vec3.at(i).find(sql.at(1).at(1)) != string::npos)
+			return "请求添加的约束名已存在";
+	}
+
+	//生成vec1
+	vector<string> vec1;
+	ifstream in(sql.at(0).at(1) + ".tdf");
+	if (!in.is_open())
+		return "请求表不存在";
+
 	while (!in.eof())
 	{
 		char buffer[100];
@@ -356,30 +378,89 @@ string FieldManage::constraint_Add()
 	}
 	in.close();
 
-	//检查文件中是否已有要添加的字段
-	bool isExist = false;
-	for (int j = 0; j < vec1.size(); j++) {
-		if (vec1.at(j).find(sql.at(1).at(1)) != string::npos) {
-			isExist = true;
-			break;
-		}
-	}
-	if(!isExist)
-		return "错误！请求添加的字段不存在";
-	
-	//生成信息
 	string s;
-	s = sql.at(1).at(1);
-	s += " ";
-	for (int i = 0; i < sql.at(2).size(); i++) {
-		s += sql.at(2).at(i);
-		s += " ";
-	}
-	s += "\n";
+	bool isExist = false;
+	if (sql.at(2).at(1).find("default") != string::npos || sql.at(2).at(1) == "not null")
+	{
+		//检查文件中是否已有要添加的字段
+		for (int j = 0; j < vec1.size(); j++) {
+			if (vec1.at(j).find(sql.at(2).at(0)) != string::npos) {
+				isExist = true;
+				break;
+			}
+		}
+		if (!isExist)
+			return "错误！请求添加的字段不存在";
 
+		s = sql.at(1).at(1);
+		s += " ";
+		for (int i = 0; i < sql.at(2).size(); i++) {
+			s += sql.at(2).at(i);
+			s += " ";
+		}
+		s += "\n";
+
+	}
+	else if (sql.at(2).at(0).find("primary") != string::npos || sql.at(2).at(0) == "unique")
+	{
+		if (sql.at(2).at(1).find(",") != string::npos)
+		{
+			size_t pos = sql.at(2).at(1).find(",");
+			string temp1 = sql.at(2).at(1).substr(0, pos);
+			string temp2 = sql.at(2).at(1).substr(pos+1, sql.at(2).at(1).size());
+			sql.at(2).erase(sql.at(2).begin() + 1);
+			sql.at(2).push_back(temp1);
+			sql.at(2).push_back(temp2);
+		}
+		//检查文件中是否已有要添加的字段
+		for (int i = 1; i < sql.at(2).size(); i++) {
+			for (int j = 0; j < vec1.size(); j++) {
+				if (vec1.at(j).find(sql.at(2).at(i)) != string::npos) {
+					isExist = true;
+					break;
+				}	
+			}
+			if (!isExist)
+				return "错误！请求添加的字段不存在";
+			isExist = false;
+		}
+		s = "";
+		for (int i = 1; i < sql.at(2).size(); i++) {
+			s += sql.at(1).at(1);
+			s += " ";
+			s += sql.at(2).at(i);
+			s += " ";
+			s += sql.at(2).at(0);
+			s += "\n";
+		}		
+	}
+	else if (sql.at(2).at(0) == "foreign key")
+	{
+		//检查文件中是否已有要添加的字段
+		for (int j = 0; j < vec1.size(); j++) {
+			if (vec1.at(j).find(sql.at(2).at(1)) != string::npos) {
+				isExist = true;
+				break;
+			}
+		}
+		if (!isExist)
+			return "错误！请求添加的字段不存在";
+
+		s = sql.at(1).at(1);
+		s += " ";
+		s += sql.at(2).at(1);
+		s += " ";
+		s += sql.at(2).at(0);
+		s += " ";
+		size_t pos = sql.at(3).at(0).find(" ");
+		string temp = sql.at(3).at(0).substr(pos +1, sql.at(3).at(0).size());
+		s += temp;
+		s += "\n";
+	}
+	
 	string file_Path = sql.at(0).at(1) + ".tic";
 	ofstream out_file;
-	out_file.open(file_Path);
+	out_file.open(file_Path, ios::out | ios::app);
 
 	if (out_file.is_open())
 		out_file << (char*)s.data();
@@ -405,17 +486,6 @@ string FieldManage::constraint_drop()
 	}
 	in.close();
 
-	//检查文件中是否已有要删除约束的字段
-	bool isExist = false;
-	for (int j = 0; j < vec1.size(); j++) {
-		if (vec1.at(j).find(sql.at(1).at(1)) != string::npos) {
-			isExist = true;
-			break;
-		}
-	}
-	if (!isExist)
-		return "错误！请求删除约束的字段不存在";
-
 	//读取约束文件
 	vector<string> vec3;
 	ifstream in1(sql.at(0).at(1) + ".tic");
@@ -433,9 +503,15 @@ string FieldManage::constraint_drop()
 	in1.close();
 
 	//删除约束
+	bool isExist = false;
 	for (int i = 0; i < vec3.size(); i++)
-		if (vec3.at(i).find(sql.at(1).at(1)) != string::npos) 
+		if (vec3.at(i).find(sql.at(1).at(1)) != string::npos) {
 			vec3.erase(vec3.begin() + i);
+			isExist = true;
+			break;
+		}
+	if (!isExist)
+		return "错误！请求删除的约束不存在";
 
 	//生成输出信息
 	string s;
