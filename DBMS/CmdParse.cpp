@@ -188,7 +188,7 @@ string CmdParse::tableAlter()
 		return "alter table”Ôæ‰∫Û¥Ê‘⁄¥ÌŒÛ";
 
 	int off2;
-	if ((off2 = sql.find("column ")) != string::npos)
+	if ((off2 = sql.find("column")) != string::npos)
 	{
 		vector<string> temp;
 		temp.push_back(sql.substr(off1 + 1, off2 - off1 + 5));
@@ -245,7 +245,7 @@ string CmdParse::tableAlter()
 			st = rsm[0].second;
 		}
 	}
-	else if ((off2 = sql.find("constraint ")) != string::npos)
+	else if ((off2 = sql.find("constraint")) != string::npos)
 	{
 		vector<string> temp;
 		temp.push_back(sql.substr(off1 + 1, off2 - off1 + 9));
@@ -262,7 +262,7 @@ string CmdParse::tableAlter()
 				if ((off4 = sql.find('(', off3 + 1)) != string::npos)
 				{
 					vector<string> alter;
-					alter.push_back(sql.substr(off3 + 1, off4 - off3 - 2));
+					alter.push_back(sql.substr(off3 + 1, off4 - off3 - 1));
 					int off5 = sql.find(')', off4 + 1);
 					alter.push_back(sql.substr(off4 + 1, off5 - off4 - 1));
 					vAlter.push_back(alter);
@@ -615,13 +615,13 @@ string CmdParse::preSql(string s) //”Ôæ‰‘§¥¶¿Ì
 
 string CmdParse::preWhere(string s)
 {
-	int off3 = 0, len = s.size();
+	int off = 0, len = s.size();
 	for (int i = 0;; i++)
 	{
 		bool ismodify = false;
 		if (s[i] == ' ' || s[i] == '(')
 		{
-			off3 = i + 1;
+			off = i + 1;
 			len--;
 			ismodify = true;
 		}
@@ -634,5 +634,5 @@ string CmdParse::preWhere(string s)
 			break;
 	}
 
-	return s.substr(off3, len);
+	return s.substr(off, len);
 }

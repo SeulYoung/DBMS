@@ -14,10 +14,12 @@ public:
 
 private:
 	void initTree();
+
 	Ui::DBMSClass ui;
 	string sql;
 
 public slots:
 	void getCmd();
 	void menuClicked();
+	void treeClicked(QTreeWidgetItem *item, int col);
 };

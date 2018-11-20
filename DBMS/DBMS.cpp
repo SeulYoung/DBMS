@@ -10,27 +10,14 @@ DBMS::DBMS(QWidget *parent)
 }
 
 void DBMS::initTree()
-{	
-	/*QTreeWidgetItem* B = new QTreeWidgetItem(QStringList() << "B");
-	QTreeWidgetItem* C = new QTreeWidgetItem(QStringList() << "C");
-	ui.tree->addTopLevelItem(A);
-	ui.tree->addTopLevelItem(B);
-	ui.tree->addTopLevelItem(C);*/
+{
 	for (int j = 0; j < 3; j++)
 	{
-		QTreeWidgetItem* A = new QTreeWidgetItem(QStringList() << "A");
+		QTreeWidgetItem *db = new QTreeWidgetItem(ui.tree, QStringList() << "db");
 		for (int i = 0; i < 3; ++i)
 		{
-			QStringList columItemList;
-			QTreeWidgetItem *child;
-			QString key, value;
-			key += "a" + QString::number(i);
-			value += QString::number(i);
-			columItemList << key << value;
-			child = new QTreeWidgetItem(columItemList);
-			A->addChild(child);
+			QTreeWidgetItem *table = new QTreeWidgetItem(db, QStringList() << "table");
 		}
-		ui.tree->addTopLevelItem(A);
 	}
 }
 
@@ -57,5 +44,27 @@ void DBMS::menuClicked()
 	if (action == "ÍË³ö")
 	{
 		exit(0);
+	}
+}
+
+void DBMS::treeClicked(QTreeWidgetItem *item, int col)
+{
+	if (item->parent() == NULL)
+		return;
+	else if (item->childCount() == 0)
+	{
+		QTreeWidgetItem *table = item->parent();
+		ui.table->setColumnCount(3);
+		ui.table->setRowCount(3);
+		ui.table->setHorizontalHeaderLabels(QStringList() << "col1" << "col2" << "col3");
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 3; j++)
+			{
+				ui.table->setItem(i, j, new QTableWidgetItem("item"));
+			}
+	}
+	else
+	{
+
 	}
 }
