@@ -17,27 +17,32 @@
 	return 0;
 }*/
 
-
 DbManage::DbManage(vector<vector<string>> s)
 {
-	sql = s;
 }
 
-DbManage::~DbManage()
+vector<vector<string>> DbManage::getDbs()
 {
-
+	return vector<vector<string>>();
 }
-
 
 void DbManage::CreateDatabase()
 {
 
-	char d_name[128];
-	std::string name = sql[0][1];
-	strcpy_s(d_name,name.c_str());
-	char d_path[256];
-	bool d_type = false;
+	string d_name;
+	//SYSTEMTIME d_time;
+	string d_path;
+	string d_type;
 
+	cout << "Enter database name:";
+	getline(cin, d_name);
+	d_name += ".db";
+	cout << "Enter save path:";
+	getline(cin, d_path);
+	cout << "Enter database type:";
+	getline(cin, d_type);
+
+	//GetLocalTime(&d_time);
 	time_t now;
 	struct tm today;
 	time(&now);
@@ -46,37 +51,26 @@ void DbManage::CreateDatabase()
 	strftime(d_time, 128, "%D %H:%M:%S", &today);//获取当前时间
 
 												 //cout << d_name.size() << endl;
-	if (sizeof(d_name) > 128)
+	if (d_name.size() > 128)
 	{
-		//cout << "Size of Database name should less than 128" << endl;
+		cout << "Size of Database name should less than 128" << endl;
 		return;
 	}
-
-	ofstream out;
 	FILE *file;
 	FILE *new_file;
 	if ((fopen_s(&file, "ruanko.db", "r")) != 0) {
-		_mkdir("data//ruanko");
-		fopen_s(&file, "data//ruanko//ruanko.tb", "w");
-		fclose(file);
-		fopen_s(&file, "data//ruanko//ruanko.log", "w");
-		fclose(file);
 		fopen_s(&file, "ruanko.db", "w");
-		fclose(file);
-		out.open("ruanko.db",ios::binary);
-		string str = "Name\t\tPath\t\tCreate_at\t\tType\n";
-		out << str;
-		str ="ruanko\t\tdata//ruanko\t\t"+(string)d_time+"\t\ttrue\n";
-		out << str;
+		const char *str = "Name\t\tPath\t\tCreate_at\t\tType\n";
+		fwrite(str, sizeof(char), strlen(str), file);
 	}
 	else {
 		fclose(file);
-		out.open("ruanko.db",ios::binary|ios::app);
+		fopen_s(&file, "ruanko.db", "ab+");
 	}
 
 
 	char new_name[256];
-/*	if (d_path != "") {
+	if (d_path != "") {
 		string d_file = d_path + "//" + d_name;
 		strcpy_s(new_name, d_file.c_str());
 	}
@@ -84,13 +78,7 @@ void DbManage::CreateDatabase()
 		d_path = " ";
 		strcpy_s(new_name, d_name.c_str());
 	}
-*/
-	strcpy_s(new_name, "data//");
-	strcat_s(new_name, d_name);
-	strcpy_s(d_path, new_name);
-	strcat_s(new_name, "//");
-	strcat_s(new_name, d_name);
-	strcat_s(new_name, ".log");
+
 	if ((fopen_s(&new_file, new_name, "r")) == 0) {
 		cout << "Existed database!" << endl;
 		//fclose(new_file);
@@ -98,28 +86,15 @@ void DbManage::CreateDatabase()
 		return;
 	}
 	else {
-		//string command;
-		string s = d_path;
-		_mkdir(s.c_str());
 		fopen_s(&new_file, new_name, "w");
-		fclose(new_file);
-		fopen_s(&new_file, new_name, "w");
-		fclose(new_file);
-		fopen_s(&new_file, new_name, "w");
-		fclose(new_file);
-		string a1 = d_name;
-		string a2 = d_path;
-		string a3 = d_time;
-
-		string s1 = a1 + "\t" + a2 + "\t" + a3 + "\t" + "false" + "\n";
-		out << s1;
-		/*char str[1024];
+		string s1 = d_name + "\t" + d_path + "\t" + d_time + "\t" + d_type + "\n";
+		char str[1024];
 		strcpy_s(str, s1.c_str());
-		fwrite(str, sizeof(char), strlen(str), file);*/
+		fwrite(str, sizeof(char), strlen(str), file);
 	}
-	out.close();
 	fclose(file);
 	fclose(new_file);
+	return;
 }
 
 void DbManage::DeleteDatabase()

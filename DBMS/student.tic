@@ -1,2 +1,0 @@
-pk_PersonID sno primary key
-emp_deptno_fk sname foreign key dept

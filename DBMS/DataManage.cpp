@@ -20,7 +20,7 @@ string DataManage::manage()
 		msg = data_update();
 	else if (sql.at(0).at(0) == "select" || sql.at(0).at(0) == "SELECT")
 		msg = data_select();
-	return string();
+	return msg;
 }
 
 const vector<string> DataManage::explode(const string & s, const char & c)
@@ -42,13 +42,20 @@ string DataManage::data_insert()
 {
 	ofstream out_file;
 	string s = "";
-	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app | ios::binary);
+	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app );
 	bool isNull = true;
 	string msg;
 	
 	if (isColumn())
 	{
-		len_check();
+		if (!len_check()) {
+			return "数据长度不符合约束";
+		}
+		string con_c = con_check();
+		if (con_c != "约束检查成功") {
+			return con_c;
+		}
+
 		if (sql.at(0).size() > 2) {									//若有指定列
 			for (int i = 0; i < vec2.size(); i++) {					//从tdf文件中的列检查
 				isNull = true;
@@ -326,15 +333,111 @@ bool DataManage::isColumn()
 
 string DataManage::con_check()
 {
-	return false;
+	vector<string> vec3;
+	vector<vector<string>> vec4;
+
+	ifstream in(sql.at(0).at(1) + ".tic");
+	if (!in.is_open())
+	{
+		return"请求表不存在。";
+	}
+	//生成vec3
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec3.push_back(buffer);
+	}
+	in.close();
+
+	//生成vec4
+	for (size_t j = 0; j < vec3.size(); j++) {
+		vector<string> temp_vec;
+		char *temp3;
+		char temp4[100];
+		for (int i = 0; i<vec3.at(j).length(); i++)
+			temp4[i] = vec3.at(j)[i];
+		temp4[vec3.at(j).length()] = '\0';
+
+		temp3 = strtok(temp4, " ");
+		while (temp3) {
+			temp_vec.push_back(temp3);
+			temp3 = strtok(NULL, " ");
+		}
+		vec4.push_back(temp_vec);
+	}
+
+	//检查约束
+	string isSuc;
+	for (int i = 2; i < sql.at(0).size(); i++) {
+		for (int j = 0; j < vec4.size(); j++) {
+			if (sql.at(0).at(i) == vec4.at(j).at(1)) {
+				isSuc = con_parse(i, j, vec4);
+				if (isSuc != "约束检查成功")
+					return isSuc;
+			}
+		}
+	}
+
+	//检查not null;
+	bool isNull = false;
+	if (sql.at(0).size() > 2) {
+		for (int j = 0; j < vec4.size(); j++) {
+			if (vec4.at(j).at(2) == "not") {
+				for (int i = 2; i < sql.at(0).size(); i++) {
+					if (sql.at(0).at(i) == vec4.at(j).at(1)) {
+						isNull = true;
+						break;
+					}
+				}
+			}
+			if (!isNull)
+				return "数据不符合非空约束";
+		}
+	}
+	
+	return "约束检查成功";
+}
+
+string DataManage::con_parse(int pos1, int pos2,vector<vector<string>> vec4)
+{
+	string con_re = "约束检查成功";
+
+	if (vec4.at(pos2).at(2) == "primary")
+	{
+
+	}
+	else if (vec4.at(pos2).at(2) == "foreign")
+	{
+
+	}
+	else if (vec4.at(pos2).at(2) == "default")
+	{
+		if (sql.at(1).at(pos1-2)!=vec4.at(pos2).at(3))
+			con_re = "数据不符合default约束";
+	}
+	else
+	{
+		con_re = "约束检查成功";
+	}
+	return con_re;
 }
 
 bool DataManage::len_check()
 {
-	//读取文件
 	if (sql.at(0).size() > 2) {
 		for (int i = 2; i < sql.at(0).size(); i++) {
-
+			for (int j = 0; j < vec2.size(); j++) {
+				if (sql.at(0).at(i) == vec2.at(j).at(1))
+				{
+					int size = atoi(vec2.at(j).at(3).c_str());
+					if (sql.at(1).at(i-2).size() > size)
+						return false;
+					else
+						break;
+				}
+			}
 		}
 	}
 	else {
@@ -349,12 +452,11 @@ bool DataManage::len_check()
 
 void DataManage::getfieldV()
 {
-
 	ifstream in(sql.at(0).at(1) + ".tdf");
 	if (!in.is_open())
 	{
 		cout << "Error opening file";
-		exit(1);
+		//exit(1);
 	}
 	//生成vec1
 	while (!in.eof())
@@ -363,7 +465,6 @@ void DataManage::getfieldV()
 		in.getline(buffer, sizeof(buffer));
 		if (strlen(buffer) != 0)
 			vec1.push_back(buffer);
-
 	}
 	in.close();
 
