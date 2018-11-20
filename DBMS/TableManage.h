@@ -32,7 +32,7 @@ public:
 	int CreatDatebase( string & str);	//创建表
 	int ValidDatebase(string s);	//表明小于128
 	int AlterDatebase();
-	int DeleteDatebase(string s, string & str);	//删除表
+	int DeleteDatebase(string & str);	//删除表
 	int DeleteDir(string s);		//删除文件夹
 
 private:

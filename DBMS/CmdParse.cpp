@@ -309,7 +309,14 @@ string CmdParse::tableDrop()
 	vDrop.push_back(name);
 
 	TableManage tableManage(vDrop);
-	return "Drop table成功";
+	string str;
+	if (tableManage.DeleteDatebase(str) == 1) {
+		return "删除表成功";
+	}
+	else
+	{
+		return str;
+	};
 }
 
 string CmdParse::tableInsert()

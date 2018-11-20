@@ -133,10 +133,10 @@ int TableManage::SaveInfo(string s)
 
 int TableManage::SearchDatebase(string s)
 {
-	string path = "D:\\Memory\\mymemory";
+	string path = "D:\\GitHub\\DBMS";
 	vector<string> files;
 	getFiles(path, files);
-	string temp = "D:\\Memory\\mymemory\\" + s + ".tb";
+	string temp = "D:\\GitHub\\DBMS\\" + s + ".tb";
 	//char str[30];
 	int size = files.size();
 	for (int i = 0; i < size; i++)
@@ -315,7 +315,7 @@ int TableManage::CreatDatebase( string & str)
 	string path5 = s + endpath5;
 	int temp = SearchDatebase(s);
 	if (temp == 1) {
-	str = "table already exist";
+	str = "table already exist"; 
 	return false;
 	}
 	if (ValidDatebase(s) == -1) {
@@ -367,14 +367,14 @@ int TableManage::AlterDatebase()
 	return 0;
 }
 
-int TableManage::DeleteDatebase(string s, string & str)
+int TableManage::DeleteDatebase(string & str)
 {
-
+	string s = sql[0][1];
 	//string path = m_strPath + '\\' + filename;
 	// int remove(char *filename);
 	// 删除文件，成功返回0，否则返回-1
 	if (SearchDatebase(s) == 0) {
-		str = "not exist";
+		str = "table not exist";
 		//cout << "not exist";
 		return 0;
 	}
@@ -393,12 +393,12 @@ int TableManage::DeleteDatebase(string s, string & str)
 	{
 		str = "delete false";
 		cout << "delete false" << endl;
-		getchar();
+	
 		return false;
 	}
 	str = "delete table successful";
 	/*cout << "delete table successful" << endl;*/
-	getchar();
+	
 	return 1;
 }
 
