@@ -13,8 +13,10 @@ using namespace std;
 class DbManage
 {
 public:
+	DbManage() {};
 	DbManage(vector<vector<string>> s);
-	~DbManage();
+	~DbManage() {};
+	vector<vector<string>> getDbs();
 	void CreateDatabase();
 	void DeleteDatabase();
 	const vector<string> explode(const string& s, const char& c);

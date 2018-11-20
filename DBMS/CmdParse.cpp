@@ -1,11 +1,6 @@
 #include "CmdParse.h"
 
-CmdParse::CmdParse(string s)
-{
-	sql = preSql(s);
-}
-
-string CmdParse::sqlCheck()
+string CmdParse::sqlCheck(string s)
 {
 	regex dShow("^use \\w+;$");
 	regex dUse("^show databases;$");
@@ -19,6 +14,7 @@ string CmdParse::sqlCheck()
 	regex tUpdate("^update \\w+\\sset\\s(\\s?\\w+=\\w+\\s?,)*(\\s?\\w+=\\w+\\s)(where.+)?;$");
 	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
+	sql = preSql(s);
 	if (regex_match(sql, dCreate))
 		return dbCreate();
 	else if (regex_match(sql, dDrop))
@@ -39,6 +35,21 @@ string CmdParse::sqlCheck()
 		return tableSelect();
 
 	return "不支持的Sql语句";
+}
+
+vector<vector<string>> CmdParse::getDbs()
+{
+	return vector<vector<string>>();
+}
+
+vector<vector<string>> CmdParse::getTableInfo(string db, string table)
+{
+	return vector<vector<string>>();
+}
+
+vector<string> CmdParse::getField(string db, string table, string col)
+{
+	return vector<string>();
 }
 
 string CmdParse::dbCreate()
@@ -188,7 +199,7 @@ string CmdParse::tableAlter()
 		return "alter table语句后存在错误";
 
 	int off2;
-	if ((off2 = sql.find("column ")) != string::npos)
+	if ((off2 = sql.find("column")) != string::npos)
 	{
 		vector<string> temp;
 		temp.push_back(sql.substr(off1 + 1, off2 - off1 + 5));
@@ -245,7 +256,7 @@ string CmdParse::tableAlter()
 			st = rsm[0].second;
 		}
 	}
-	else if ((off2 = sql.find("constraint ")) != string::npos)
+	else if ((off2 = sql.find("constraint")) != string::npos)
 	{
 		vector<string> temp;
 		temp.push_back(sql.substr(off1 + 1, off2 - off1 + 9));
@@ -262,7 +273,7 @@ string CmdParse::tableAlter()
 				if ((off4 = sql.find('(', off3 + 1)) != string::npos)
 				{
 					vector<string> alter;
-					alter.push_back(sql.substr(off3 + 1, off4 - off3 - 2));
+					alter.push_back(sql.substr(off3 + 1, off4 - off3 - 1));
 					int off5 = sql.find(')', off4 + 1);
 					alter.push_back(sql.substr(off4 + 1, off5 - off4 - 1));
 					vAlter.push_back(alter);
@@ -510,8 +521,11 @@ string CmdParse::tableUpdate()
 		vUpdate.push_back(update);
 	}
 
+	/*DataManage dataManage(vUpdate);
+	return "Update 数据成功";*/
 	DataManage dataManage(vUpdate);
-	return "Update 数据成功";
+	string msg = dataManage.manage();
+	return msg;
 }
 
 string CmdParse::tableSelect()
@@ -622,13 +636,13 @@ string CmdParse::preSql(string s) //语句预处理
 
 string CmdParse::preWhere(string s)
 {
-	int off3 = 0, len = s.size();
+	int off = 0, len = s.size();
 	for (int i = 0;; i++)
 	{
 		bool ismodify = false;
 		if (s[i] == ' ' || s[i] == '(')
 		{
-			off3 = i + 1;
+			off = i + 1;
 			len--;
 			ismodify = true;
 		}
@@ -641,5 +655,5 @@ string CmdParse::preWhere(string s)
 			break;
 	}
 
-	return s.substr(off3, len);
+	return s.substr(off, len);
 }

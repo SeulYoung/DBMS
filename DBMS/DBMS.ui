@@ -23,6 +23,9 @@
       <height>451</height>
      </rect>
     </property>
+    <attribute name="headerVisible">
+     <bool>true</bool>
+    </attribute>
     <column>
      <property name="text">
       <string>数据库</string>
@@ -219,9 +222,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>tree</sender>
+   <signal>itemDoubleClicked(QTreeWidgetItem*,int)</signal>
+   <receiver>DBMSClass</receiver>
+   <slot>treeClicked(QTreeWidgetItem*,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-88</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>getCmd()</slot>
   <slot>menuClicked()</slot>
+  <slot>treeClicked(QTreeWidgetItem*,int)</slot>
  </slots>
 </ui>

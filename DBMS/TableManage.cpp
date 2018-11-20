@@ -31,11 +31,10 @@ TableManage::TableManage(vector<vector<string>> s)
 	sql = s;
 }
 
-TableManage::~TableManage()
+vector<vector<string>> TableManage::getTableInfo(string db, string table)
 {
+	return vector<vector<string>>();
 }
-
-
 
 void TableManage::ListDatebase(string s)
 {
@@ -413,7 +412,6 @@ int TableManage::DeleteDir(string s)
 	getchar();
 	return 0;
 }
-
 
 string TableManage::CharToStr(char * contentChar) {
 	string tempStr;

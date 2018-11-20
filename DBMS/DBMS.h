@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QTextCursor.h>
+#include <set>
 #include "ui_DBMS.h"
 #include "CmdParse.h"
 
@@ -14,10 +15,13 @@ public:
 
 private:
 	void initTree();
+
 	Ui::DBMSClass ui;
+	CmdParse cp;
 	string sql;
 
 public slots:
 	void getCmd();
 	void menuClicked();
+	void treeClicked(QTreeWidgetItem *item, int col);
 };

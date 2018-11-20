@@ -6,31 +6,27 @@ DBMS::DBMS(QWidget *parent)
 	ui.setupUi(this);
 	this->setFixedSize(this->width(), this->height());
 
-	initTree();
+	//initTree();
 }
 
 void DBMS::initTree()
-{	
-	/*QTreeWidgetItem* B = new QTreeWidgetItem(QStringList() << "B");
-	QTreeWidgetItem* C = new QTreeWidgetItem(QStringList() << "C");
-	ui.tree->addTopLevelItem(A);
-	ui.tree->addTopLevelItem(B);
-	ui.tree->addTopLevelItem(C);*/
-	for (int j = 0; j < 3; j++)
+{
+	vector<vector<string>> dbs = cp.getDbs();
+	set<string> add;
+	QTreeWidgetItem *root;
+	for (auto db : dbs)
 	{
-		QTreeWidgetItem* A = new QTreeWidgetItem(QStringList() << "A");
-		for (int i = 0; i < 3; ++i)
+		// 数据库节点
+		if (add.find(db[0]) != add.end())
 		{
-			QStringList columItemList;
-			QTreeWidgetItem *child;
-			QString key, value;
-			key += "a" + QString::number(i);
-			value += QString::number(i);
-			columItemList << key << value;
-			child = new QTreeWidgetItem(columItemList);
-			A->addChild(child);
+			add.insert(db[0]);
+			root = new QTreeWidgetItem(ui.tree, QStringList() << QString::fromStdString(db[0]));
 		}
-		ui.tree->addTopLevelItem(A);
+		// 表节点
+		QTreeWidgetItem *table = new QTreeWidgetItem(root, QStringList() << QString::fromStdString(db[1]));
+		// 字段
+		for (int i = 2; i < db.size(); i++)
+			QTreeWidgetItem *col = new QTreeWidgetItem(table, QStringList() << QString::fromStdString(db[i]));
 	}
 }
 
@@ -41,8 +37,7 @@ void DBMS::getCmd()
 	sql += s.toStdString();
 	if (s[s.size() - 1] == ';')
 	{
-		CmdParse cp(sql);
-		string s = cp.sqlCheck();
+		string s = cp.sqlCheck(sql);
 		ui.cmdLine->append(QString::fromLocal8Bit(s.c_str()));
 		sql = "";
 	}
@@ -57,5 +52,41 @@ void DBMS::menuClicked()
 	if (action == "退出")
 	{
 		exit(0);
+	}
+}
+
+void DBMS::treeClicked(QTreeWidgetItem *item, int col)
+{
+	QTreeWidgetItem *parent = item->parent();
+	if (parent == NULL)
+		return;
+	else if (item->childCount() == 0)
+	{
+		string d = parent->parent()->text(0).toStdString();
+		string t = parent->text(parent->columnCount()).toStdString();
+		string f = item->text(item->columnCount()).toStdString();
+		vector<string> field = cp.getField(d, t, f);
+
+		ui.table->setRowCount(field.size());
+		ui.table->setColumnCount(1);
+		ui.table->setHorizontalHeaderLabels(QStringList() << QString::fromStdString(f));
+		for (int i = 0; i < field.size(); i++)
+			ui.table->setItem(0, i, new QTableWidgetItem(QString::fromStdString(field[i])));
+	}
+	else
+	{
+		string d = parent->text(0).toStdString();
+		string t = item->text(item->columnCount()).toStdString();
+		vector<vector<string>> table = cp.getTableInfo(d, t);
+
+		ui.table->setRowCount(table.size());
+		ui.table->setColumnCount(table[0].size());
+		QStringList header;
+		for (auto s : table[0])
+			header << QString::fromStdString(s);
+		ui.table->setHorizontalHeaderLabels(header);
+		for (int i = 1; i < table.size(); i++)
+			for (int j = 0; j < table[i].size(); j++)
+				ui.table->setItem(i - 1, j, new QTableWidgetItem(QString::fromStdString(table[i][j])));
 	}
 }

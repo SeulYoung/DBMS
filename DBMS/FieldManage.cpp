@@ -1,14 +1,13 @@
 #include "FieldManage.h"
 
-
-
 FieldManage::FieldManage(vector<vector<string>> s)
 {
 	sql = s;
 }
 
-FieldManage::~FieldManage()
+vector<string> FieldManage::getField(string db, string table, string col)
 {
+	return vector<string>();
 }
 
 string FieldManage::manage()

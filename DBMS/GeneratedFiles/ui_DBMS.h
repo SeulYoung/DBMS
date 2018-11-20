@@ -78,6 +78,7 @@ public:
         tree = new QTreeWidget(centralWidget);
         tree->setObjectName(QStringLiteral("tree"));
         tree->setGeometry(QRect(0, 0, 341, 451));
+        tree->header()->setVisible(true);
         table = new QTableWidget(centralWidget);
         table->setObjectName(QStringLiteral("table"));
         table->setGeometry(QRect(349, 0, 651, 451));
@@ -136,6 +137,7 @@ public:
         retranslateUi(DBMSClass);
         QObject::connect(inputLine, SIGNAL(returnPressed()), DBMSClass, SLOT(getCmd()));
         QObject::connect(menuBar, SIGNAL(triggered(QAction*)), DBMSClass, SLOT(menuClicked()));
+        QObject::connect(tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), DBMSClass, SLOT(treeClicked(QTreeWidgetItem*,int)));
 
         QMetaObject::connectSlotsByName(DBMSClass);
     } // setupUi
