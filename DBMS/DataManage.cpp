@@ -83,7 +83,31 @@ string DataManage::data_delete()
 
 string DataManage::data_update()
 {
-	return string();
+	ofstream out_file;
+	string s = "";
+	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app | ios::binary);
+	bool isNull = true;
+	//截取字符串 得到指定行
+
+	//要更新字段字符串
+	for (int i = 0; i < sql[1].size(); i++) {
+		size_t pos = sql.at(1).at(i).find("=");
+		string temp1 = sql.at(1).at(i).substr(0, pos);
+		string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
+	}
+	//条件判断字符串
+
+
+
+
+	//判断指定行是否存在
+	//判断约束条件
+	//取值更新
+
+
+
+	return "ok";
+
 }
 
 string DataManage::data_select()

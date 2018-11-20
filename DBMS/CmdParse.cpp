@@ -510,8 +510,11 @@ string CmdParse::tableUpdate()
 		vUpdate.push_back(update);
 	}
 
+	/*DataManage dataManage(vUpdate);
+	return "Update 数据成功";*/
 	DataManage dataManage(vUpdate);
-	return "Update 数据成功";
+	string msg = dataManage.manage();
+	return msg;
 }
 
 string CmdParse::tableSelect()
