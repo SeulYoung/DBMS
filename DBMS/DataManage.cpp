@@ -93,25 +93,143 @@ string DataManage::data_update()
 {
 	ofstream out_file;
 	string s = "";
+	vector<vector<string>> modify;
+	
+	vector<vector<string>> judge;
 	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app | ios::binary);
 	bool isNull = true;
 	//截取字符串 得到指定行
 
 	//要更新字段字符串
 	for (int i = 0; i < sql[1].size(); i++) {
+		vector<string> temp;
 		size_t pos = sql.at(1).at(i).find("=");
 		string temp1 = sql.at(1).at(i).substr(0, pos);
 		string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
+		temp.push_back(temp1);
+		temp.push_back(temp2);
+		modify.push_back(temp);
 	}
 	//条件判断字符串
+	for (int i = 0; i < sql[2].size(); i++) {
+		vector<string> temp;
+		if (sql.at(2).at(i).find("=") != string::npos) {
+			if (sql.at(2).at(i).find("and") != string::npos) {
+				size_t pos1 = sql.at(2).at(i).find("and");
+				size_t pos = sql.at(2).at(i).find("=");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1-3);
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+			else {
+				size_t pos = sql.at(2).at(i).find("=");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+		}
+		else if (sql.at(2).at(i).find("<") != string::npos) {
+			size_t pos = sql.at(2).at(i).find("<");
+			string temp1 = sql.at(2).at(i).substr(0, pos);
+			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+			temp.push_back(temp1);
+			temp.push_back(temp2);
+			temp.push_back(std::to_string(2));
+			judge.push_back(temp);
+		}
+		else if (sql.at(2).at(i).find(">") != string::npos) {
+			size_t pos = sql.at(2).at(i).find(">");
+			string temp1 = sql.at(2).at(i).substr(0, pos);
+			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+			temp.push_back(temp1);
+			temp.push_back(temp2);
+			temp.push_back(std::to_string(3));
+			judge.push_back(temp);
+		}
+	}
+	getfieldV();
+	int modify_flag = 0, judge_flag = 0;
 
+	//检查要插入的列是否已经存在
+	for (int i = 0; i < modify.size(); i++) {
+		bool signal = false;
+		for (int j = 0; j < vec1.size(); j++) {
+			if (modify.at(i).at(0) == vec2.at(j).at(1)) {
+				signal = true;
+				break;
+			}
+		}
+		if (!signal)
+			modify_flag = 1;
+	}
+	for (int i = 0; i < judge.size(); i++) {
+		bool signal = false;
+		for (int j = 0; j < vec1.size(); j++) {
+			if (judge.at(i).at(0) == vec2.at(j).at(1)) {
+				signal = true;
+				break;
+			}
+		}
+		if (!signal)
+			judge_flag = 1;
+	}
 
+	/*if (modify_flag || judge_flag) {
+		
+		return "修改的列不存在";
+	}*/
 
-
-	//判断指定行是否存在
 	//判断约束条件
-	//取值更新
 
+
+
+	//取出数据表中的值
+	string name = sql[0][1];
+	string path = name + ".trd";
+	vector<vector<string>> rst;
+	ifstream fin1(path);
+	string line;
+	int fieldNum = vec1.size();
+	while (!fin1.eof()) {
+		vector<string> oneLine;
+		for (int i = 0; i < fieldNum; i++) {
+			string temp;
+			fin1 >> temp;
+			if (!temp.compare(""))
+				break;
+			oneLine.push_back(temp);
+		}
+		rst.push_back(oneLine);
+	}
+	//取值更新
+	/*int signal = 0;
+	for (int i = 0; i < judge.size(); i++) {
+		for (int j = 0; j < vec1.size(); j++) {
+			if (judge.at(i).at(0) == vec2.at(j).at(1) && judge.at(i).at(1)= " "  ) {
+				signal = true;
+			}
+		}
+	}*/
+	
+	int pos1 ,pos2;
+	
+	for (int i = 0; i < judge.size(); i++) {
+		for (int j = 0; j < vec2.size(); j++) {
+			if (vec2.at(j).at(1) == judge.at(0).at(0)) {
+				pos1 = i;
+			}
+			if (vec2.at(j).at(1) == judge.at(1).at(0)) {
+				pos2 = i;
+			}
+		}
+	}
+	
 
 
 	return "ok";

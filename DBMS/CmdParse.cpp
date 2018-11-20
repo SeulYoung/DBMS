@@ -537,8 +537,9 @@ string CmdParse::tableSelect()
 	{
 		vector<string> attribute;
 		attribute.push_back("select");
-		string stt = "";
+
 		string s = sql.substr(7, off1 - 7);
+		string stt = "";
 		for (int i = 0; i < s.size(); i++)
 		{
 			if (s[i] != ' ' && s[i] != ',')
@@ -555,12 +556,22 @@ string CmdParse::tableSelect()
 	else
 		return "select from语句后存在错误";
 
+	vector<vector<string>> temp;
 	int off2;
-	if ((off2 = sql.rfind("where")) != string::npos || (off2 = sql.rfind(";")) != string::npos)
+	if ((off2 = sql.rfind("order by")) != string::npos)
 	{
-		vector<string> tablename;
+		vector<string> condition;
+		condition.push_back("order by");
+
+		string ss = "";
+		int off3;
+		if ((off3 = sql.rfind("asc")) != string::npos || (off3 = sql.rfind("desc")) != string::npos)
+			ss = sql.substr(off3, sql.size() - off3 - 1);
+		else
+			off3 = sql.size() - 1;
+
+		string s = sql.substr(off2 + 9, off3 - off2 - 9);
 		string stt = "";
-		string s = sql.substr(off1 + 11, off2 - off1 - 11);
 		for (int i = 0; i < s.size(); i++)
 		{
 			if (s[i] != ' ' && s[i] != ',')
@@ -568,22 +579,27 @@ string CmdParse::tableSelect()
 
 			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
 			{
-				tablename.push_back(stt);
+				condition.push_back(stt);
 				stt = "";
 			}
 		}
-		vSelect.push_back(tablename);
+		if (ss != "")
+			condition.push_back(ss);
+
+		temp.push_back(condition);
 	}
 	else
-		return "from语句后存在错误";
+		off2 = sql.size() - 1;
 
 	int off3;
-	if (sql.rfind("where") != string::npos && (off3 = sql.rfind(";")) != string::npos)
+	if ((off3 = sql.rfind("having")) != string::npos)
 	{
 		vector<string> condition;
+		condition.push_back("having");
+
 		regex sr("(.+?and )|(.+?or )");
 		smatch srsm;
-		string s = preWhere(sql.substr(off2 + 6, off3 - off2 - 6));
+		string s = preWhere(sql.substr(off3 + 7, off2 - off3 - 7));
 		string::const_iterator st = s.begin();
 		string::const_iterator en = s.end();
 		bool flag = false;
@@ -602,8 +618,92 @@ string CmdParse::tableSelect()
 		else
 			condition.push_back(s);
 
-		vSelect.push_back(condition);
+		temp.push_back(condition);
 	}
+	else
+		off3 = off2;
+
+	int off4;
+	if ((off4 = sql.rfind("group by")) != string::npos)
+	{
+		vector<string> condition;
+		condition.push_back("group by");
+
+		string s = sql.substr(off4 + 9,off3 - off4 - 9);
+		string stt = "";
+		for (int i = 0; i < s.size(); i++)
+		{
+			if (s[i] != ' ' && s[i] != ',')
+				stt = stt + s[i];
+
+			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
+			{
+				condition.push_back(stt);
+				stt = "";
+			}
+		}
+		temp.push_back(condition);
+	}
+	else
+		off4 = off3;
+
+	int off5;
+	if ((off5 = sql.rfind("where")) != string::npos)
+	{
+		vector<string> condition;
+		condition.push_back("where");
+
+		regex sr("(.+?and )|(.+?or )");
+		smatch srsm;
+		string s = preWhere(sql.substr(off5 + 6, off4 - off5 - 6));
+		string::const_iterator st = s.begin();
+		string::const_iterator en = s.end();
+		bool flag = false;
+
+		while (regex_search(st, en, srsm, sr))
+		{
+			flag = true;
+			condition.push_back(srsm.str());
+			st = srsm[0].second;
+		}
+		if (flag)
+		{
+			regex_search(st, en, srsm, regex(".+"));
+			condition.push_back(srsm.str());
+		}
+		else
+			condition.push_back(s);
+
+		temp.push_back(condition);
+	}
+	else
+		off5 = off4;
+
+	int off6;
+	if ((off6 = sql.rfind(";")) != string::npos)
+	{
+		vector<string> tablename;
+		string s = sql.substr(off1 + 5, off5 - off1 - 5);
+		string stt = "";
+		for (int i = 0; i < s.size(); i++)
+		{
+			if (s[i] != ' ' && s[i] != ',')
+				stt = stt + s[i];
+
+			if ((s[i] == ',' || i == s.size() - 1) && stt != "")
+			{
+				tablename.push_back(stt);
+				stt = "";
+			}
+		}
+		vSelect.push_back(tablename);
+	}
+	else
+		return "from语句后存在错误";
+
+	for (auto t = temp.rbegin(); t != temp.rend(); t++)
+		vSelect.push_back(*t);
+
 	DataManage dataManage(vSelect);
 	dataManage.manage();
 	return "Select数据成功";
@@ -613,20 +713,20 @@ string CmdParse::preSql(string s) //语句预处理
 {
 	const int count = s.size();
 	string sql = "";
-	int flag = 0; //标记
+	bool flag = false; //标记
 	int n = 0;
 	for (int i = 0; i < count; i++)
 		if (s[i] != ' ')
 		{
 			sql += s[i];
 			n++;
-			flag = 1;
+			flag = true;
 		}
-		else if (s[i] == ' ' && flag == 1)
+		else if (s[i] == ' ' && flag)
 		{
 			sql += s[i];
 			n++;
-			flag = 0;
+			flag = false;
 		}
 
 	if (sql[n - 1] == ' ')
