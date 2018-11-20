@@ -44,7 +44,7 @@ void DBMS::disConnAll()
 
 void DBMS::closeEvent(QCloseEvent *event)
 {
-	switch (QMessageBox::information(this, tr("提示"), tr("你确定退出该软件？"), tr("确定"), tr("取消"), 0, 1))
+	switch (QMessageBox::information(this, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("你确定退出该软件？"), QString::fromLocal8Bit("确定"), QString::fromLocal8Bit("取消"), 0, 1))
 	{
 	case 0:
 		event->accept();
