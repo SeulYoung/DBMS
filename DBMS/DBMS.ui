@@ -23,6 +23,9 @@
       <height>451</height>
      </rect>
     </property>
+    <attribute name="headerVisible">
+     <bool>true</bool>
+    </attribute>
     <column>
      <property name="text">
       <string>数据库</string>
@@ -204,18 +207,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>menuBar</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>table</sender>
+   <signal>itemChanged(QTableWidgetItem*)</signal>
    <receiver>DBMSClass</receiver>
-   <slot>menuClicked()</slot>
+   <slot>tableChanged(QTableWidgetItem*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>808</x>
-     <y>11</y>
+     <x>732</x>
+     <y>261</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1061</x>
-     <y>10</y>
+     <x>1062</x>
+     <y>263</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tree</sender>
+   <signal>itemDoubleClicked(QTreeWidgetItem*,int)</signal>
+   <receiver>DBMSClass</receiver>
+   <slot>treeClicked(QTreeWidgetItem*,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-88</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>
@@ -223,5 +242,7 @@
  <slots>
   <slot>getCmd()</slot>
   <slot>menuClicked()</slot>
+  <slot>treeClicked(QTreeWidgetItem*,int)</slot>
+  <slot>tableChanged(QTableWidgetItem*)</slot>
  </slots>
 </ui>

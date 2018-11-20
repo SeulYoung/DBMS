@@ -33,6 +33,7 @@ string DataManage::data_insert()
 	
 	if (isColumn())
 	{
+		len_check();
 		if (sql.at(0).size() > 2) {									//若有指定列
 			for (int i = 0; i < vec2.size(); i++) {					//从tdf文件中的列检查
 				isNull = true;
@@ -262,18 +263,22 @@ string DataManage::con_check()
 	return false;
 }
 
-string DataManage::len_check()
+bool DataManage::len_check()
 {
 	//读取文件
 	if (sql.at(0).size() > 2) {
-
-	}
-	else {
-		for (int i = 0; i < sql.at(1).size(); i++) {
+		for (int i = 2; i < sql.at(0).size(); i++) {
 
 		}
 	}
-	return "true";
+	else {
+		for (int i = 0; i < sql.at(1).size(); i++) {
+			int size = atoi(vec2.at(i).at(3).c_str());
+			if (sql.at(1).at(i).size() > size)
+				return false;
+		}
+	}
+	return true;
 }
 
 void DataManage::getfieldV()

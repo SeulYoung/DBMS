@@ -9,8 +9,10 @@ using namespace std;
 class FieldManage
 {
 public:
+	FieldManage() {};
 	FieldManage(vector<vector<string>> s);
-	~FieldManage();
+	~FieldManage() {};
+	vector<string> getField(string db, string table, string col);
 	string manage();
 	
 private:
