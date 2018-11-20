@@ -19,8 +19,10 @@ public:
 	string crtime;
 	string mtime;
 
+	TableManage() {};
 	TableManage(vector<vector<string>> s);
-	~TableManage();
+	~TableManage() {};
+	vector<vector<string>> getTableInfo(string db, string table);
 	string CharToStr(char * contentChar);
 	void ListDatebase(string s);	//列出表
 	string getCurenttime();      //得到当前时间

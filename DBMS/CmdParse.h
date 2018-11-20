@@ -10,9 +10,12 @@
 class CmdParse
 {
 public:
-	CmdParse(string s);
+	CmdParse() {};
 	~CmdParse() {};
-	string sqlCheck();
+	string sqlCheck(string s);
+	vector<vector<string>> getDbs();
+	vector<vector<string>> getTableInfo(string db,string table);
+	vector<string> getField(string db,string table,string col);
 
 private:
 	string dbCreate();

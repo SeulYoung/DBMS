@@ -17,15 +17,14 @@
 	return 0;
 }*/
 
-
 DbManage::DbManage(vector<vector<string>> s)
 {
 }
 
-DbManage::~DbManage()
+vector<vector<string>> DbManage::getDbs()
 {
+	return vector<vector<string>>();
 }
-
 
 void DbManage::CreateDatabase()
 {

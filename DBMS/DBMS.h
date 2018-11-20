@@ -16,6 +16,7 @@ private:
 	void initTree();
 
 	Ui::DBMSClass ui;
+	CmdParse cp;
 	string sql;
 
 public slots:

@@ -1,11 +1,6 @@
 #include "CmdParse.h"
 
-CmdParse::CmdParse(string s)
-{
-	sql = preSql(s);
-}
-
-string CmdParse::sqlCheck()
+string CmdParse::sqlCheck(string s)
 {
 	regex dShow("^use \\w+;$");
 	regex dUse("^show databases;$");
@@ -19,6 +14,7 @@ string CmdParse::sqlCheck()
 	regex tUpdate("^update \\w+\\sset\\s(\\s?\\w+=\\w+\\s?,)*(\\s?\\w+=\\w+\\s)(where.+)?;$");
 	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
+	sql = preSql(s);
 	if (regex_match(sql, dCreate))
 		return dbCreate();
 	else if (regex_match(sql, dDrop))
@@ -39,6 +35,21 @@ string CmdParse::sqlCheck()
 		return tableSelect();
 
 	return "不支持的Sql语句";
+}
+
+vector<vector<string>> CmdParse::getDbs()
+{
+	return vector<vector<string>>();
+}
+
+vector<vector<string>> CmdParse::getTableInfo(string db, string table)
+{
+	return vector<vector<string>>();
+}
+
+vector<string> CmdParse::getField(string db, string table, string col)
+{
+	return vector<string>();
 }
 
 string CmdParse::dbCreate()
