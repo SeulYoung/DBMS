@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+
 using namespace std;
 
 class DataManage
@@ -22,7 +23,7 @@ private:
 	string data_select();
 	bool isColumn();	
 	string con_check();
-	string len_check();
+	bool len_check();
 	void getfieldV();
 };
 
