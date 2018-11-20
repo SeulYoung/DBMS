@@ -341,6 +341,8 @@ string CmdParse::tableInsert()
 		insert.push_back("insert");
 		smatch rsm;
 		string s = sql.substr(12, off1 - 12);
+		if (s[s.size() - 1] == ' ')
+			s.erase(s.size() - 1);
 
 		int off2;
 		if ((off2 = s.find("(")) != string::npos)
@@ -730,7 +732,7 @@ string CmdParse::preSql(string s) //”Ôæ‰‘§¥¶¿Ì
 		}
 
 	if (sql[n - 1] == ' ')
-		sql.erase(n - 1, 1);
+		sql.erase(n - 1);
 	return sql;
 }
 
