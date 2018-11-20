@@ -62,8 +62,8 @@ string CmdParse::dbCreate()
 	name.push_back(s);
 	vCreate.push_back(name);
 
-	TableManage tm(vCreate);
-	//tm.CreatDatebase();
+	DbManage dm(vCreate);
+	dm.CreateDatabase();
 	return "Create database³É¹¦";
 }
 
