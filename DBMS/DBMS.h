@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QTextCursor.h>
+#include <set>
 #include "ui_DBMS.h"
 #include "CmdParse.h"
 
