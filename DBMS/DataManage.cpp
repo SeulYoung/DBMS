@@ -29,7 +29,8 @@ string DataManage::data_insert()
 	string s = "";
 	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app | ios::binary);
 	bool isNull = true;
-
+	string msg;
+	
 	if (isColumn())
 	{
 		if (sql.at(0).size() > 2) {									//若有指定列
@@ -75,13 +76,71 @@ string DataManage::data_insert()
 
 string DataManage::data_delete()
 {
-	//读取文件
-	vector<string> vec1;
+	//读取tdf文件
+	getfieldV();
+	return "数据删除成功";
+}
 
-	ifstream in("student.trd");
+string DataManage::data_update()
+{
+	return string();
+}
+
+string DataManage::data_select()
+{
+	return string();
+}
+
+//判断是否是已存在的列
+bool DataManage::isColumn()
+{
+	//读取.tdf文件
+	getfieldV();
+
+	//检查要插入的列是否已经存在
+	bool signal = false;
+	if (sql.at(0).size() > 2) {
+		for (int i = 2; i < sql.at(0).size(); i++) {
+			for (int j = 0; j < vec2.size(); j++) {
+				if (sql.at(0).at(i) == vec2.at(j).at(1))
+					signal = true;
+			}
+			if (!signal)
+				return signal;
+		}
+	}
+	else
+		signal = true;
+	return signal;
+	
+}
+
+string DataManage::con_check()
+{
+	return false;
+}
+
+string DataManage::len_check()
+{
+	//读取文件
+	if (sql.at(0).size() > 2) {
+
+	}
+	else {
+		for (int i = 0; i < sql.at(1).size(); i++) {
+
+		}
+	}
+	return "true";
+}
+
+void DataManage::getfieldV()
+{
+
+	ifstream in(sql.at(0).at(1) + ".tdf");
 	if (!in.is_open())
 	{
-		cout << "Error opening file"; 
+		cout << "Error opening file";
 		exit(1);
 	}
 	//生成vec1
@@ -111,71 +170,4 @@ string DataManage::data_delete()
 		}
 		vec2.push_back(temp_vec);
 	}
-}
-
-string DataManage::data_update()
-{
-	return string();
-}
-
-string DataManage::data_select()
-{
-	return string();
-}
-
-//判断是否是已存在的列
-bool DataManage::isColumn()
-{
-	//读取文件
-	vector<string> vec1;
-	bool signal = false;
-	
-	ifstream in(sql.at(0).at(1)+".tdf");
-	if (!in.is_open())
-	{
-		cout << "Error opening file"; exit(1);
-	}
-	//生成vec1
-	while (!in.eof())
-	{
-		char buffer[100];
-		in.getline(buffer, sizeof(buffer));
-		if (strlen(buffer) != 0)
-			vec1.push_back(buffer);
-
-	}
-	in.close();
-
-	//生成vec2
-	for (size_t j = 0; j < vec1.size(); j++) {
-		vector<string> temp_vec;
-		char *temp3;
-		char temp4[100];
-		for (int i = 0; i<vec1.at(j).length(); i++)
-			temp4[i] = vec1.at(j)[i];
-		temp4[vec1.at(j).length()] = '\0';
-
-		temp3 = strtok(temp4, " ");
-		while (temp3) {
-			temp_vec.push_back(temp3);
-			temp3 = strtok(NULL, " ");
-		}
-		vec2.push_back(temp_vec);
-	}
-
-	//检查要插入的列是否已经存在
-	if (sql.at(0).size() > 2) {
-		for (int i = 2; i < sql.at(0).size(); i++) {
-			for (int j = 0; j < vec2.size(); j++) {
-				if (sql.at(0).at(i) == vec2.at(j).at(1))
-					signal = true;
-			}
-			if (!signal)
-				return signal;
-		}
-	}
-	else
-		signal = true;
-	return signal;
-	//检查加入的数据是否符合约束
 }

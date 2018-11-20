@@ -340,19 +340,7 @@ string FieldManage::field_drop()
 
 string FieldManage::constraint_Add()
 {
-	vector<string> vec1;
-	ifstream in(sql.at(0).at(1) + ".tdf");
-	if (!in.is_open())
-		return "请求表不存在";
 	
-	while (!in.eof())
-	{
-		char buffer[100];
-		in.getline(buffer, sizeof(buffer));
-		if (strlen(buffer) != 0)
-			vec1.push_back(buffer);
-	}
-	in.close();
 
 	//检查是否存在重复的约束名
 	vector<string> vec3;
@@ -374,6 +362,21 @@ string FieldManage::constraint_Add()
 		if (vec3.at(i).find(sql.at(1).at(1)) != string::npos)
 			return "请求添加的约束名已存在";
 	}
+
+	//生成vec1
+	vector<string> vec1;
+	ifstream in(sql.at(0).at(1) + ".tdf");
+	if (!in.is_open())
+		return "请求表不存在";
+
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec1.push_back(buffer);
+	}
+	in.close();
 
 	string s;
 	bool isExist = false;

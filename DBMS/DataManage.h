@@ -13,12 +13,16 @@ public:
 	
 private:
 	vector<vector<string>> sql;
+	vector<string> vec1;
 	vector<vector<string>> vec2;
 
 	string data_insert();
 	string data_delete();
 	string data_update();
 	string data_select();
-	bool isColumn();					
+	bool isColumn();	
+	string con_check();
+	string len_check();
+	void getfieldV();
 };
 
