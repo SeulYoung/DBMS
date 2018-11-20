@@ -12,10 +12,19 @@ DBMS::DBMS(QWidget *parent)
 void DBMS::initTree()
 {
 	vector<vector<string>> dbs = cp.getDbs();
+	set<string> add;
+	QTreeWidgetItem *root;
 	for (auto db : dbs)
 	{
-		QTreeWidgetItem *root = new QTreeWidgetItem(ui.tree, QStringList() << QString::fromStdString(db[0]));
+		// 数据库节点
+		if (add.find(db[0]) != add.end())
+		{
+			add.insert(db[0]);
+			root = new QTreeWidgetItem(ui.tree, QStringList() << QString::fromStdString(db[0]));
+		}
+		// 表节点
 		QTreeWidgetItem *table = new QTreeWidgetItem(root, QStringList() << QString::fromStdString(db[1]));
+		// 字段
 		for (int i = 2; i < db.size(); i++)
 			QTreeWidgetItem *col = new QTreeWidgetItem(table, QStringList() << QString::fromStdString(db[i]));
 	}
