@@ -23,6 +23,21 @@ string DataManage::manage()
 	return string();
 }
 
+const vector<string> DataManage::explode(const string & s, const char & c)
+{
+	string buff{ "" };
+	vector<string> v;
+
+	for (auto n : s)
+	{
+		if (n != c) buff += n;
+		else if (n == c && buff != "") { v.push_back(buff); buff = ""; }
+	}
+	if (buff != "") v.push_back(buff);
+
+	return v;
+}
+
 string DataManage::data_insert()
 {
 	ofstream out_file;
@@ -231,7 +246,58 @@ string DataManage::data_update()
 
 string DataManage::data_select()
 {
-	return string();
+	//判断表是否存在
+	//string path="";
+	//char p[256];
+	//FILE *file;
+	ifstream in;
+	vector<string> line;
+	for (size_t i = 0; i < sql[1].size(); i++) {
+		/*path = "data//ku//";
+		path += sql[1][i];
+		path += ".tdf";
+		strcpy_s(p, path.c_str());*/
+		//in.open("data//kuming//" + sql[1][i] + ".tdf");
+		in.open("aa.tdf");
+		if (!in.is_open())
+		{
+			return "查找的表不存在";
+		}
+		char buffer[128];
+		while (!in.eof()) {
+			in.getline(buffer, sizeof(buffer));
+			line.push_back(buffer);
+		}
+		contents1.push_back(line);
+		line.clear();
+		in.close();
+	}
+	int s_num=sql[0].size();//select column number;
+	vector<string> get;
+	bool judge = false;
+	for (size_t i = 0; i < contents1.size(); i++) {
+		vector<string> v = contents1[i];//v代表某tdf内容 
+		for (size_t j = 0; j < v.size(); j++) {
+			line = this->explode(v[j], ' ');//line代表某行内容
+			for (size_t k = 1; k < sql[0].size(); k++) {
+				if (sql[0][k]==line[1]) {
+					//判断是否在其他表中读到
+					if (std::count(get.begin(),get.end(),line[1])==0) {
+						get.push_back(line[1]);
+						r_slct << sql[0][k];
+						r_slct << "/t";
+						s_num--;
+					}
+				}
+			}
+		}
+	}
+	if (s_num == 0)judge = true;
+	else {
+		return "查找的列不存在";
+	}
+	string str=r_slct.str();
+	return str;
 }
 
 //判断是否是已存在的列

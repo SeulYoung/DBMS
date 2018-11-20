@@ -152,16 +152,6 @@ void DbManage::DeleteDatabase()
 		return;
 	}
 	fclose(f);
-	//检测是否有人正在使用库
-	/*CString strFilename = _T(new_name);
-	CFile file;
-	file.Open(strFilename, CFile::modeReadWrite);
-	if (!file.GetFileName().IsEmpty())
-	{
-		cout << "文件被占用" << endl;
-		return;
-	}*/
-	//file.Close();
 
 	string d_file;
 	if (d_path != " ") {
