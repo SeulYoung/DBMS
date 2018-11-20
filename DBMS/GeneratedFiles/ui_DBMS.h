@@ -136,7 +136,7 @@ public:
 
         retranslateUi(DBMSClass);
         QObject::connect(inputLine, SIGNAL(returnPressed()), DBMSClass, SLOT(getCmd()));
-        QObject::connect(menuBar, SIGNAL(triggered(QAction*)), DBMSClass, SLOT(menuClicked()));
+        QObject::connect(table, SIGNAL(itemChanged(QTableWidgetItem*)), DBMSClass, SLOT(tableChanged(QTableWidgetItem*)));
         QObject::connect(tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), DBMSClass, SLOT(treeClicked(QTreeWidgetItem*,int)));
 
         QMetaObject::connectSlotsByName(DBMSClass);

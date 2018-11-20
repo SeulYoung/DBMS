@@ -6,6 +6,9 @@ DBMS::DBMS(QWidget *parent)
 	ui.setupUi(this);
 	this->setFixedSize(this->width(), this->height());
 
+	connect(ui.refresh, SIGNAL(triggered()), this, SLOT(sysAction()));
+	connect(ui.exit, SIGNAL(triggered()), this, SLOT(sysAction()));
+	connect(ui.newDb, SIGNAL(triggered()), this, SLOT(dbAction()));
 	//initTree();
 }
 
@@ -30,8 +33,31 @@ void DBMS::initTree()
 	}
 }
 
+void DBMS::disConnAll()
+{
+	disconnect(ui.deleteDb, SIGNAL(triggered()), this, SLOT(dbAction()));
+	disconnect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+	disconnect(ui.deleteTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+	disconnect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+	disconnect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+}
+
+void DBMS::closeEvent(QCloseEvent *event)
+{
+	switch (QMessageBox::information(this, tr("提示"), tr("你确定退出该软件？"), tr("确定"), tr("取消"), 0, 1))
+	{
+	case 0:
+		event->accept();
+		break;
+	case 1:
+		event->ignore();
+		break;
+	}
+}
+
 void DBMS::getCmd()
 {
+	disConnAll();
 	QString s = ui.inputLine->text();
 	ui.cmdLine->append(s);
 	sql += s.toStdString();
@@ -44,22 +70,15 @@ void DBMS::getCmd()
 	ui.inputLine->clear();
 }
 
-void DBMS::menuClicked()
-{
-	QAction *qa = ui.menuBar->activeAction();
-	QString action = qa->text();
-
-	if (action == "退出")
-	{
-		exit(0);
-	}
-}
-
 void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 {
+	disConnAll();
 	QTreeWidgetItem *parent = item->parent();
 	if (parent == NULL)
-		return;
+	{
+		connect(ui.deleteDb, SIGNAL(triggered()), this, SLOT(dbAction()));
+		connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+	}
 	else if (item->childCount() == 0)
 	{
 		string d = parent->parent()->text(0).toStdString();
@@ -72,6 +91,9 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		ui.table->setHorizontalHeaderLabels(QStringList() << QString::fromStdString(f));
 		for (int i = 0; i < field.size(); i++)
 			ui.table->setItem(0, i, new QTableWidgetItem(QString::fromStdString(field[i])));
+
+		connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+		connect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
 	}
 	else
 	{
@@ -88,5 +110,34 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		for (int i = 1; i < table.size(); i++)
 			for (int j = 0; j < table[i].size(); j++)
 				ui.table->setItem(i - 1, j, new QTableWidgetItem(QString::fromStdString(table[i][j])));
+
+		connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+		connect(ui.deleteTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+		connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
 	}
+}
+
+void DBMS::tableChanged(QTableWidgetItem *item)
+{
+}
+
+void DBMS::sysAction()
+{
+	QString s = sender()->objectName();
+	if (s == "refresh")
+		initTree();
+	else
+		this->close();
+}
+
+void DBMS::dbAction()
+{
+}
+
+void DBMS::tableAction()
+{
+}
+
+void DBMS::fieldAction()
+{
 }
