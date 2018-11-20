@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'DBMS.ui'
 **
-** Created by: Qt User Interface Compiler version 5.9.5
+** Created by: Qt User Interface Compiler version 5.11.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -12,7 +12,6 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
@@ -145,23 +144,23 @@ public:
 
     void retranslateUi(QMainWindow *DBMSClass)
     {
-        DBMSClass->setWindowTitle(QApplication::translate("DBMSClass", "DBMS", Q_NULLPTR));
-        exit->setText(QApplication::translate("DBMSClass", "\351\200\200\345\207\272", Q_NULLPTR));
-        newDb->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\345\272\223", Q_NULLPTR));
-        refresh->setText(QApplication::translate("DBMSClass", "\345\210\267\346\226\260", Q_NULLPTR));
-        deleteDb->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\345\272\223", Q_NULLPTR));
-        newTable->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\350\241\250", Q_NULLPTR));
-        deleteTable->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\350\241\250", Q_NULLPTR));
-        newField->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\345\255\227\346\256\265", Q_NULLPTR));
-        deleteField->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\345\255\227\346\256\265", Q_NULLPTR));
+        DBMSClass->setWindowTitle(QApplication::translate("DBMSClass", "DBMS", nullptr));
+        exit->setText(QApplication::translate("DBMSClass", "\351\200\200\345\207\272", nullptr));
+        newDb->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\345\272\223", nullptr));
+        refresh->setText(QApplication::translate("DBMSClass", "\345\210\267\346\226\260", nullptr));
+        deleteDb->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\345\272\223", nullptr));
+        newTable->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\350\241\250", nullptr));
+        deleteTable->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\350\241\250", nullptr));
+        newField->setText(QApplication::translate("DBMSClass", "\346\226\260\345\273\272\345\255\227\346\256\265", nullptr));
+        deleteField->setText(QApplication::translate("DBMSClass", "\345\210\240\351\231\244\345\255\227\346\256\265", nullptr));
         QTreeWidgetItem *___qtreewidgetitem = tree->headerItem();
-        ___qtreewidgetitem->setText(0, QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", Q_NULLPTR));
-        systemMenu->setTitle(QApplication::translate("DBMSClass", "\347\263\273\347\273\237", Q_NULLPTR));
-        databaseMenu->setTitle(QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", Q_NULLPTR));
-        tableMenu->setTitle(QApplication::translate("DBMSClass", "\350\241\250", Q_NULLPTR));
-        fieldMenu->setTitle(QApplication::translate("DBMSClass", "\345\255\227\346\256\265", Q_NULLPTR));
-        recordMenu->setTitle(QApplication::translate("DBMSClass", "\350\256\260\345\275\225", Q_NULLPTR));
-        helpMenu->setTitle(QApplication::translate("DBMSClass", "\345\270\256\345\212\251", Q_NULLPTR));
+        ___qtreewidgetitem->setText(0, QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", nullptr));
+        systemMenu->setTitle(QApplication::translate("DBMSClass", "\347\263\273\347\273\237", nullptr));
+        databaseMenu->setTitle(QApplication::translate("DBMSClass", "\346\225\260\346\215\256\345\272\223", nullptr));
+        tableMenu->setTitle(QApplication::translate("DBMSClass", "\350\241\250", nullptr));
+        fieldMenu->setTitle(QApplication::translate("DBMSClass", "\345\255\227\346\256\265", nullptr));
+        recordMenu->setTitle(QApplication::translate("DBMSClass", "\350\256\260\345\275\225", nullptr));
+        helpMenu->setTitle(QApplication::translate("DBMSClass", "\345\270\256\345\212\251", nullptr));
     } // retranslateUi
 
 };
