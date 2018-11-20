@@ -23,6 +23,7 @@ private:
 	string data_select();
 	bool isColumn();	
 	string con_check();
+	string con_parse(int,string);
 	bool len_check();
 	void getfieldV();
 };

@@ -1,2 +1,4 @@
 pk_PersonID sno primary key
 emp_deptno_fk sname foreign key dept
+sex_con sex not null 
+clano_con classno default '1604' 
