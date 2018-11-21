@@ -295,7 +295,7 @@ int TableManage::CheckExist(string s)
 int TableManage::CreatDatebase(string & str)
 {
 	string s = sql[0][1];
-	string frontpath;
+	string frontpath = "\\data\\" + dbName+"\\";
 	
 	string endpath1 = ".tb";
 	string endpath2 = ".tdf";

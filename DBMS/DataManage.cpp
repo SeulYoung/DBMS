@@ -525,7 +525,73 @@ string DataManage::data_update()
 
 	//判断约束条件
 	//default ,not null, unique ,check ,primary key,foreign key
+	vector<string> vec3;
+	vector<vector<string>> vec4;
 
+	ifstream in(sql.at(0).at(1) + ".tic");
+	if (!in.is_open())
+	{
+		return"请求表不存在。";
+	}
+	//生成vec3
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec3.push_back(buffer);
+	}
+	in.close();
+
+	//生成vec4
+	for (size_t j = 0; j < vec3.size(); j++) {
+		vector<string> temp_vec;
+		char *temp3;
+		char temp4[100];
+		for (int i = 0; i < vec3.at(j).length(); i++)
+			temp4[i] = vec3.at(j)[i];
+		temp4[vec3.at(j).length()] = '\0';
+
+		temp3 = strtok(temp4, " ");
+		while (temp3) {
+			temp_vec.push_back(temp3);
+			temp3 = strtok(NULL, " ");
+		}
+		vec4.push_back(temp_vec);
+	}
+
+	//检查约束
+	int curtemp = 1;
+	//约束表逐行判断
+	for (int i = 0; i < vec4.size(); i++) {
+		for (int j = 0; j < vec2.size(); j++) {
+			if (vec4.at(i).at(1) == vec2.at(j).at(1)) {
+				if (vec4.at(i).at(2) == "unique") {
+					for (int k = 0; k < rst.size(); k++){
+						for (int h = 0; h < rst.size(); h++)
+							if (rst.at(k).at(j) == rst.at(k).at(j+h))
+								return "违反唯一约束";
+					}
+				}
+				else if (vec4.at(i).at(2) == "primary")
+				{
+
+				}
+				else if (vec4.at(i).at(2) == "foreign")
+				{
+
+				}
+				else if (vec4.at(i).at(2) == "not") {
+					for (int k = 0; k < rst.size(); k++) {
+						if (rst.at(k).at(j) == "null") {
+							return "违反非空约束";
+						}
+					}
+				}
+			}
+		
+		}
+	}
 
 
 
