@@ -40,9 +40,8 @@ void DbManage::CreateDatabase()
 		fopen_s(&file, "ruanko.db", "w");
 		fclose(file);
 		out.open("ruanko.db", ios::binary);
-		string str = "Name\t\tPath\t\tCreate_at\t\tType\n";
-		out << str;
-		str = "ruanko\t\tdata//ruanko//\t\t" + (string)d_time + "\t\ttrue\n";
+		string str;
+		str = "ruanko\tdata//ruanko//\t" + (string)d_time + "\ttrue\n";
 		out << str;
 	}
 	else {
@@ -217,10 +216,32 @@ string DbManage::ShowDatabase()
 		ssr << "\n";
 	}
 	ssr << "数据库中存在库个数为:";
-	ssr << show.size() - 1;
+	ssr << show.size() ;
 	
 	string str=ssr.str();
 	in.close();
+	return str;
+}
+
+string DbManage::UseDatabase()
+{
+	ifstream in("ruanko.db");
+	vector<string> use;
+	char buffer[128];
+	while (!in.eof()) {
+		in.getline(buffer, sizeof(buffer));
+		if (buffer[0] == '\0')break;
+		vector<string> v =this->explode(buffer,'\t');
+		use.push_back(v[0]);
+	}
+	in.close();
+	string str;
+	if (std::count(use.begin(), use.end(), sql.at(0).at(1)) == 0) {
+		return "false";
+	}
+	else {
+		str = sql.at(0).at(1);
+	}
 	return str;
 }
 

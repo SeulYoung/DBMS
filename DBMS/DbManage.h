@@ -20,6 +20,7 @@ public:
 	void CreateDatabase();
 	void DeleteDatabase();
 	string ShowDatabase();
+	string UseDatabase();
 	const vector<string> explode(const string& s, const char& c);
 	struct database
 	{

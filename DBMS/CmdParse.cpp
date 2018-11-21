@@ -87,7 +87,14 @@ string CmdParse::dbUse()
 	vUse.push_back(name);
 
 	DbManage dm(vUse);
-	return "Use database成功";
+	dbName = dm.UseDatabase();
+	if (dbName == "false") {
+		dbName = "ruanko";
+		return "不存在该数据库";
+	}
+	else {
+		return "切换为使用" + dbName + "数据库";
+	}
 }
 
 string CmdParse::dbCreate()
