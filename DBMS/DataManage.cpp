@@ -443,7 +443,7 @@ string DataManage::data_update()
 		int pos = 0, poss = 0;
 		for (int k = 0; k < vec2.size(); k++) {
 			for (int m = 0; m < vec2.at(k).size(); m++) {
-				if (vec2.at(k).at(m)  ==judge.at(0).at(0))
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
 				{
 					pos = k;
 				}
@@ -458,26 +458,25 @@ string DataManage::data_update()
 					pos2 = k;
 				}
 			}
-		
+
 		}
-		
+
 		//按行判断数据
 		int ptemp = 1;
-		for (int i = 0; i < rst.size(); i++) {
-			if (rst.at(i).at(pos).find(judge.at(0).at(1)) && rst.at(i).at(poss).find(judge.at(1).at(1))) {
+		for (int i = 0; i < rst.size() - 1; i++) {
+
+			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
 				ptemp = 0;
-				rst.at(i).at(pos1) = modify.at(0).at(1);
-				rst.at(i).at(pos2) = modify.at(1).at(1);
-				
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+				rst.at(i).at(pos2) = "'" + modify.at(1).at(1) + "'";
+
 			}
-		}
-		if (ptemp) {
+		}if (ptemp) {
 			return "未选定行";
 		}
+
+
 	}
-
-
-
 
 
 	//判断约束条件
@@ -493,12 +492,13 @@ string DataManage::data_update()
 	for (int i = 0; i < rst.size(); i++) {
 		for (int j = 0; j < rst.at(i).size(); j++) {
 			out_file << rst.at(i).at(j);
-
+			out_file << " ";
 		}
-		out_file << "\n";
+		out_file << "\r\n";
 	}
 
-	return "ok";
+	out_file.close();
+	return "数据更新成功";
 
 
 }
