@@ -616,7 +616,7 @@ string DataManage::data_select()
 			}
 		}
 	}
-
+	
 	if (s_num == 0)judge = true;
 	if (judge==false){
 		return "查找的列不存在";
@@ -627,7 +627,7 @@ string DataManage::data_select()
 	for (int m = 0; m < contents2[n].size(); m++) {
 		for (n; n < contents2.size(); n++) {
 			r_slct << contents2[n][m];
-			r_slct << "\t";
+ 			r_slct << "\t";
 		}
 		r_slct << "\n";
 		n = 0;

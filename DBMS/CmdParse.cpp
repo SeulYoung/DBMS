@@ -72,7 +72,8 @@ string CmdParse::dbShow()
 	vShow.push_back(name);
 
 	DbManage dm(vShow);
-	return "Show database³É¹¦";
+	string str = dm.ShowDatabase();
+	return str;
 }
 
 string CmdParse::dbUse()
