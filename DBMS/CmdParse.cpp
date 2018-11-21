@@ -174,10 +174,10 @@ string CmdParse::tableCreate()
 	else
 		return "括号中语句存在错误";
 
-	TableManage tableManage(vCreate);
+	TableManage tableManage(vCreate, dbName);
 	string str;
 	if (tableManage.CreatDatebase(str) == 1) {
-		FieldManage fm(vCreate);
+		FieldManage fm(vCreate, dbName);
 		string s=fm.manage();
 		return s;
 	}
@@ -307,8 +307,8 @@ string CmdParse::tableAlter()
 	else
 		return "参数语句存在错误";
 
-	TableManage tableManage(vAlter);
-	FieldManage fm(vAlter);
+	TableManage tableManage(vAlter, dbName);
+	FieldManage fm(vAlter, dbName);
 	string msg = fm.manage();
 	return msg;
 	//return "Alter table成功";
@@ -324,7 +324,7 @@ string CmdParse::tableDrop()
 	name.push_back(s);
 	vDrop.push_back(name);
 
-	TableManage tableManage(vDrop);
+	TableManage tableManage(vDrop, dbName);
 	string str;
 	if (tableManage.DeleteDatebase(str) == 1) {
 		return "删除表成功";
@@ -403,7 +403,7 @@ string CmdParse::tableInsert()
 	else
 		return "values语句后存在错误";
 
-	DataManage dataManage(vInsert);
+	DataManage dataManage(vInsert, dbName);
 	string msg = dataManage.manage();
 	return msg;
 	//return "Insert数据成功";
@@ -456,7 +456,7 @@ string CmdParse::tableDelete()
 	else
 		return "where语句后存在错误";
 
-	DataManage dataManage(vDelete);
+	DataManage dataManage(vDelete, dbName);
 	string msg = dataManage.manage();
 	return msg;
 	//return "Delete 数据成功";
@@ -530,7 +530,7 @@ string CmdParse::tableUpdate()
 
 	/*DataManage dataManage(vUpdate);
 	return "Update 数据成功";*/
-	DataManage dataManage(vUpdate);
+	DataManage dataManage(vUpdate, dbName);
 	string msg = dataManage.manage();
 	return msg;
 }
@@ -711,7 +711,7 @@ string CmdParse::tableSelect()
 	for (auto t = temp.rbegin(); t != temp.rend(); t++)
 		vSelect.push_back(*t);
 
-	DataManage dataManage(vSelect);
+	DataManage dataManage(vSelect, dbName);
 	dataManage.manage();
 	return "Select数据成功";
 }
