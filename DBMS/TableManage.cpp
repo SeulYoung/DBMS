@@ -365,14 +365,12 @@ int TableManage::DeleteDatebase(string & str)
 	//string path = m_strPath + '\\' + filename;
 	// int remove(char *filename);
 	// 删除文件，成功返回0，否则返回-1
-	if (SearchDatebase(s) == 0) {
-		str = "table not exist";
-		//cout << "not exist";
-		return 0;
-	}
-	string frontpath;
-	string endpath = ".txt";
-	string path = "dic" + endpath;
+	//if (SearchDatebase(s) == 0) {
+	//	str = "table not exist";
+	//	//cout << "not exist";
+	//	return 0;
+	//}
+	
 	string endpath1 = ".tdf";
 	string endpath2 = ".tic";
 	string endpath3 = ".trd";
@@ -383,9 +381,7 @@ int TableManage::DeleteDatebase(string & str)
 	string path4 = s + endpath4;
 	if (-1 == remove(path1.c_str()) || -1 == remove(path2.c_str()) || -1 == remove(path3.c_str()) || -1 == remove(path4.c_str()))
 	{
-		str = "delete false";
-		cout << "delete false" << endl;
-
+		str = "删除表失败";
 		return false;
 	}
 	str = "delete table successful";
