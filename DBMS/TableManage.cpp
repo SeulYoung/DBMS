@@ -295,13 +295,12 @@ int TableManage::CreatDatebase(string & str)
 {
 	string s = sql[0][1];
 	string frontpath;
-	string endpath = ".txt";
+	
 	string endpath1 = ".tb";
 	string endpath2 = ".tdf";
 	string endpath3 = ".tic";
 	string endpath4 = ".trd";
 	string endpath5 = ".tid";
-	string path = s + endpath;
 	string path1 = s + endpath1;
 	string path2 = s + endpath2;
 	string path3 = s + endpath3;
@@ -316,14 +315,13 @@ int TableManage::CreatDatebase(string & str)
 		str = "tablename over 128";
 		return false;
 	}
-	fstream file, file1, file2, file3, file4, file5;
-	file.open(path, ios::out);
+	fstream file1, file2, file3, file4, file5;
 	file1.open(path1, ios::app);
 	file2.open(path2, ios::out);
 	file3.open(path3, ios::out);
 	file4.open(path4, ios::out);
 	file5.open(path5, ios::out);
-	if (!file || !file1 || !file2 || !file3 || !file4 || !file5)
+	if (!file1 || !file2 || !file3 || !file4 || !file5)
 	{
 		str = "create table false";
 		/*cout << "bad time" << endl;*/
@@ -331,7 +329,6 @@ int TableManage::CreatDatebase(string & str)
 	}
 	str = "create table successful";
 	/*cout << "good time" << endl;*/
-	file.close();
 	file1.close();
 
 	string datebasename;
