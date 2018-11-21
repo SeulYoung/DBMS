@@ -106,42 +106,42 @@ string DataManage::data_delete()
 	vector<vector<string>> judge;
 
 	//条件判断字符串
-	for (int i = 0; i < sql[2].size(); i++) {
+	for (int i = 0; i < sql[1].size(); i++) {
 		vector<string> temp;
-		if (sql.at(2).at(i).find("=") != string::npos) {
-			if (sql.at(2).at(i).find("and") != string::npos) {
-				size_t pos1 = sql.at(2).at(i).find("and");
-				size_t pos = sql.at(2).at(i).find("=");
-				string temp1 = sql.at(2).at(i).substr(0, pos);
-				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - 3);
+		if (sql.at(1).at(i).find("=") != string::npos) {
+			if (sql.at(1).at(i).find("and") != string::npos) {
+				size_t pos1 = sql.at(1).at(i).find("and");
+				size_t pos = sql.at(1).at(i).find("=");
+				string temp1 = sql.at(1).at(i).substr(0, pos);
+				string temp2 = sql.at(1).at(i).substr(pos + 1, pos1 - pos-2);
 				temp.push_back(temp1);
 				temp.push_back(temp2);
 				temp.push_back(std::to_string(1));
 				judge.push_back(temp);
 			}
 			else {
-				size_t pos = sql.at(2).at(i).find("=");
-				string temp1 = sql.at(2).at(i).substr(0, pos);
-				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				size_t pos = sql.at(1).at(i).find("=");
+				string temp1 = sql.at(1).at(i).substr(0, pos);
+				string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
 				temp.push_back(temp1);
 				temp.push_back(temp2);
 				temp.push_back(std::to_string(1));
 				judge.push_back(temp);
 			}
 		}
-		else if (sql.at(2).at(i).find("<") != string::npos) {
-			size_t pos = sql.at(2).at(i).find("<");
-			string temp1 = sql.at(2).at(i).substr(0, pos);
-			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+		else if (sql.at(1).at(i).find("<") != string::npos) {
+			size_t pos = sql.at(1).at(i).find("<");
+			string temp1 = sql.at(1).at(i).substr(0, pos);
+			string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
 			temp.push_back(temp1);
 			temp.push_back(temp2);
 			temp.push_back(std::to_string(2));
 			judge.push_back(temp);
 		}
-		else if (sql.at(2).at(i).find(">") != string::npos) {
-			size_t pos = sql.at(2).at(i).find(">");
-			string temp1 = sql.at(2).at(i).substr(0, pos);
-			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+		else if (sql.at(1).at(i).find(">") != string::npos) {
+			size_t pos = sql.at(1).at(i).find(">");
+			string temp1 = sql.at(1).at(i).substr(0, pos);
+			string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
 			temp.push_back(temp1);
 			temp.push_back(temp2);
 			temp.push_back(std::to_string(3));
@@ -162,9 +162,9 @@ string DataManage::data_delete()
 		if (!signal)
 			judge_flag = 1;
 	}
-	/*if (modify_flag || judge_flag) {
+	/*if (judge_flag) {
 
-	return "修改的列不存在";
+	return "删除的列不存在";
 	}*/
 	//取出数据表中的值
 	string name = sql[0][1];
@@ -189,40 +189,50 @@ string DataManage::data_delete()
 	if (judge.size() == 1) {
 		int pos1 = 0;
 		int pos = 0;
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(0).at(0)))
-			{
-				pos = k;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
 			}
 		}
 		//按行判断数据
-		for (int i = 0; i < rst.size(); i++) {
-			for (int j = 0; j < rst.at(i).size(); j++) {}
-			if (rst.at(i).at(pos) == judge.at(0).at(1)) {
-
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() -1; i++) {
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
 			}
+		}if (ptemp) {
+			return "未选定行";
 		}
 	}
 	else if (judge.size() == 2) {
-		int pos1 = 0;
 		int pos = 0, poss = 0;
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(0).at(0)))
-			{
-				pos = k;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == judge.at(1).at(0)) {
+
+					poss = k;
+				}
 			}
+
 		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(1).at(0)))
-			{
-				poss = k;
-			}
-		}
+
 		//按行判断数据
-		for (int i = 0; i < rst.size(); i++) {
-			if (rst.at(i).at(pos) == judge.at(0).at(1) && rst.at(i).at(poss) == judge.at(1).at(1)) {
-				rst.erase(rst.begin()+i);
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
 			}
+		}if (ptemp) {
+			return "未选定行";
 		}
 	}
 
@@ -239,18 +249,17 @@ string DataManage::data_delete()
 	for (int i = 0; i < rst.size(); i++) {
 		for (int j = 0; j < rst.at(i).size(); j++) {
 			out_file << rst.at(i).at(j);
-
+			out_file << " ";
 		}
-		out_file << "\n";
+		out_file << "\r\n";
 	}
 
-	return "ok";
+	out_file.close();
+	return "数据删除成功";
 }
 
 string DataManage::data_update()
 {
-	/*ofstream out_file;
-	string s = "";*/
 	vector<vector<string>> modify;
 
 	vector<vector<string>> judge;
@@ -362,81 +371,94 @@ string DataManage::data_update()
 	if (judge.size() == 1 && modify.size() == 1) {
 		int pos1 = 0;
 		int pos = 0;
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(0).at(0)))
-			{
-				pos = k;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}				
 			}
 		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(modify.at(0).at(0)))
-			{
-				pos1 = k;
-			}
-		}
+
 		//按行判断数据
+		int ptemp = 1;
 		for (int i = 0; i < rst.size(); i++) {
-			if (rst.at(i).at(pos) == judge.at(0).at(1)) {
-				rst.at(i).at(pos1) = modify.at(0).at(1);
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
 			}
+		}if (ptemp) {
+			return "未选定行";
 		}
 	}
 	else if (judge.size() == 1 && modify.size() == 2) {
-		int pos1 = 0;
-		int pos = 0, poss = 0;
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(0).at(0)))
-			{
-				pos = k;
+		int pos1 = 0, pos2 = 0;
+		int pos = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(1).at(0)) {
+					pos2 = k;
+				}
 			}
 		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(1).at(0)))
-			{
-				poss = k;
-			}
-		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(modify.at(0).at(0)))
-			{
-				pos1 = k;
-			}
-		}
+
 		//按行判断数据
+		int ptemp = 1;
 		for (int i = 0; i < rst.size(); i++) {
-			if (rst.at(i).at(pos) == judge.at(0).at(1) && rst.at(i).at(poss) == judge.at(1).at(1)) {
-				rst.at(i).at(pos1) = modify.at(0).at(1);
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+				rst.at(i).at(pos2) = "'" + modify.at(1).at(1) + "'";
 			}
+		}if (ptemp) {
+			return "未选定行";
 		}
 	}
 	else if (judge.size() == 2 && modify.size() == 1) {
-		int pos1 = 0, pos2 = 0;
-		int pos = 0;
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(0).at(0)))
-			{
-				pos = k;
+		int pos1 = 0;
+		int pos = 0, poss = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == judge.at(1).at(0)) {
+
+					poss = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
+				
 			}
+
 		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(modify.at(0).at(0)))
-			{
-				pos1 = k;
-			}
-		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(modify.at(1).at(0)))
-			{
-				pos2 = k;
-			}
-		}
+
 		//按行判断数据
-		for (int i = 0; i < rst.size(); i++) {
-			if (rst.at(i).at(pos) == judge.at(0).at(1)) {
-				rst.at(i).at(pos1) = modify.at(0).at(1);
-				rst.at(i).at(pos2) = modify.at(1).at(1);
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+
+			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
 			}
+		}if (ptemp) {
+			return "未选定行";
 		}
+
 	}
 	else if (judge.size() == 2 && modify.size() == 2) {
 		int pos1 = 0, pos2 = 0;
