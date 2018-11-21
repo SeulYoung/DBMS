@@ -744,8 +744,8 @@ string CmdParse::tableSelect()
 		vSelect.push_back(*t);
 
 	DataManage dataManage(vSelect, dbName);
-	dataManage.manage();
-	return "Select数据成功";
+	string str = dataManage.manage();
+	return str;
 }
 
 string CmdParse::preSql(string s) //语句预处理
