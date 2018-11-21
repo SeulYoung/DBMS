@@ -48,18 +48,17 @@ string CmdParse::sqlCheck(string s)
 
 vector<vector<string>> CmdParse::getDbs()
 {
-	ifstream in("ruanko.db", ios::binary);
+	ifstream in("ruanko.db");
 	if(!in.is_open())
 		return vector<vector<string>>();
 
 	vector<vector<string>> dbs;
 	char buff[100];
-	in.getline(buff, sizeof(buff));
-	while (!in.eof())
+	while (true)
 	{
 		in.getline(buff, sizeof(buff));
 		char *name = strtok(buff, "\t");
-		char *path = strtok(buff, "\t");
+		char *path = strtok(NULL, "\t");
 		if (name != NULL)
 		{
 			vector<string> db;
@@ -71,17 +70,24 @@ vector<vector<string>> CmdParse::getDbs()
 				dbs.push_back(db);
 				continue;
 			}
-				
-			while (!table.eof())
+
+			while (true)
 			{
 				table.getline(buff, sizeof(buff));
-				char *name = strtok(buff, " ");
+				char *name = strtok(buff, "\t");
 				if (name != NULL)
 					db.push_back(name);
+				else
+					break;
 			}
 			dbs.push_back(db);
+			table.close();
 		}
+		else
+			break;
 	}
+	in.close();
+
 	return dbs;
 }
 

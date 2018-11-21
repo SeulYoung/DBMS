@@ -335,7 +335,7 @@ int TableManage::CreatDatebase(string & str)
 
 	string datebasename;
 	ofstream ofile;               //定义输出文件
-	ofile.open(path1);     //作为输出文件打开
+	ofile.open(path1, ios::app);     //作为输出文件打开
 	ofile << s << '\t';
 	ofile << path2 << '\t';
 	ofile << path3 << '\t';

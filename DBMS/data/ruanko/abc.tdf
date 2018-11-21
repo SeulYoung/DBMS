@@ -1,0 +1,5 @@
+1 aa int not null 
+2 bb char 2  unique 
+3 dd date primary key 
+4 cc number 10  foreign key references dept (deptno 
+5 ee char 2  default "12" 
