@@ -689,31 +689,10 @@ string DataManage::data_select()
 	}
 
 	r_slct << "\n";
-	int n =0;
-	for (int m = 0; m < contents2[n].size(); m++) {
-		for (n; n < contents2.size(); n++) {
-			r_slct << contents2[n][m];
- 			r_slct << "\t";
-		}
+	for (int m = 0; m < v1.size(); m++) {
+		r_slct << v1[m];
 		r_slct << "\n";
-		n = 0;
 	}
-	//string all_content = r_slct.str();
-	//vector<string> a{this->explode(all_content,'/t')};
-	//vector<string> b;
-	//ifstream in_table;
-	//判断是否有where等附加判断
-	//if (sql.size()==2){
-	//	for (int i = 0; i < sql[1].size();i++) {
-	//		in_table.open("data//kuming//" + sql[1][i]);
-	//		if (i == 0) {
-	//			
-	//		}
-	//	}
-	//}
-	//else {
-
-	//}
 
 	string str=r_slct.str();
 	return str;
