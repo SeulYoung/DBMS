@@ -27,9 +27,9 @@ private:
 	string data_delete();
 	string data_update();
 	string data_select();
-	bool isColumn();
+	string isColumn();
 	string con_check();
 	string con_parse(int, int, vector<vector<string>>);
 	bool len_check();
-	void getfieldV();
+	bool getfieldV();
 };

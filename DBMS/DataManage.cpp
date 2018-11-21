@@ -43,7 +43,8 @@ string DataManage::data_insert()
 	bool isNull = true;
 	string msg;
 
-	if (isColumn())
+	msg = isColumn();
+	if (msg=="存在")
 	{
 		if (!len_check()) {
 			return "数据长度不符合约束";
@@ -90,7 +91,7 @@ string DataManage::data_insert()
 		}
 	}
 	else
-		return "插入的列中有不存在的列";
+		return msg;
 	return "数据插入成功";
 }
 
@@ -579,10 +580,12 @@ string DataManage::data_select()
 }
 
 //判断是否是已存在的列
-bool DataManage::isColumn()
+string DataManage::isColumn()
 {
 	//读取.tdf文件
-	getfieldV();
+	bool isTdf = getfieldV();
+	if (!isTdf)
+		return "请求表不存在";
 
 	//检查要插入的列是否已经存在
 	bool signal = false;
@@ -593,12 +596,12 @@ bool DataManage::isColumn()
 					signal = true;
 			}
 			if (!signal)
-				return signal;
+				return "存在";
 		}
 	}
 	else
 		signal = true;
-	return signal;
+	return "存在";
 
 }
 
@@ -723,14 +726,12 @@ bool DataManage::len_check()
 	return true;
 }
 
-void DataManage::getfieldV()
+bool DataManage::getfieldV()
 {
 	ifstream in(sql.at(0).at(1) + ".tdf");
 	if (!in.is_open())
-	{
-		cout << "Error opening file";
-		//exit(1);
-	}
+		return false;
+	
 	//生成vec1
 	while (!in.eof())
 	{
@@ -757,4 +758,5 @@ void DataManage::getfieldV()
 		}
 		vec2.push_back(temp_vec);
 	}
+	return true;
 }
