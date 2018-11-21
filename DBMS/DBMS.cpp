@@ -9,7 +9,7 @@ DBMS::DBMS(QWidget *parent)
 	connect(ui.refresh, SIGNAL(triggered()), this, SLOT(sysAction()));
 	connect(ui.exit, SIGNAL(triggered()), this, SLOT(sysAction()));
 	connect(ui.newDb, SIGNAL(triggered()), this, SLOT(dbAction()));
-	//initTree();
+	initTree();
 }
 
 void DBMS::initTree()
@@ -20,16 +20,19 @@ void DBMS::initTree()
 	for (auto db : dbs)
 	{
 		// 数据库节点
-		if (add.find(db[0]) != add.end())
+		if (add.find(db[0]) == add.end())
 		{
 			add.insert(db[0]);
 			root = new QTreeWidgetItem(ui.tree, QStringList() << QString::fromStdString(db[0]));
 		}
 		// 表节点
-		QTreeWidgetItem *table = new QTreeWidgetItem(root, QStringList() << QString::fromStdString(db[1]));
-		// 字段
-		for (int i = 2; i < db.size(); i++)
-			QTreeWidgetItem *col = new QTreeWidgetItem(table, QStringList() << QString::fromStdString(db[i]));
+		if (db.size() > 1)
+		{
+			QTreeWidgetItem *table = new QTreeWidgetItem(root, QStringList() << QString::fromStdString(db[1]));
+			// 字段
+			for (int i = 2; i < db.size(); i++)
+				QTreeWidgetItem *col = new QTreeWidgetItem(table, QStringList() << QString::fromStdString(db[i]));
+		}
 	}
 }
 

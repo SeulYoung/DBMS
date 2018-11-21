@@ -31,7 +31,7 @@ string FieldManage::field_Add()
 {
 	ofstream out_file;
 	string s;
-	string file_Path = sql.at(0).at(1) + ".tdf";
+	string file_Path = "./data/" + dbName +"/"+ sql.at(0).at(1)+ ".tdf";
 
 	//检查未加入的列是否重复
 	for (int i = 2; i < sql.size(); i++)
@@ -95,7 +95,7 @@ string FieldManage::field_Add1()
 {
 	ofstream out_file;
 	string s;
-	string file_Path = sql.at(0).at(1) + ".tdf";
+	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf";
 
 	//检查未加入的列是否重复
 	for (int i = 1; i < sql.size(); i++)
@@ -159,7 +159,7 @@ string FieldManage::field_Modify()
 {
 	vector<char*> vec;
 
-	string file_Path = sql.at(0).at(1) + ".tdf";
+	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf";
 
 	//读取文件
 
@@ -271,7 +271,7 @@ string FieldManage::field_Modify()
 
 string FieldManage::field_drop()
 {
-	string file_Path = sql.at(0).at(1) + ".tdf";
+	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf";
 
 	//读取文件
 	ifstream in(file_Path);
@@ -339,7 +339,7 @@ string FieldManage::constraint_Add()
 
 	//检查是否存在重复的约束名
 	vector<string> vec3;
-	ifstream in1(sql.at(0).at(1) + ".tic");
+	ifstream in1("./data/" + dbName + "/" + sql.at(0).at(1) + ".tic");
 	if (!in1.is_open())
 	{
 		return "请求表不存在";
@@ -360,7 +360,7 @@ string FieldManage::constraint_Add()
 
 	//生成vec1
 	vector<string> vec1;
-	ifstream in(sql.at(0).at(1) + ".tdf");
+	ifstream in("./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf");
 	if (!in.is_open())
 		return "请求表不存在";
 
@@ -453,7 +453,7 @@ string FieldManage::constraint_Add()
 		s += "\n";
 	}
 
-	string file_Path = sql.at(0).at(1) + ".tic";
+	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tic";
 	ofstream out_file;
 	out_file.open(file_Path, ios::out | ios::app);
 
@@ -467,7 +467,7 @@ string FieldManage::constraint_Add()
 string FieldManage::constraint_drop()
 {
 	vector<string> vec1;
-	ifstream in(sql.at(0).at(1) + ".tdf");
+	ifstream in("./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf");
 	if (!in.is_open())
 	{
 		return "请求表不存在";
@@ -483,7 +483,7 @@ string FieldManage::constraint_drop()
 
 	//读取约束文件
 	vector<string> vec3;
-	ifstream in1(sql.at(0).at(1) + ".tic");
+	ifstream in1("./data/" + dbName + "/" + sql.at(0).at(1) + ".tic");
 	if (!in1.is_open())
 	{
 		return "请求表不存在";
@@ -516,7 +516,7 @@ string FieldManage::constraint_drop()
 	}
 
 	ofstream out_file;
-	out_file.open(sql.at(0).at(1) + ".tic");
+	out_file.open("./data/" + dbName + "/" + sql.at(0).at(1) + ".tic");
 	if (out_file.is_open())
 	{
 		if (s != "")

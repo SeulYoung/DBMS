@@ -1,0 +1,6 @@
+1 sno varchar 15 
+2 sname varchar 10 
+3 classno number 10 
+4 aa number 15
+5 test number 10 
+6 ff varchar 20 

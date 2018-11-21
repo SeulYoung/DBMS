@@ -1,0 +1,3 @@
+sno_con sno unique
+sno_pk sno primary key 
+df_test test default 60 

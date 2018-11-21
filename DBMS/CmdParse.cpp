@@ -48,11 +48,76 @@ string CmdParse::sqlCheck(string s)
 
 vector<vector<string>> CmdParse::getDbs()
 {
-	return vector<vector<string>>();
+	ifstream in("ruanko.db", ios::binary);
+	if(!in.is_open())
+		return vector<vector<string>>();
+
+	vector<vector<string>> dbs;
+	char buff[100];
+	in.getline(buff, sizeof(buff));
+	while (!in.eof())
+	{
+		in.getline(buff, sizeof(buff));
+		char *name = strtok(buff, "\t");
+		char *path = strtok(buff, "\t");
+		if (name != NULL)
+		{
+			vector<string> db;
+			db.push_back(name);
+
+			ifstream table(string(path) + string(name) + ".tb");
+			if (!table.is_open())
+			{
+				dbs.push_back(db);
+				continue;
+			}
+				
+			while (!table.eof())
+			{
+				table.getline(buff, sizeof(buff));
+				char *name = strtok(buff, " ");
+				if (name != NULL)
+					db.push_back(name);
+			}
+			dbs.push_back(db);
+		}
+	}
+	return dbs;
 }
 
 vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 {
+	/*ifstream in(sql.at(0).at(1) + ".tdf");
+	if (!in.is_open())
+		return false;
+
+	//生成vec1
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec1.push_back(buffer);
+	}
+	in.close();
+
+	//生成vec2
+	for (size_t j = 0; j < vec1.size(); j++) {
+		vector<string> temp_vec;
+		char *temp3;
+		char temp4[100];
+		for (int i = 0; i < vec1.at(j).length(); i++)
+			temp4[i] = vec1.at(j)[i];
+		temp4[vec1.at(j).length()] = '\0';
+
+		temp3 = strtok(temp4, " ");
+		while (temp3) {
+			temp_vec.push_back(temp3);
+			temp3 = strtok(NULL, " ");
+		}
+		vec2.push_back(temp_vec);
+	}
+	return true;*/
 	return vector<vector<string>>();
 }
 
