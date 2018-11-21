@@ -1,0 +1,4 @@
+1 aa int not null 
+2 bb char 2  unique 
+3 cc number 10  foreign key references dept (deptno 
+4 dd int check (Id_P between 20 and 60 

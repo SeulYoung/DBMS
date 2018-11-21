@@ -409,9 +409,27 @@ string DataManage::data_update()
 		//按行判断数据
 		int ptemp = 1;
 		for (int i = 0; i < rst.size(); i++) {
-			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
-				ptemp = 0;
-				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+			if (judge.at(0).at(2) == "=") {
+				if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+					ptemp = 0;
+					rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+				}
+			}
+			if (judge.at(0).at(2) == ">") {
+				string temp2 = rst.at(2).at(i).substr(1, rst.at(i).at(pos).size() - 1);
+				int mtemp = atoi(temp2.c_str()), judge_temp = atoi(judge.at(0).at(1).c_str());
+				if (judge_temp > mtemp) {
+					ptemp = 0;
+					rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+				}
+			}
+			if (judge.at(0).at(2) == "<") {
+				string temp2 = rst.at(2).at(i).substr(1, rst.at(i).at(pos).size() - 1);
+				int mtemp = atoi(temp2.c_str()), judge_temp = atoi(judge.at(0).at(1).c_str());
+				if (judge_temp < mtemp) {
+					ptemp = 0;
+					rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+				}
 			}
 		}if (ptemp) {
 			return "未选定行";
