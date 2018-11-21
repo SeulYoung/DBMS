@@ -5,11 +5,6 @@ FieldManage::FieldManage(vector<vector<string>> s)
 	sql = s;
 }
 
-vector<string> FieldManage::getField(string db, string table, string col)
-{
-	return vector<string>();
-}
-
 string FieldManage::manage()
 {
 	if (sql.at(1).at(0).find("add") != string::npos && sql.at(1).at(0).find("constraint") != string::npos)
@@ -35,11 +30,11 @@ string FieldManage::field_Add()
 {
 	ofstream out_file;
 	string s;
-	string file_Path = sql.at(0).at(1)+".tdf";
+	string file_Path = sql.at(0).at(1) + ".tdf";
 
 	//检查未加入的列是否重复
-	for (int i = 2; i < sql.size(); i++) 
-		for (int j = i + 1; j < sql.size(); j++) 
+	for (int i = 2; i < sql.size(); i++)
+		for (int j = i + 1; j < sql.size(); j++)
 			if (sql.at(i).at(0) == sql.at(j).at(0))
 				return "错误！请求添加的字段名称重复。";
 
@@ -65,7 +60,7 @@ string FieldManage::field_Add()
 		}
 	}
 	//检查是否缺少属性
-	for (int i = 2; i < sql.size(); i++) {	
+	for (int i = 2; i < sql.size(); i++) {
 		if (sql.at(i).size() < 2)
 			return "请求添加的列缺少属性。";
 	}
@@ -77,15 +72,15 @@ string FieldManage::field_Add()
 		order += vec1.size();
 		s += std::to_string(order);
 		s += " ";
-		for (int j = 0; j < sql.at(i).size(); j++) {		
-				s += sql.at(i).at(j);
-				s += " ";
+		for (int j = 0; j < sql.at(i).size(); j++) {
+			s += sql.at(i).at(j);
+			s += " ";
 		}
 		if (sql.at(i).size() == 2)
 			s += "NULL";
 		s = s + "\n";
 	}
-	
+
 	out_file.open(file_Path, ios::out | ios::app);
 	if (out_file.is_open())
 	{
@@ -166,7 +161,7 @@ string FieldManage::field_Modify()
 	string file_Path = sql.at(0).at(1) + ".tdf";
 
 	//读取文件
-	
+
 	vector<string> vec1;
 	vector<vector<string>> vec2;
 	ifstream in(file_Path);
@@ -174,14 +169,14 @@ string FieldManage::field_Modify()
 	{
 		return "请求表不存在";
 	}
-	
+
 	while (!in.eof())
 	{
 		char buffer[100];
 		in.getline(buffer, sizeof(buffer));
-		if(strlen(buffer)!=0)
+		if (strlen(buffer) != 0)
 			vec1.push_back(buffer);
-		
+
 	}
 	in.close();
 
@@ -190,12 +185,12 @@ string FieldManage::field_Modify()
 		int m = 0;
 		char *temp3;
 		char temp4[100];
-		for (int i = 0; i<vec1.at(j).length(); i++)
-			        temp4[i] = vec1.at(j)[i];
-		 temp4[vec1.at(j).length()] = '\0';
+		for (int i = 0; i < vec1.at(j).length(); i++)
+			temp4[i] = vec1.at(j)[i];
+		temp4[vec1.at(j).length()] = '\0';
 
 		temp3 = strtok(temp4, " ");
-		while (temp3) {			
+		while (temp3) {
 			temp2.push_back(temp3);
 			temp3 = strtok(NULL, " ");
 		}
@@ -204,12 +199,12 @@ string FieldManage::field_Modify()
 
 	//检查要更新的列是否已存在
 	bool isExist = false;
-	
+
 	for (int i = 2; i < sql.size(); i++) {
 		for (int j = 0; j < vec1.size(); j++)
 			if (vec1.at(j).find(sql.at(i).at(0)) != string::npos)
 				isExist = true;
-		if(!isExist)
+		if (!isExist)
 			return "错误！请求更新的字段中有不存在";
 		isExist = false;
 	}
@@ -219,8 +214,8 @@ string FieldManage::field_Modify()
 		if (sql.at(i).size() < 2)
 			return "请求添加的列缺少属性。";
 	}*/
-	
-	
+
+
 	//修改信息
 	for (int i = 2; i < sql.size(); i++) {
 		for (int j = 0; j < vec2.size(); j++) {
@@ -253,7 +248,7 @@ string FieldManage::field_Modify()
 			}
 		}
 	}
-	
+
 	//生成输出信息
 	string s;
 	for (int i = 0; i < vec1.size(); i++) {
@@ -308,19 +303,19 @@ string FieldManage::field_drop()
 	//删除列
 	int order;
 	for (int i = 0; i < vec1.size(); i++)
-		for (int j = 2; j < sql.size(); j++) 
+		for (int j = 2; j < sql.size(); j++)
 			if (vec1.at(i).find(sql.at(j).at(0)) != string::npos) {
 				vec1.erase(vec1.begin() + i);
 				order = i;
 			}
 	for (int i = order; i < vec1.size(); i++) {
-		string subS = std::to_string(i+1);
+		string subS = std::to_string(i + 1);
 		subS += vec1.at(i).substr(1, vec1.at(i).size() - 1);
-		vec1.at(i) =subS ;
+		vec1.at(i) = subS;
 	}
-		
+
 	//生成输出信息
-	string s;	
+	string s;
 	for (size_t i = 0; i < vec1.size(); i++) {
 		s += vec1.at(i);
 		s += "\n";
@@ -339,7 +334,7 @@ string FieldManage::field_drop()
 
 string FieldManage::constraint_Add()
 {
-	
+
 
 	//检查是否存在重复的约束名
 	vector<string> vec3;
@@ -400,13 +395,13 @@ string FieldManage::constraint_Add()
 		s += "\n";
 
 	}
-	else if (sql.at(2).at(0).find("primary") != string::npos || sql.at(2).at(0).find("unique") !=string::npos)
+	else if (sql.at(2).at(0).find("primary") != string::npos || sql.at(2).at(0).find("unique") != string::npos)
 	{
 		if (sql.at(2).at(1).find(",") != string::npos)
 		{
 			size_t pos = sql.at(2).at(1).find(",");
 			string temp1 = sql.at(2).at(1).substr(0, pos);
-			string temp2 = sql.at(2).at(1).substr(pos+1, sql.at(2).at(1).size());
+			string temp2 = sql.at(2).at(1).substr(pos + 1, sql.at(2).at(1).size());
 			sql.at(2).erase(sql.at(2).begin() + 1);
 			sql.at(2).push_back(temp1);
 			sql.at(2).push_back(temp2);
@@ -417,7 +412,7 @@ string FieldManage::constraint_Add()
 				if (vec1.at(j).find(sql.at(2).at(i)) != string::npos) {
 					isExist = true;
 					break;
-				}	
+				}
 			}
 			if (!isExist)
 				return "错误！请求添加的字段不存在";
@@ -431,7 +426,7 @@ string FieldManage::constraint_Add()
 			s += " ";
 			s += sql.at(2).at(0);
 			s += "\n";
-		}		
+		}
 	}
 	else if (sql.at(2).at(0) == "foreign key")
 	{
@@ -452,11 +447,11 @@ string FieldManage::constraint_Add()
 		s += sql.at(2).at(0);
 		s += " ";
 		size_t pos = sql.at(3).at(0).find(" ");
-		string temp = sql.at(3).at(0).substr(pos +1, sql.at(3).at(0).size());
+		string temp = sql.at(3).at(0).substr(pos + 1, sql.at(3).at(0).size());
 		s += temp;
 		s += "\n";
 	}
-	
+
 	string file_Path = sql.at(0).at(1) + ".tic";
 	ofstream out_file;
 	out_file.open(file_Path, ios::out | ios::app);
@@ -528,5 +523,5 @@ string FieldManage::constraint_drop()
 	}
 	out_file.close();
 	return "约束删除成功";
-	
+
 }

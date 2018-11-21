@@ -5,10 +5,6 @@ DataManage::DataManage(vector<vector<string>> s)
 	sql = s;
 }
 
-DataManage::~DataManage()
-{
-}
-
 string DataManage::manage()
 {
 	string msg;
@@ -42,10 +38,10 @@ string DataManage::data_insert()
 {
 	ofstream out_file;
 	string s = "";
-	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app );
+	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app);
 	bool isNull = true;
 	string msg;
-	
+
 	if (isColumn())
 	{
 		if (!len_check()) {
@@ -221,7 +217,7 @@ string DataManage::data_delete()
 		//按行判断数据
 		for (int i = 0; i < rst.size(); i++) {
 			if (rst.at(i).at(pos) == judge.at(0).at(1) && rst.at(i).at(poss) == judge.at(1).at(1)) {
-				rst.erase(rst.begin()+i);
+				rst.erase(rst.begin() + i);
 			}
 		}
 	}
@@ -274,7 +270,7 @@ string DataManage::data_update()
 				size_t pos1 = sql.at(2).at(i).find("and");
 				size_t pos = sql.at(2).at(i).find("=");
 				string temp1 = sql.at(2).at(i).substr(0, pos);
-				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1-pos-2);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - pos - 2);
 				temp.push_back(temp1);
 				temp.push_back(temp2);
 				temp.push_back(std::to_string(1));
@@ -531,7 +527,7 @@ string DataManage::data_select()
 		line.clear();
 		in.close();
 	}
-	int s_num=sql[0].size();//select column number;
+	int s_num = sql[0].size();//select column number;
 	vector<string> get;
 	bool judge = false;
 	for (size_t i = 0; i < contents1.size(); i++) {
@@ -539,9 +535,9 @@ string DataManage::data_select()
 		for (size_t j = 0; j < v.size(); j++) {
 			line = this->explode(v[j], ' ');//line代表某行内容
 			for (size_t k = 1; k < sql[0].size(); k++) {
-				if (sql[0][k]==line[1]) {
+				if (sql[0][k] == line[1]) {
 					//判断是否在其他表中读到
-					if (std::count(get.begin(),get.end(),line[1])==0) {
+					if (std::count(get.begin(), get.end(), line[1]) == 0) {
 						get.push_back(line[1]);
 						r_slct << sql[0][k];
 						r_slct << "/t";
@@ -555,7 +551,7 @@ string DataManage::data_select()
 	else {
 		return "查找的列不存在";
 	}
-	string str=r_slct.str();
+	string str = r_slct.str();
 	return str;
 }
 
@@ -580,7 +576,7 @@ bool DataManage::isColumn()
 	else
 		signal = true;
 	return signal;
-	
+
 }
 
 string DataManage::con_check()
@@ -608,7 +604,7 @@ string DataManage::con_check()
 		vector<string> temp_vec;
 		char *temp3;
 		char temp4[100];
-		for (int i = 0; i<vec3.at(j).length(); i++)
+		for (int i = 0; i < vec3.at(j).length(); i++)
 			temp4[i] = vec3.at(j)[i];
 		temp4[vec3.at(j).length()] = '\0';
 
@@ -648,11 +644,11 @@ string DataManage::con_check()
 		if (!isNull)
 			return "数据不符合非空约束";
 	}
-	
+
 	return "约束检查成功";
 }
 
-string DataManage::con_parse(int pos1, int pos2,vector<vector<string>> vec4)
+string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 {
 	string con_re = "约束检查成功";
 
@@ -666,7 +662,7 @@ string DataManage::con_parse(int pos1, int pos2,vector<vector<string>> vec4)
 	}
 	else if (vec4.at(pos2).at(2) == "default")
 	{
-		if (sql.at(1).at(pos1-2)!=vec4.at(pos2).at(3))
+		if (sql.at(1).at(pos1 - 2) != vec4.at(pos2).at(3))
 			con_re = "数据不符合default约束";
 
 	}
@@ -684,9 +680,9 @@ bool DataManage::len_check()
 			for (int j = 0; j < vec2.size(); j++) {
 				if (sql.at(0).at(i) == vec2.at(j).at(1))
 				{
-					
+
 					int size = atoi(vec2.at(j).at(3).c_str());
-					if (sql.at(1).at(i-2).size() > size&&vec2.at(j).at(3)!="NULL")
+					if (sql.at(1).at(i - 2).size() > size&&vec2.at(j).at(3) != "NULL")
 						return false;
 					else
 						break;
@@ -727,7 +723,7 @@ void DataManage::getfieldV()
 		vector<string> temp_vec;
 		char *temp3;
 		char temp4[100];
-		for (int i = 0; i<vec1.at(j).length(); i++)
+		for (int i = 0; i < vec1.at(j).length(); i++)
 			temp4[i] = vec1.at(j)[i];
 		temp4[vec1.at(j).length()] = '\0';
 

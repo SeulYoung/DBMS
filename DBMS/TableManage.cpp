@@ -31,11 +31,6 @@ TableManage::TableManage(vector<vector<string>> s)
 	sql = s;
 }
 
-vector<vector<string>> TableManage::getTableInfo(string db, string table)
-{
-	return vector<vector<string>>();
-}
-
 void TableManage::ListDatebase(string s)
 {
 	string path = "C:\\Users\\lxy94\\Desktop";
@@ -296,7 +291,7 @@ int TableManage::CheckExist(string s)
 	return 0;
 }
 
-int TableManage::CreatDatebase( string & str)
+int TableManage::CreatDatebase(string & str)
 {
 	string s = sql[0][1];
 	string frontpath;
@@ -314,8 +309,8 @@ int TableManage::CreatDatebase( string & str)
 	string path5 = s + endpath5;
 	int temp = SearchDatebase(s);
 	if (temp == 1) {
-	str = "table already exist"; 
-	return false;
+		str = "table already exist";
+		return false;
 	}
 	if (ValidDatebase(s) == -1) {
 		str = "tablename over 128";
@@ -392,12 +387,12 @@ int TableManage::DeleteDatebase(string & str)
 	{
 		str = "delete false";
 		cout << "delete false" << endl;
-	
+
 		return false;
 	}
 	str = "delete table successful";
 	/*cout << "delete table successful" << endl;*/
-	
+
 	return 1;
 }
 
