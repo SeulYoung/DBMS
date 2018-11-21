@@ -295,18 +295,18 @@ int TableManage::CheckExist(string s)
 int TableManage::CreatDatebase(string & str)
 {
 	string s = sql[0][1];
-	string frontpath;
+	string frontpath = "./data/" + dbName + "/";
 	
 	string endpath1 = ".tb";
 	string endpath2 = ".tdf";
 	string endpath3 = ".tic";
 	string endpath4 = ".trd";
 	string endpath5 = ".tid";
-	string path1 = s + endpath1;
-	string path2 = s + endpath2;
-	string path3 = s + endpath3;
-	string path4 = s + endpath4;
-	string path5 = s + endpath5;
+	string path1 = frontpath+dbName + endpath1;
+	string path2 = frontpath+s + endpath2;
+	string path3 = frontpath+s + endpath3;
+	string path4 = frontpath+s + endpath4;
+	string path5 = frontpath+s + endpath5;
 	int temp = SearchDatebase(s);
 	if (temp == 1) {
 		str = "table already exist";
@@ -335,11 +335,11 @@ int TableManage::CreatDatebase(string & str)
 	string datebasename;
 	ofstream ofile;               //定义输出文件
 	ofile.open(path1);     //作为输出文件打开
-	ofile << s << endl;
-	ofile << path2 << endl;
-	ofile << path3 << endl;
-	ofile << path4 << endl;
-	ofile << path5 << endl;
+	ofile << s << " ";
+	ofile << path2 << " ";
+	ofile << path3 << " ";
+	ofile << path4 << " ";
+	ofile << path5 << " ";
 	ofile << getCurenttime() << endl;
 	ofile.close();
 	getchar();

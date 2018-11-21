@@ -39,7 +39,7 @@ string DataManage::data_insert()
 {
 	ofstream out_file;
 	string s = "";
-	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app);
+	out_file.open("./data/" + dbName + "/" + sql.at(0).at(1) + + ".trd", ios::out | ios::app);
 	bool isNull = true;
 	string msg;
 
@@ -243,7 +243,7 @@ string DataManage::data_delete()
 	//写入文件
 	ofstream out_file;
 	string s = "";
-	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::binary);
+	out_file.open("./data/" + dbName + "/" + sql.at(0).at(1) + ".trd", ios::out | ios::binary);
 	for (int i = 0; i < rst.size(); i++) {
 		for (int j = 0; j < rst.at(i).size(); j++) {
 			out_file << rst.at(i).at(j);
@@ -532,7 +532,7 @@ string DataManage::data_update()
 	//写入文件
 	ofstream out_file;
 	string s = "";
-	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::binary);
+	out_file.open("./data/" + dbName + "/" + sql.at(0).at(1) + ".trd", ios::out | ios::binary);
 	for (int i = 0; i < rst.size(); i++) {
 		for (int j = 0; j < rst.at(i).size(); j++) {
 			out_file << rst.at(i).at(j);
@@ -634,7 +634,7 @@ string DataManage::con_check()
 	vector<string> vec3;
 	vector<vector<string>> vec4;
 
-	ifstream in(sql.at(0).at(1) + ".tic");
+	ifstream in("./data/" + dbName + "/" + sql.at(0).at(1) + ".tic");
 	if (!in.is_open())
 	{
 		return"请求表不存在。";
@@ -682,7 +682,7 @@ string DataManage::con_check()
 	bool isNull = false;
 	if (sql.at(0).size() > 2) {
 		for (int j = 0; j < vec4.size(); j++) {
-			if (vec4.at(j).at(2) == "not") {
+			if (vec4.at(j).at(2) == "not"|| vec4.at(j).at(2) == "foreign") {
 				for (int i = 2; i < sql.at(0).size(); i++) {
 					if (sql.at(0).at(i) == vec4.at(j).at(1)) {
 						isNull = true;
@@ -702,9 +702,9 @@ string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 {
 	string con_re = "约束检查成功";
 
-	if (vec4.at(pos2).at(2) == "primary")
+	if (vec4.at(pos2).at(2) == "primary"|| vec4.at(pos2).at(2)=="unique")
 	{
-
+		
 	}
 	else if (vec4.at(pos2).at(2) == "foreign")
 	{
@@ -752,7 +752,7 @@ bool DataManage::len_check()
 
 bool DataManage::getfieldV()
 {
-	ifstream in(sql.at(0).at(1) + ".tdf");
+	ifstream in("./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf");
 	if (!in.is_open())
 		return false;
 	
