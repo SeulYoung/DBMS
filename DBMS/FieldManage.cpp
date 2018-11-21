@@ -1,8 +1,9 @@
 #include "FieldManage.h"
 
-FieldManage::FieldManage(vector<vector<string>> s)
+FieldManage::FieldManage(vector<vector<string>> s, string db)
 {
 	sql = s;
+	dbName = db;
 }
 
 string FieldManage::manage()

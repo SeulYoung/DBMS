@@ -9,7 +9,7 @@ using namespace std;
 class DataManage
 {
 public:
-	DataManage(vector<vector<string>> s);
+	DataManage(vector<vector<string>> s, string db);
 	~DataManage() {};
 	string manage();
 	const vector<string> explode(const string& s, const char& c);
@@ -22,6 +22,7 @@ private:
 	vector<vector<string>> contents2;//select记录数据表中内容
 	stringstream r_slct;//select return str
 
+	string dbName; //当前使用的数据库名称
 	string data_insert();
 	string data_delete();
 	string data_update();

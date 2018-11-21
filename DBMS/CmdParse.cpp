@@ -1,5 +1,10 @@
 #include "CmdParse.h"
 
+CmdParse::CmdParse()
+{
+	dbName = "ruanko";
+}
+
 string CmdParse::sqlCheck(string s)
 {
 	regex dShow("^use \\w+;$");

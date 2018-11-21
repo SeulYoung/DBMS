@@ -10,7 +10,7 @@
 class CmdParse
 {
 public:
-	CmdParse() {};
+	CmdParse();
 	~CmdParse() {};
 	string sqlCheck(string s);
 	vector<vector<string>> getDbs();
@@ -31,4 +31,5 @@ private:
 	string preWhere(string s);
 
 	string sql;
+	string dbName;
 };

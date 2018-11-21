@@ -1,8 +1,9 @@
 #include "DataManage.h"
 
-DataManage::DataManage(vector<vector<string>> s)
+DataManage::DataManage(vector<vector<string>> s,string db)
 {
 	sql = s;
+	dbName = db;
 }
 
 string DataManage::manage()
@@ -109,7 +110,7 @@ string DataManage::data_delete()
 				size_t pos1 = sql.at(1).at(i).find("and");
 				size_t pos = sql.at(1).at(i).find("=");
 				string temp1 = sql.at(1).at(i).substr(0, pos);
-				string temp2 = sql.at(1).at(i).substr(pos + 1, pos1 - pos-2);
+				string temp2 = sql.at(1).at(i).substr(pos + 1, pos1 - pos - 2);
 				temp.push_back(temp1);
 				temp.push_back(temp2);
 				temp.push_back(std::to_string(1));
@@ -195,7 +196,7 @@ string DataManage::data_delete()
 		}
 		//按行判断数据
 		int ptemp = 1;
-		for (int i = 0; i < rst.size() -1; i++) {
+		for (int i = 0; i < rst.size() - 1; i++) {
 			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
 				ptemp = 0;
 				rst.erase(rst.begin() + i);
@@ -376,7 +377,7 @@ string DataManage::data_update()
 				}
 				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
 					pos1 = k;
-				}				
+				}
 			}
 		}
 
@@ -438,7 +439,7 @@ string DataManage::data_update()
 				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
 					pos1 = k;
 				}
-				
+
 			}
 
 		}

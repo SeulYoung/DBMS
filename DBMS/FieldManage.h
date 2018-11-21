@@ -9,7 +9,7 @@ using namespace std;
 class FieldManage
 {
 public:
-	FieldManage(vector<vector<string>> s);
+	FieldManage(vector<vector<string>> s, string db);
 	~FieldManage() {};
 	string manage();
 
@@ -22,6 +22,7 @@ private:
 	string constraint_drop();
 
 	vector<vector<string>> sql;
+	string dbName; //当前使用的数据库名称
 	string isSuc;
 };
 

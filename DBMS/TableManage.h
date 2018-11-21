@@ -18,7 +18,7 @@ public:
 	string crtime;
 	string mtime;
 
-	TableManage(vector<vector<string>> s);
+	TableManage(vector<vector<string>> s, string db);
 	~TableManage() {};
 	string CharToStr(char * contentChar);
 	void ListDatebase(string s);	//列出表
@@ -36,6 +36,7 @@ public:
 
 private:
 	vector<vector<string>> sql;
+	string dbName; //当前使用的数据库名称
 	char DataBaseName[128];
 	char Table[128];
 };

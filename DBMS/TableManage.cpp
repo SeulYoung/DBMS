@@ -26,9 +26,10 @@ using namespace std;
 //	return 0;
 //}
 
-TableManage::TableManage(vector<vector<string>> s)
+TableManage::TableManage(vector<vector<string>> s, string db)
 {
 	sql = s;
+	dbName = db;
 }
 
 void TableManage::ListDatebase(string s)
