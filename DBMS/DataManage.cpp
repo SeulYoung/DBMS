@@ -1,8 +1,9 @@
 #include "DataManage.h"
 
-DataManage::DataManage(vector<vector<string>> s)
+DataManage::DataManage(vector<vector<string>> s,string db)
 {
 	sql = s;
+	dbname = db;
 }
 
 DataManage::~DataManage()
@@ -253,56 +254,103 @@ string DataManage::data_update()
 
 string DataManage::data_select()
 {
-	//判断表是否存在
-	//string path="";
-	//char p[256];
-	//FILE *file;
-	ifstream in;
-	vector<string> line;
+	ifstream in,in2;
+	vector<string> line,l_content;
+	vector<string> v1;//存打印内容
 	for (size_t i = 0; i < sql[1].size(); i++) {
-		/*path = "data//ku//";
-		path += sql[1][i];
-		path += ".tdf";
-		strcpy_s(p, path.c_str());*/
-		//in.open("data//kuming//" + sql[1][i] + ".tdf");
-		in.open("aa.tdf");
+		in.open(sql[1][i]+".tdf");
+		in2.open(sql[1][i]+".trd");
 		if (!in.is_open())
 		{
 			return "查找的表不存在";
 		}
 		char buffer[128];
+		int count = 0;//记录读到第几列
+		while (!in2.eof()) {
+			in2.getline(buffer, sizeof(buffer));
+			if (buffer[0] == '\0')break;
+			l_content.push_back(buffer);
+		}
 		while (!in.eof()) {
 			in.getline(buffer, sizeof(buffer));
+			if (buffer[0] == '\0')break;
 			line.push_back(buffer);
+			if ((std::count(sql[0].begin(),sql[0].end(),this->explode(line[count],' ').at(1)))!=0) {
+				if (v1.size() == 0) {
+					for (int j = 0; j < l_content.size(); j++) {
+						v1.push_back(this->explode(l_content[j], '\t').at(count));
+					}
+				}
+				else {
+					for (int j = 0; j < l_content.size(); j++) {
+						v1.at(j) += "\t";
+						v1.at(j) += this->explode(l_content[j], '\t').at(count);
+					}
+				}
+			}
+			count++;
 		}
 		contents1.push_back(line);
+		contents2.push_back(v1);
+		l_content.clear();
 		line.clear();
 		in.close();
+		in2.close();
 	}
-	int s_num=sql[0].size();//select column number;
-	vector<string> get;
+	int s_num=sql[0].size()-1;//select column number;
+	vector<string> get;//记录获取到的列名
 	bool judge = false;
 	for (size_t i = 0; i < contents1.size(); i++) {
-		vector<string> v = contents1[i];//v代表某tdf内容 
-		for (size_t j = 0; j < v.size(); j++) {
-			line = this->explode(v[j], ' ');//line代表某行内容
+		for (size_t j = 0; j < contents1[i].size(); j++) {
+			line = this->explode(contents1[i][j], ' ');//line代表某行内容
 			for (size_t k = 1; k < sql[0].size(); k++) {
 				if (sql[0][k]==line[1]) {
 					//判断是否在其他表中读到
 					if (std::count(get.begin(),get.end(),line[1])==0) {
 						get.push_back(line[1]);
 						r_slct << sql[0][k];
-						r_slct << "/t";
+						r_slct << "\t";
 						s_num--;
+					}
+					else {
+						return "多表中存在同个"+line[1];
 					}
 				}
 			}
 		}
 	}
+
 	if (s_num == 0)judge = true;
-	else {
+	if (judge==false){
 		return "查找的列不存在";
 	}
+	r_slct << "\n";
+	int n =0;
+	for (int m = 0; m < contents2[n].size(); m++) {
+		for (n; n < contents2.size(); n++) {
+			r_slct << contents2[n][m];
+			r_slct << "\t";
+		}
+		r_slct << "\n";
+		n = 0;
+	}
+	//string all_content = r_slct.str();
+	//vector<string> a{this->explode(all_content,'/t')};
+	//vector<string> b;
+	//ifstream in_table;
+	//判断是否有where等附加判断
+	//if (sql.size()==2){
+	//	for (int i = 0; i < sql[1].size();i++) {
+	//		in_table.open("data//kuming//" + sql[1][i]);
+	//		if (i == 0) {
+	//			
+	//		}
+	//	}
+	//}
+	//else {
+
+	//}
+
 	string str=r_slct.str();
 	return str;
 }

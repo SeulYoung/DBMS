@@ -1,5 +1,10 @@
 #include "CmdParse.h"
 
+CmdParse::CmdParse()
+{
+	dbname = "ruanko";
+}
+
 string CmdParse::sqlCheck(string s)
 {
 	regex dShow("^use \\w+;$");
@@ -704,9 +709,9 @@ string CmdParse::tableSelect()
 	for (auto t = temp.rbegin(); t != temp.rend(); t++)
 		vSelect.push_back(*t);
 
-	DataManage dataManage(vSelect);
-	dataManage.manage();
-	return "Select数据成功";
+	DataManage dataManage(vSelect,dbname);
+	string msg = dataManage.manage();
+	return msg;
 }
 
 string CmdParse::preSql(string s) //语句预处理

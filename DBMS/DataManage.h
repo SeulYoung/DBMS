@@ -9,10 +9,11 @@ using namespace std;
 class DataManage
 {
 public:
-	DataManage(vector<vector<string>> s);
+	DataManage(vector<vector<string>> s,string db);
 	~DataManage();
 	string manage();
 	const vector<string> explode(const string& s, const char& c);
+	string dbname;
 	
 private:
 	vector<vector<string>> sql;
