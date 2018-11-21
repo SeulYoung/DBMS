@@ -7,8 +7,8 @@ CmdParse::CmdParse()
 
 string CmdParse::sqlCheck(string s)
 {
-	regex dShow("^use \\w+;$");
-	regex dUse("^show databases;$");
+	regex dShow("^show databases;$");
+	regex dUse("^use \\w+;$");
 	regex dCreate("^create database \\w+;$");
 	regex dDrop("^drop database \\w+;$");
 	regex tCreate("^create table \\w+\\s?\\(.+\\);$");
@@ -20,7 +20,11 @@ string CmdParse::sqlCheck(string s)
 	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
 	sql = preSql(s);
-	if (regex_match(sql, dCreate))
+	if (regex_match(sql, dShow))
+		return dbShow();
+	else if (regex_match(sql, dUse))
+		return dbUse();
+	else if (regex_match(sql, dCreate))
 		return dbCreate();
 	else if (regex_match(sql, dDrop))
 		return dbDrop();
@@ -55,6 +59,34 @@ vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 vector<string> CmdParse::getField(string db, string table, string col)
 {
 	return vector<string>();
+}
+
+string CmdParse::dbShow()
+{
+	vector<vector<string>> vShow;
+
+	vector<string> name;
+	name.push_back("show");
+	string s = sql.substr(5, sql.size() - 6);
+	name.push_back(s);
+	vShow.push_back(name);
+
+	DbManage dm(vShow);
+	return "Show database成功";
+}
+
+string CmdParse::dbUse()
+{
+	vector<vector<string>> vUse;
+
+	vector<string> name;
+	name.push_back("use");
+	string s = sql.substr(4, sql.size() - 5);
+	name.push_back(s);
+	vUse.push_back(name);
+
+	DbManage dm(vUse);
+	return "Use database成功";
 }
 
 string CmdParse::dbCreate()

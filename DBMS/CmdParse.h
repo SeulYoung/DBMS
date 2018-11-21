@@ -18,6 +18,8 @@ public:
 	vector<string> getField(string db,string table,string col);
 
 private:
+	string dbShow();
+	string dbUse();
 	string dbCreate();
 	string dbDrop();
 	string tableCreate();
