@@ -5,12 +5,6 @@ DbManage::DbManage(vector<vector<string>> s)
 	sql = s;
 }
 
-DbManage::~DbManage()
-{
-
-}
-
-
 void DbManage::CreateDatabase()
 {
 
@@ -58,6 +52,7 @@ void DbManage::CreateDatabase()
 
 
 	char new_name[256];
+	char new_name1[256];
 	/*	if (d_path != "") {
 	string d_file = d_path + "//" + d_name;
 	strcpy_s(new_name, d_file.c_str());
@@ -72,7 +67,9 @@ void DbManage::CreateDatabase()
 	strcpy_s(d_path, new_name);
 	strcat_s(new_name, "//");
 	strcat_s(new_name, d_name);
+	strcpy_s(new_name1, new_name);
 	strcat_s(new_name, ".log");
+	strcat_s(new_name1, ".tb");
 	if ((fopen_s(&new_file, new_name, "r")) == 0) {
 		cout << "Existed database!" << endl;
 		//fclose(new_file);
@@ -85,10 +82,9 @@ void DbManage::CreateDatabase()
 		_mkdir(s.c_str());
 		fopen_s(&new_file, new_name, "w");
 		fclose(new_file);
-		fopen_s(&new_file, new_name, "w");
+		fopen_s(&new_file, new_name1, "w");
 		fclose(new_file);
-		fopen_s(&new_file, new_name, "w");
-		fclose(new_file);
+
 		string a1 = d_name;
 		string a2 = d_path;
 		string a3 = d_time;

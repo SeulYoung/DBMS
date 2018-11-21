@@ -26,14 +26,10 @@ using namespace std;
 //	return 0;
 //}
 
-TableManage::TableManage(vector<vector<string>> s)
+TableManage::TableManage(vector<vector<string>> s, string db)
 {
 	sql = s;
-}
-
-vector<vector<string>> TableManage::getTableInfo(string db, string table)
-{
-	return vector<vector<string>>();
+	dbName = db;
 }
 
 void TableManage::ListDatebase(string s)
@@ -296,17 +292,16 @@ int TableManage::CheckExist(string s)
 	return 0;
 }
 
-int TableManage::CreatDatebase( string & str)
+int TableManage::CreatDatebase(string & str)
 {
 	string s = sql[0][1];
 	string frontpath;
-	string endpath = ".txt";
+	
 	string endpath1 = ".tb";
 	string endpath2 = ".tdf";
 	string endpath3 = ".tic";
 	string endpath4 = ".trd";
 	string endpath5 = ".tid";
-	string path = s + endpath;
 	string path1 = s + endpath1;
 	string path2 = s + endpath2;
 	string path3 = s + endpath3;
@@ -314,21 +309,20 @@ int TableManage::CreatDatebase( string & str)
 	string path5 = s + endpath5;
 	int temp = SearchDatebase(s);
 	if (temp == 1) {
-	str = "table already exist"; 
-	return false;
+		str = "table already exist";
+		return false;
 	}
 	if (ValidDatebase(s) == -1) {
 		str = "tablename over 128";
 		return false;
 	}
-	fstream file, file1, file2, file3, file4, file5;
-	file.open(path, ios::out);
+	fstream file1, file2, file3, file4, file5;
 	file1.open(path1, ios::app);
 	file2.open(path2, ios::out);
 	file3.open(path3, ios::out);
 	file4.open(path4, ios::out);
 	file5.open(path5, ios::out);
-	if (!file || !file1 || !file2 || !file3 || !file4 || !file5)
+	if (!file1 || !file2 || !file3 || !file4 || !file5)
 	{
 		str = "create table false";
 		/*cout << "bad time" << endl;*/
@@ -336,7 +330,6 @@ int TableManage::CreatDatebase( string & str)
 	}
 	str = "create table successful";
 	/*cout << "good time" << endl;*/
-	file.close();
 	file1.close();
 
 	string datebasename;
@@ -372,14 +365,12 @@ int TableManage::DeleteDatebase(string & str)
 	//string path = m_strPath + '\\' + filename;
 	// int remove(char *filename);
 	// 删除文件，成功返回0，否则返回-1
-	if (SearchDatebase(s) == 0) {
-		str = "table not exist";
-		//cout << "not exist";
-		return 0;
-	}
-	string frontpath;
-	string endpath = ".txt";
-	string path = "dic" + endpath;
+	//if (SearchDatebase(s) == 0) {
+	//	str = "table not exist";
+	//	//cout << "not exist";
+	//	return 0;
+	//}
+	
 	string endpath1 = ".tdf";
 	string endpath2 = ".tic";
 	string endpath3 = ".trd";
@@ -390,14 +381,12 @@ int TableManage::DeleteDatebase(string & str)
 	string path4 = s + endpath4;
 	if (-1 == remove(path1.c_str()) || -1 == remove(path2.c_str()) || -1 == remove(path3.c_str()) || -1 == remove(path4.c_str()))
 	{
-		str = "delete false";
-		cout << "delete false" << endl;
-	
+		str = "删除表失败";
 		return false;
 	}
 	str = "delete table successful";
 	/*cout << "delete table successful" << endl;*/
-	
+
 	return 1;
 }
 

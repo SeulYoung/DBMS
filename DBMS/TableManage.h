@@ -1,6 +1,5 @@
 #pragma once
 #include<string>
-#include"io.h"
 #include<vector>
 #include<list>
 using namespace std;
@@ -19,10 +18,8 @@ public:
 	string crtime;
 	string mtime;
 
-	TableManage() {};
-	TableManage(vector<vector<string>> s);
+	TableManage(vector<vector<string>> s, string db);
 	~TableManage() {};
-	vector<vector<string>> getTableInfo(string db, string table);
 	string CharToStr(char * contentChar);
 	void ListDatebase(string s);	//列出表
 	string getCurenttime();      //得到当前时间
@@ -39,6 +36,7 @@ public:
 
 private:
 	vector<vector<string>> sql;
+	string dbName; //当前使用的数据库名称
 	char DataBaseName[128];
 	char Table[128];
 };

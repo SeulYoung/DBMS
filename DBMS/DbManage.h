@@ -15,7 +15,7 @@ class DbManage
 {
 public:
 	DbManage(vector<vector<string>> s);
-	~DbManage();
+	~DbManage() {};
 	void CreateDatabase();
 	void DeleteDatabase();
 	const vector<string> explode(const string& s, const char& c);

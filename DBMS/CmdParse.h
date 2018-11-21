@@ -18,6 +18,8 @@ public:
 	vector<string> getField(string db,string table,string col);
 
 private:
+	string dbShow();
+	string dbUse();
 	string dbCreate();
 	string dbDrop();
 	string tableCreate();
@@ -31,5 +33,5 @@ private:
 	string preWhere(string s);
 
 	string sql;
-	string dbname;
+	string dbName;
 };

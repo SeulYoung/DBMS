@@ -2,13 +2,13 @@
 
 CmdParse::CmdParse()
 {
-	dbname = "ruanko";
+	dbName = "ruanko";
 }
 
 string CmdParse::sqlCheck(string s)
 {
-	regex dShow("^use \\w+;$");
-	regex dUse("^show databases;$");
+	regex dShow("^show databases;$");
+	regex dUse("^use \\w+;$");
 	regex dCreate("^create database \\w+;$");
 	regex dDrop("^drop database \\w+;$");
 	regex tCreate("^create table \\w+\\s?\\(.+\\);$");
@@ -20,7 +20,11 @@ string CmdParse::sqlCheck(string s)
 	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
 	sql = preSql(s);
-	if (regex_match(sql, dCreate))
+	if (regex_match(sql, dShow))
+		return dbShow();
+	else if (regex_match(sql, dUse))
+		return dbUse();
+	else if (regex_match(sql, dCreate))
 		return dbCreate();
 	else if (regex_match(sql, dDrop))
 		return dbDrop();
@@ -55,6 +59,34 @@ vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 vector<string> CmdParse::getField(string db, string table, string col)
 {
 	return vector<string>();
+}
+
+string CmdParse::dbShow()
+{
+	vector<vector<string>> vShow;
+
+	vector<string> name;
+	name.push_back("show");
+	string s = sql.substr(5, sql.size() - 6);
+	name.push_back(s);
+	vShow.push_back(name);
+
+	DbManage dm(vShow);
+	return "Show database成功";
+}
+
+string CmdParse::dbUse()
+{
+	vector<vector<string>> vUse;
+
+	vector<string> name;
+	name.push_back("use");
+	string s = sql.substr(4, sql.size() - 5);
+	name.push_back(s);
+	vUse.push_back(name);
+
+	DbManage dm(vUse);
+	return "Use database成功";
 }
 
 string CmdParse::dbCreate()
@@ -174,10 +206,10 @@ string CmdParse::tableCreate()
 	else
 		return "括号中语句存在错误";
 
-	TableManage tableManage(vCreate);
+	TableManage tableManage(vCreate, dbName);
 	string str;
 	if (tableManage.CreatDatebase(str) == 1) {
-		FieldManage fm(vCreate);
+		FieldManage fm(vCreate, dbName);
 		string s=fm.manage();
 		return s;
 	}
@@ -307,8 +339,8 @@ string CmdParse::tableAlter()
 	else
 		return "参数语句存在错误";
 
-	TableManage tableManage(vAlter);
-	FieldManage fm(vAlter);
+	TableManage tableManage(vAlter, dbName);
+	FieldManage fm(vAlter, dbName);
 	string msg = fm.manage();
 	return msg;
 	//return "Alter table成功";
@@ -324,7 +356,7 @@ string CmdParse::tableDrop()
 	name.push_back(s);
 	vDrop.push_back(name);
 
-	TableManage tableManage(vDrop);
+	TableManage tableManage(vDrop, dbName);
 	string str;
 	if (tableManage.DeleteDatebase(str) == 1) {
 		return "删除表成功";
@@ -346,6 +378,8 @@ string CmdParse::tableInsert()
 		insert.push_back("insert");
 		smatch rsm;
 		string s = sql.substr(12, off1 - 12);
+		if (s[s.size() - 1] == ' ')
+			s.erase(s.size() - 1);
 
 		int off2;
 		if ((off2 = s.find("(")) != string::npos)
@@ -401,7 +435,7 @@ string CmdParse::tableInsert()
 	else
 		return "values语句后存在错误";
 
-	DataManage dataManage(vInsert);
+	DataManage dataManage(vInsert, dbName);
 	string msg = dataManage.manage();
 	return msg;
 	//return "Insert数据成功";
@@ -454,7 +488,7 @@ string CmdParse::tableDelete()
 	else
 		return "where语句后存在错误";
 
-	DataManage dataManage(vDelete);
+	DataManage dataManage(vDelete, dbName);
 	string msg = dataManage.manage();
 	return msg;
 	//return "Delete 数据成功";
@@ -528,7 +562,7 @@ string CmdParse::tableUpdate()
 
 	/*DataManage dataManage(vUpdate);
 	return "Update 数据成功";*/
-	DataManage dataManage(vUpdate);
+	DataManage dataManage(vUpdate, dbName);
 	string msg = dataManage.manage();
 	return msg;
 }
@@ -709,9 +743,9 @@ string CmdParse::tableSelect()
 	for (auto t = temp.rbegin(); t != temp.rend(); t++)
 		vSelect.push_back(*t);
 
-	DataManage dataManage(vSelect,dbname);
-	string msg = dataManage.manage();
-	return msg;
+	DataManage dataManage(vSelect, dbName);
+	dataManage.manage();
+	return "Select数据成功";
 }
 
 string CmdParse::preSql(string s) //语句预处理
@@ -735,7 +769,7 @@ string CmdParse::preSql(string s) //语句预处理
 		}
 
 	if (sql[n - 1] == ' ')
-		sql.erase(n - 1, 1);
+		sql.erase(n - 1);
 	return sql;
 }
 

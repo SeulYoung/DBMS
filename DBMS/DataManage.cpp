@@ -3,11 +3,7 @@
 DataManage::DataManage(vector<vector<string>> s,string db)
 {
 	sql = s;
-	dbname = db;
-}
-
-DataManage::~DataManage()
-{
+	dbName = db;
 }
 
 string DataManage::manage()
@@ -43,11 +39,12 @@ string DataManage::data_insert()
 {
 	ofstream out_file;
 	string s = "";
-	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app );
+	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app);
 	bool isNull = true;
 	string msg;
-	
-	if (isColumn())
+
+	msg = isColumn();
+	if (msg=="存在")
 	{
 		if (!len_check()) {
 			return "数据长度不符合约束";
@@ -94,27 +91,177 @@ string DataManage::data_insert()
 		}
 	}
 	else
-		return "插入的列中有不存在的列";
+		return msg;
 	return "数据插入成功";
 }
 
+
+
+
+
 string DataManage::data_delete()
 {
-	//读取tdf文件
+	vector<vector<string>> judge;
+
+	//条件判断字符串
+	for (int i = 0; i < sql[1].size(); i++) {
+		vector<string> temp;
+		if (sql.at(1).at(i).find("=") != string::npos) {
+			if (sql.at(1).at(i).find("and") != string::npos) {
+				size_t pos1 = sql.at(1).at(i).find("and");
+				size_t pos = sql.at(1).at(i).find("=");
+				string temp1 = sql.at(1).at(i).substr(0, pos);
+				string temp2 = sql.at(1).at(i).substr(pos + 1, pos1 - pos - 2);
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+			else {
+				size_t pos = sql.at(1).at(i).find("=");
+				string temp1 = sql.at(1).at(i).substr(0, pos);
+				string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+		}
+		else if (sql.at(1).at(i).find("<") != string::npos) {
+			size_t pos = sql.at(1).at(i).find("<");
+			string temp1 = sql.at(1).at(i).substr(0, pos);
+			string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
+			temp.push_back(temp1);
+			temp.push_back(temp2);
+			temp.push_back(std::to_string(2));
+			judge.push_back(temp);
+		}
+		else if (sql.at(1).at(i).find(">") != string::npos) {
+			size_t pos = sql.at(1).at(i).find(">");
+			string temp1 = sql.at(1).at(i).substr(0, pos);
+			string temp2 = sql.at(1).at(i).substr(pos + 1, sql.at(1).at(i).size());
+			temp.push_back(temp1);
+			temp.push_back(temp2);
+			temp.push_back(std::to_string(3));
+			judge.push_back(temp);
+		}
+	}
 	getfieldV();
+	int judge_flag = 0;
+
+	for (int i = 0; i < judge.size(); i++) {
+		bool signal = false;
+		for (int j = 0; j < vec1.size(); j++) {
+			if (judge.at(i).at(0) == vec2.at(j).at(1)) {
+				signal = true;
+				break;
+			}
+		}
+		if (!signal)
+			judge_flag = 1;
+	}
+	/*if (judge_flag) {
+
+	return "删除的列不存在";
+	}*/
+	//取出数据表中的值
+	string name = sql[0][1];
+	string path = name + ".trd";
+	vector<vector<string>> rst;
+	ifstream fin1(path);
+	string line;
+	int fieldNum = vec1.size();
+	while (!fin1.eof()) {
+		vector<string> oneLine;
+		for (int i = 0; i < fieldNum; i++) {
+			string temp;
+			fin1 >> temp;
+			if (!temp.compare(""))
+				break;
+			oneLine.push_back(temp);
+		}
+		rst.push_back(oneLine);
+	}
+	fin1.close();
+	//取值更新
+	if (judge.size() == 1) {
+		int pos1 = 0;
+		int pos = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+			}
+		}
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
+			}
+		}if (ptemp) {
+			return "未选定行";
+		}
+	}
+	else if (judge.size() == 2) {
+		int pos = 0, poss = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == judge.at(1).at(0)) {
+
+					poss = k;
+				}
+			}
+
+		}
+
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
+			}
+		}if (ptemp) {
+			return "未选定行";
+		}
+	}
+
+	//判断约束条件
+	//default ,not null, unique ,check ,primary key,foreign key
+
+
+
+
+	//写入文件
+	ofstream out_file;
+	string s = "";
+	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::binary);
+	for (int i = 0; i < rst.size(); i++) {
+		for (int j = 0; j < rst.at(i).size(); j++) {
+			out_file << rst.at(i).at(j);
+			out_file << " ";
+		}
+		out_file << "\r\n";
+	}
+
+	out_file.close();
 	return "数据删除成功";
 }
 
 string DataManage::data_update()
 {
-	ofstream out_file;
-	string s = "";
 	vector<vector<string>> modify;
-	
+
 	vector<vector<string>> judge;
-	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::app | ios::binary);
-	bool isNull = true;
-	//截取字符串 得到指定行
+
 
 	//要更新字段字符串
 	for (int i = 0; i < sql[1].size(); i++) {
@@ -134,7 +281,7 @@ string DataManage::data_update()
 				size_t pos1 = sql.at(2).at(i).find("and");
 				size_t pos = sql.at(2).at(i).find("=");
 				string temp1 = sql.at(2).at(i).substr(0, pos);
-				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1-3);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - pos - 2);
 				temp.push_back(temp1);
 				temp.push_back(temp2);
 				temp.push_back(std::to_string(1));
@@ -151,22 +298,46 @@ string DataManage::data_update()
 			}
 		}
 		else if (sql.at(2).at(i).find("<") != string::npos) {
-			size_t pos = sql.at(2).at(i).find("<");
-			string temp1 = sql.at(2).at(i).substr(0, pos);
-			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
-			temp.push_back(temp1);
-			temp.push_back(temp2);
-			temp.push_back(std::to_string(2));
-			judge.push_back(temp);
+			if (sql.at(2).at(i).find("and") != string::npos) {
+				size_t pos1 = sql.at(2).at(i).find("and");
+				size_t pos = sql.at(2).at(i).find("<");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - pos - 2);
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+			else {
+				size_t pos = sql.at(2).at(i).find("<");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
 		}
 		else if (sql.at(2).at(i).find(">") != string::npos) {
-			size_t pos = sql.at(2).at(i).find(">");
-			string temp1 = sql.at(2).at(i).substr(0, pos);
-			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
-			temp.push_back(temp1);
-			temp.push_back(temp2);
-			temp.push_back(std::to_string(3));
-			judge.push_back(temp);
+			if (sql.at(2).at(i).find("and") != string::npos) {
+				size_t pos1 = sql.at(2).at(i).find("and");
+				size_t pos = sql.at(2).at(i).find(">");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - pos - 2);
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+			else {
+				size_t pos = sql.at(2).at(i).find(">");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
 		}
 	}
 	getfieldV();
@@ -195,16 +366,10 @@ string DataManage::data_update()
 		if (!signal)
 			judge_flag = 1;
 	}
-
 	/*if (modify_flag || judge_flag) {
-		
-		return "修改的列不存在";
+
+	return "修改的列不存在";
 	}*/
-
-	//判断约束条件
-
-
-
 	//取出数据表中的值
 	string name = sql[0][1];
 	string path = name + ".trd";
@@ -223,32 +388,162 @@ string DataManage::data_update()
 		}
 		rst.push_back(oneLine);
 	}
+	fin1.close();
 	//取值更新
-	/*int signal = 0;
-	for (int i = 0; i < judge.size(); i++) {
-		for (int j = 0; j < vec1.size(); j++) {
-			if (judge.at(i).at(0) == vec2.at(j).at(1) && judge.at(i).at(1)= " "  ) {
-				signal = true;
+	if (judge.size() == 1 && modify.size() == 1) {
+		int pos1 = 0;
+		int pos = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
 			}
 		}
-	}*/
-	
-	int pos1 ,pos2;
-	
-	for (int i = 0; i < judge.size(); i++) {
-		for (int j = 0; j < vec2.size(); j++) {
-			if (vec2.at(j).at(1) == judge.at(0).at(0)) {
-				pos1 = i;
+
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size(); i++) {
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
 			}
-			if (vec2.at(j).at(1) == judge.at(1).at(0)) {
-				pos2 = i;
-			}
+		}if (ptemp) {
+			return "未选定行";
 		}
 	}
-	
+	else if (judge.size() == 1 && modify.size() == 2) {
+		int pos1 = 0, pos2 = 0;
+		int pos = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(1).at(0)) {
+					pos2 = k;
+				}
+			}
+		}
+
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size(); i++) {
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+				rst.at(i).at(pos2) = "'" + modify.at(1).at(1) + "'";
+			}
+		}if (ptemp) {
+			return "未选定行";
+		}
+	}
+	else if (judge.size() == 2 && modify.size() == 1) {
+		int pos1 = 0;
+		int pos = 0, poss = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == judge.at(1).at(0)) {
+
+					poss = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
+
+			}
+
+		}
+
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+
+			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+			}
+		}if (ptemp) {
+			return "未选定行";
+		}
+
+	}
+	else if (judge.size() == 2 && modify.size() == 2) {
+		int pos1 = 0, pos2 = 0;
+		int pos = 0, poss = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == judge.at(1).at(0)) {
+
+					poss = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(1).at(0)) {
+					pos2 = k;
+				}
+			}
+
+		}
+
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+
+			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+				rst.at(i).at(pos2) = "'" + modify.at(1).at(1) + "'";
+
+			}
+		}if (ptemp) {
+			return "未选定行";
+		}
 
 
-	return "ok";
+	}
+
+
+	//判断约束条件
+	//default ,not null, unique ,check ,primary key,foreign key
+
+
+
+
+	//写入文件
+	ofstream out_file;
+	string s = "";
+	out_file.open(sql.at(0).at(1) + ".trd", ios::out | ios::binary);
+	for (int i = 0; i < rst.size(); i++) {
+		for (int j = 0; j < rst.at(i).size(); j++) {
+			out_file << rst.at(i).at(j);
+			out_file << " ";
+		}
+		out_file << "\r\n";
+	}
+
+	out_file.close();
+	return "数据更新成功";
+
 
 }
 
@@ -297,16 +592,18 @@ string DataManage::data_select()
 		in.close();
 		in2.close();
 	}
+
 	int s_num=sql[0].size()-1;//select column number;
 	vector<string> get;//记录获取到的列名
+
 	bool judge = false;
 	for (size_t i = 0; i < contents1.size(); i++) {
 		for (size_t j = 0; j < contents1[i].size(); j++) {
 			line = this->explode(contents1[i][j], ' ');//line代表某行内容
 			for (size_t k = 1; k < sql[0].size(); k++) {
-				if (sql[0][k]==line[1]) {
+				if (sql[0][k] == line[1]) {
 					//判断是否在其他表中读到
-					if (std::count(get.begin(),get.end(),line[1])==0) {
+					if (std::count(get.begin(), get.end(), line[1]) == 0) {
 						get.push_back(line[1]);
 						r_slct << sql[0][k];
 						r_slct << "\t";
@@ -324,6 +621,7 @@ string DataManage::data_select()
 	if (judge==false){
 		return "查找的列不存在";
 	}
+
 	r_slct << "\n";
 	int n =0;
 	for (int m = 0; m < contents2[n].size(); m++) {
@@ -356,10 +654,12 @@ string DataManage::data_select()
 }
 
 //判断是否是已存在的列
-bool DataManage::isColumn()
+string DataManage::isColumn()
 {
 	//读取.tdf文件
-	getfieldV();
+	bool isTdf = getfieldV();
+	if (!isTdf)
+		return "请求表不存在";
 
 	//检查要插入的列是否已经存在
 	bool signal = false;
@@ -370,13 +670,13 @@ bool DataManage::isColumn()
 					signal = true;
 			}
 			if (!signal)
-				return signal;
+				return "存在";
 		}
 	}
 	else
 		signal = true;
-	return signal;
-	
+	return "存在";
+
 }
 
 string DataManage::con_check()
@@ -404,7 +704,7 @@ string DataManage::con_check()
 		vector<string> temp_vec;
 		char *temp3;
 		char temp4[100];
-		for (int i = 0; i<vec3.at(j).length(); i++)
+		for (int i = 0; i < vec3.at(j).length(); i++)
 			temp4[i] = vec3.at(j)[i];
 		temp4[vec3.at(j).length()] = '\0';
 
@@ -440,15 +740,15 @@ string DataManage::con_check()
 					}
 				}
 			}
-			if (!isNull)
-				return "数据不符合非空约束";
 		}
+		if (!isNull)
+			return "数据不符合非空约束";
 	}
-	
+
 	return "约束检查成功";
 }
 
-string DataManage::con_parse(int pos1, int pos2,vector<vector<string>> vec4)
+string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 {
 	string con_re = "约束检查成功";
 
@@ -462,8 +762,9 @@ string DataManage::con_parse(int pos1, int pos2,vector<vector<string>> vec4)
 	}
 	else if (vec4.at(pos2).at(2) == "default")
 	{
-		if (sql.at(1).at(pos1-2)!=vec4.at(pos2).at(3))
+		if (sql.at(1).at(pos1 - 2) != vec4.at(pos2).at(3))
 			con_re = "数据不符合default约束";
+
 	}
 	else
 	{
@@ -479,8 +780,9 @@ bool DataManage::len_check()
 			for (int j = 0; j < vec2.size(); j++) {
 				if (sql.at(0).at(i) == vec2.at(j).at(1))
 				{
+
 					int size = atoi(vec2.at(j).at(3).c_str());
-					if (sql.at(1).at(i-2).size() > size)
+					if (sql.at(1).at(i - 2).size() > size&&vec2.at(j).at(3) != "NULL")
 						return false;
 					else
 						break;
@@ -498,14 +800,12 @@ bool DataManage::len_check()
 	return true;
 }
 
-void DataManage::getfieldV()
+bool DataManage::getfieldV()
 {
 	ifstream in(sql.at(0).at(1) + ".tdf");
 	if (!in.is_open())
-	{
-		cout << "Error opening file";
-		//exit(1);
-	}
+		return false;
+	
 	//生成vec1
 	while (!in.eof())
 	{
@@ -521,7 +821,7 @@ void DataManage::getfieldV()
 		vector<string> temp_vec;
 		char *temp3;
 		char temp4[100];
-		for (int i = 0; i<vec1.at(j).length(); i++)
+		for (int i = 0; i < vec1.at(j).length(); i++)
 			temp4[i] = vec1.at(j)[i];
 		temp4[vec1.at(j).length()] = '\0';
 
@@ -532,4 +832,5 @@ void DataManage::getfieldV()
 		}
 		vec2.push_back(temp_vec);
 	}
+	return true;
 }
