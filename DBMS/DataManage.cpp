@@ -298,22 +298,46 @@ string DataManage::data_update()
 			}
 		}
 		else if (sql.at(2).at(i).find("<") != string::npos) {
-			size_t pos = sql.at(2).at(i).find("<");
-			string temp1 = sql.at(2).at(i).substr(0, pos);
-			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
-			temp.push_back(temp1);
-			temp.push_back(temp2);
-			temp.push_back(std::to_string(2));
-			judge.push_back(temp);
+			if (sql.at(2).at(i).find("and") != string::npos) {
+				size_t pos1 = sql.at(2).at(i).find("and");
+				size_t pos = sql.at(2).at(i).find("<");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - pos - 2);
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+			else {
+				size_t pos = sql.at(2).at(i).find("<");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
 		}
 		else if (sql.at(2).at(i).find(">") != string::npos) {
-			size_t pos = sql.at(2).at(i).find(">");
-			string temp1 = sql.at(2).at(i).substr(0, pos);
-			string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
-			temp.push_back(temp1);
-			temp.push_back(temp2);
-			temp.push_back(std::to_string(3));
-			judge.push_back(temp);
+			if (sql.at(2).at(i).find("and") != string::npos) {
+				size_t pos1 = sql.at(2).at(i).find("and");
+				size_t pos = sql.at(2).at(i).find(">");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - pos - 2);
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
+			else {
+				size_t pos = sql.at(2).at(i).find(">");
+				string temp1 = sql.at(2).at(i).substr(0, pos);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				temp.push_back(temp1);
+				temp.push_back(temp2);
+				temp.push_back(std::to_string(1));
+				judge.push_back(temp);
+			}
 		}
 	}
 	getfieldV();
