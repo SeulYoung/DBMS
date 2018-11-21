@@ -36,3 +36,8 @@
 .vs/
 x64/
 Debug/
+
+# QT Creator
+GeneratedFiles/
+
+

@@ -400,7 +400,7 @@ string FieldManage::constraint_Add()
 		s += "\n";
 
 	}
-	else if (sql.at(2).at(0).find("primary") != string::npos || sql.at(2).at(0) == "unique")
+	else if (sql.at(2).at(0).find("primary") != string::npos || sql.at(2).at(0).find("unique") !=string::npos)
 	{
 		if (sql.at(2).at(1).find(",") != string::npos)
 		{

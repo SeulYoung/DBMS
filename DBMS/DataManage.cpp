@@ -392,9 +392,9 @@ string DataManage::con_check()
 					}
 				}
 			}
-			if (!isNull)
-				return "数据不符合非空约束";
 		}
+		if (!isNull)
+			return "数据不符合非空约束";
 	}
 	
 	return "约束检查成功";
@@ -416,6 +416,7 @@ string DataManage::con_parse(int pos1, int pos2,vector<vector<string>> vec4)
 	{
 		if (sql.at(1).at(pos1-2)!=vec4.at(pos2).at(3))
 			con_re = "数据不符合default约束";
+
 	}
 	else
 	{
@@ -431,8 +432,9 @@ bool DataManage::len_check()
 			for (int j = 0; j < vec2.size(); j++) {
 				if (sql.at(0).at(i) == vec2.at(j).at(1))
 				{
+					
 					int size = atoi(vec2.at(j).at(3).c_str());
-					if (sql.at(1).at(i-2).size() > size)
+					if (sql.at(1).at(i-2).size() > size&&vec2.at(j).at(3)!="NULL")
 						return false;
 					else
 						break;
