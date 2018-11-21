@@ -221,7 +221,7 @@ string DataManage::data_delete()
 		//按行判断数据
 		for (int i = 0; i < rst.size(); i++) {
 			if (rst.at(i).at(pos) == judge.at(0).at(1) && rst.at(i).at(poss) == judge.at(1).at(1)) {
-
+				rst.erase(rst.begin()+i);
 			}
 		}
 	}
@@ -274,7 +274,7 @@ string DataManage::data_update()
 				size_t pos1 = sql.at(2).at(i).find("and");
 				size_t pos = sql.at(2).at(i).find("=");
 				string temp1 = sql.at(2).at(i).substr(0, pos);
-				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1 - 3);
+				string temp2 = sql.at(2).at(i).substr(pos + 1, pos1-pos-2);
 				temp.push_back(temp1);
 				temp.push_back(temp2);
 				temp.push_back(std::to_string(1));
@@ -441,36 +441,38 @@ string DataManage::data_update()
 	else if (judge.size() == 2 && modify.size() == 2) {
 		int pos1 = 0, pos2 = 0;
 		int pos = 0, poss = 0;
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(0).at(0)))
-			{
-				pos = k;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m)  ==judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == judge.at(1).at(0)) {
+
+					poss = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(1).at(0)) {
+					pos2 = k;
+				}
 			}
+		
 		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(judge.at(1).at(0)))
-			{
-				poss = k;
-			}
-		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(modify.at(0).at(0)))
-			{
-				pos1 = k;
-			}
-		}
-		for (int k = 0; k < vec1.size(); k++) {
-			if (vec1.at(k).find(modify.at(1).at(0)))
-			{
-				pos2 = k;
-			}
-		}
+		
 		//按行判断数据
+		int ptemp = 1;
 		for (int i = 0; i < rst.size(); i++) {
-			if (rst.at(i).at(pos) == judge.at(0).at(1) && rst.at(i).at(poss) == judge.at(1).at(1)) {
+			if (rst.at(i).at(pos).find(judge.at(0).at(1)) && rst.at(i).at(poss).find(judge.at(1).at(1))) {
+				ptemp = 0;
 				rst.at(i).at(pos1) = modify.at(0).at(1);
 				rst.at(i).at(pos2) = modify.at(1).at(1);
+				
 			}
+		}
+		if (ptemp) {
+			return "未选定行";
 		}
 	}
 
