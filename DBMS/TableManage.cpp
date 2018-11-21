@@ -296,6 +296,7 @@ int TableManage::CreatDatebase(string & str)
 {
 	string s = sql[0][1];
 	string frontpath = "./data/" + dbName + "/";
+
 	
 	string endpath1 = ".tb";
 	string endpath2 = ".tdf";

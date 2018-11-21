@@ -8,6 +8,7 @@
 #include<time.h>
 #include<vector>
 #include<direct.h>
+#include<sstream>
 //#include<afx.h>
 
 using namespace std;
@@ -18,6 +19,7 @@ public:
 	~DbManage() {};
 	void CreateDatabase();
 	void DeleteDatabase();
+	string ShowDatabase();
 	const vector<string> explode(const string& s, const char& c);
 	struct database
 	{

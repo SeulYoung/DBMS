@@ -525,7 +525,73 @@ string DataManage::data_update()
 
 	//判断约束条件
 	//default ,not null, unique ,check ,primary key,foreign key
+	vector<string> vec3;
+	vector<vector<string>> vec4;
 
+	ifstream in(sql.at(0).at(1) + ".tic");
+	if (!in.is_open())
+	{
+		return"请求表不存在。";
+	}
+	//生成vec3
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec3.push_back(buffer);
+	}
+	in.close();
+
+	//生成vec4
+	for (size_t j = 0; j < vec3.size(); j++) {
+		vector<string> temp_vec;
+		char *temp3;
+		char temp4[100];
+		for (int i = 0; i < vec3.at(j).length(); i++)
+			temp4[i] = vec3.at(j)[i];
+		temp4[vec3.at(j).length()] = '\0';
+
+		temp3 = strtok(temp4, " ");
+		while (temp3) {
+			temp_vec.push_back(temp3);
+			temp3 = strtok(NULL, " ");
+		}
+		vec4.push_back(temp_vec);
+	}
+
+	//检查约束
+	int curtemp = 1;
+	//约束表逐行判断
+	for (int i = 0; i < vec4.size(); i++) {
+		for (int j = 0; j < vec2.size(); j++) {
+			if (vec4.at(i).at(1) == vec2.at(j).at(1)) {
+				if (vec4.at(i).at(2) == "unique") {
+					for (int k = 0; k < rst.size(); k++){
+						for (int h = 0; h < rst.size(); h++)
+							if (rst.at(k).at(j) == rst.at(k).at(j+h))
+								return "违反唯一约束";
+					}
+				}
+				else if (vec4.at(i).at(2) == "primary")
+				{
+
+				}
+				else if (vec4.at(i).at(2) == "foreign")
+				{
+
+				}
+				else if (vec4.at(i).at(2) == "not") {
+					for (int k = 0; k < rst.size(); k++) {
+						if (rst.at(k).at(j) == "null") {
+							return "违反非空约束";
+						}
+					}
+				}
+			}
+		
+		}
+	}
 
 
 
@@ -549,57 +615,107 @@ string DataManage::data_update()
 
 string DataManage::data_select()
 {
-	//判断表是否存在
-	//string path="";
-	//char p[256];
-	//FILE *file;
-	ifstream in;
-	vector<string> line;
+	ifstream in,in2;
+	vector<string> line,l_content;
+	vector<string> v1;//存打印内容
 	for (size_t i = 0; i < sql[1].size(); i++) {
-		/*path = "data//ku//";
-		path += sql[1][i];
-		path += ".tdf";
-		strcpy_s(p, path.c_str());*/
-		//in.open("data//kuming//" + sql[1][i] + ".tdf");
-		in.open("aa.tdf");
+		in.open(sql[1][i]+".tdf");
+		in2.open(sql[1][i]+".trd");
 		if (!in.is_open())
 		{
 			return "查找的表不存在";
 		}
 		char buffer[128];
+		int count = 0;//记录读到第几列
+		while (!in2.eof()) {
+			in2.getline(buffer, sizeof(buffer));
+			if (buffer[0] == '\0')break;
+			l_content.push_back(buffer);
+		}
 		while (!in.eof()) {
 			in.getline(buffer, sizeof(buffer));
+			if (buffer[0] == '\0')break;
 			line.push_back(buffer);
+			if ((std::count(sql[0].begin(),sql[0].end(),this->explode(line[count],' ').at(1)))!=0) {
+				if (v1.size() == 0) {
+					for (int j = 0; j < l_content.size(); j++) {
+						v1.push_back(this->explode(l_content[j], '\t').at(count));
+					}
+				}
+				else {
+					for (int j = 0; j < l_content.size(); j++) {
+						v1.at(j) += "\t";
+						v1.at(j) += this->explode(l_content[j], '\t').at(count);
+					}
+				}
+			}
+			count++;
 		}
 		contents1.push_back(line);
+		contents2.push_back(v1);
+		l_content.clear();
 		line.clear();
 		in.close();
+		in2.close();
 	}
-	int s_num = sql[0].size();//select column number;
-	vector<string> get;
+
+	int s_num=sql[0].size()-1;//select column number;
+	vector<string> get;//记录获取到的列名
+
 	bool judge = false;
 	for (size_t i = 0; i < contents1.size(); i++) {
-		vector<string> v = contents1[i];//v代表某tdf内容 
-		for (size_t j = 0; j < v.size(); j++) {
-			line = this->explode(v[j], ' ');//line代表某行内容
+		for (size_t j = 0; j < contents1[i].size(); j++) {
+			line = this->explode(contents1[i][j], ' ');//line代表某行内容
 			for (size_t k = 1; k < sql[0].size(); k++) {
 				if (sql[0][k] == line[1]) {
 					//判断是否在其他表中读到
 					if (std::count(get.begin(), get.end(), line[1]) == 0) {
 						get.push_back(line[1]);
 						r_slct << sql[0][k];
-						r_slct << "/t";
+						r_slct << "\t";
 						s_num--;
+					}
+					else {
+						return "多表中存在同个"+line[1];
 					}
 				}
 			}
 		}
 	}
+	
 	if (s_num == 0)judge = true;
-	else {
+	if (judge==false){
 		return "查找的列不存在";
 	}
-	string str = r_slct.str();
+
+	r_slct << "\n";
+	int n =0;
+	for (int m = 0; m < contents2[n].size(); m++) {
+		for (n; n < contents2.size(); n++) {
+			r_slct << contents2[n][m];
+ 			r_slct << "\t";
+		}
+		r_slct << "\n";
+		n = 0;
+	}
+	//string all_content = r_slct.str();
+	//vector<string> a{this->explode(all_content,'/t')};
+	//vector<string> b;
+	//ifstream in_table;
+	//判断是否有where等附加判断
+	//if (sql.size()==2){
+	//	for (int i = 0; i < sql[1].size();i++) {
+	//		in_table.open("data//kuming//" + sql[1][i]);
+	//		if (i == 0) {
+	//			
+	//		}
+	//	}
+	//}
+	//else {
+
+	//}
+
+	string str=r_slct.str();
 	return str;
 }
 

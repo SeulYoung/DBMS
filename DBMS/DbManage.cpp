@@ -42,7 +42,7 @@ void DbManage::CreateDatabase()
 		out.open("ruanko.db", ios::binary);
 		string str = "Name\t\tPath\t\tCreate_at\t\tType\n";
 		out << str;
-		str = "ruanko\t\tdata//ruanko\t\t" + (string)d_time + "\t\ttrue\n";
+		str = "ruanko\t\tdata//ruanko//\t\t" + (string)d_time + "\t\ttrue\n";
 		out << str;
 	}
 	else {
@@ -64,8 +64,8 @@ void DbManage::CreateDatabase()
 	*/
 	strcpy_s(new_name, "data//");
 	strcat_s(new_name, d_name);
-	strcpy_s(d_path, new_name);
 	strcat_s(new_name, "//");
+	strcpy_s(d_path, new_name);
 	strcat_s(new_name, d_name);
 	strcpy_s(new_name1, new_name);
 	strcat_s(new_name, ".log");
@@ -199,6 +199,29 @@ void DbManage::DeleteDatabase()
 	if (remove(new_name) == 0) {
 		cout << "success" << endl;
 	}
+}
+
+string DbManage::ShowDatabase()
+{
+	ifstream in("ruanko.db");
+	vector<string> show;
+	char buffer[128];
+	while (!in.eof()) {
+		in.getline(buffer, sizeof(buffer));
+		if (buffer[0] == '\0')break;
+		show.push_back(buffer);
+	}
+	stringstream ssr;
+	for (int i = 0; i < show.size(); i++) {
+		ssr << (this->explode(show[i], '\t')).at(0);
+		ssr << "\n";
+	}
+	ssr << "数据库中存在库个数为:";
+	ssr << show.size() - 1;
+	
+	string str=ssr.str();
+	in.close();
+	return str;
 }
 
 const vector<string> DbManage::explode(const string & s, const char & c)
