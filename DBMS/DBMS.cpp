@@ -14,6 +14,8 @@ DBMS::DBMS(QWidget *parent)
 
 void DBMS::initTree()
 {
+	ui.tree->clear();
+
 	vector<vector<string>> dbs = cp.getDbs();
 	set<string> add;
 	QTreeWidgetItem *root;
@@ -85,15 +87,17 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 	else if (item->childCount() == 0)
 	{
 		string d = parent->parent()->text(0).toStdString();
-		string t = parent->text(parent->columnCount()).toStdString();
-		string f = item->text(item->columnCount()).toStdString();
-		vector<string> field = cp.getField(d, t, f);
+		string t = parent->text(0).toStdString();
+		string f = item->text(0).toStdString();
+		vector<vector<string>> field = cp.getField(d, t, f);
 
 		ui.table->setRowCount(field.size());
-		ui.table->setColumnCount(1);
-		ui.table->setHorizontalHeaderLabels(QStringList() << QString::fromStdString(f));
+		ui.table->setColumnCount(3);
+		QStringList header{ QString::fromLocal8Bit("约束名"), QString::fromLocal8Bit("列名"), QString::fromLocal8Bit("约束内容") };
+		ui.table->setHorizontalHeaderLabels(header);
 		for (int i = 0; i < field.size(); i++)
-			ui.table->setItem(0, i, new QTableWidgetItem(QString::fromStdString(field[i])));
+			for (int j = 0; j < 3; j++)
+				ui.table->setItem(i, j, new QTableWidgetItem(QString::fromStdString(field[i][j])));
 
 		connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
 		connect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
@@ -101,7 +105,7 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 	else
 	{
 		string d = parent->text(0).toStdString();
-		string t = item->text(item->columnCount()).toStdString();
+		string t = item->text(0).toStdString();
 		vector<vector<string>> table = cp.getTableInfo(d, t);
 
 		ui.table->setRowCount(table.size());

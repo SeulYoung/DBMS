@@ -48,11 +48,12 @@ string CmdParse::sqlCheck(string s)
 
 vector<vector<string>> CmdParse::getDbs()
 {
+	vector<vector<string>> dbs;
+
 	ifstream in("ruanko.db");
 	if(!in.is_open())
-		return vector<vector<string>>();
+		return dbs;
 
-	vector<vector<string>> dbs;
 	char buff[100];
 	while (true)
 	{
@@ -75,8 +76,26 @@ vector<vector<string>> CmdParse::getDbs()
 			{
 				table.getline(buff, sizeof(buff));
 				char *name = strtok(buff, "\t");
+				char *path = strtok(NULL, "\t");
 				if (name != NULL)
+				{
 					db.push_back(name);
+					ifstream field(path);
+					if (!field.is_open())
+						continue;
+
+					while (true)
+					{
+						field.getline(buff, sizeof(buff));
+						strtok(buff, " ");
+						char *name = strtok(NULL, " ");
+						if (name != NULL)
+							db.push_back(name);
+						else
+							break;
+					}
+					field.close();
+				}
 				else
 					break;
 			}
@@ -93,43 +112,68 @@ vector<vector<string>> CmdParse::getDbs()
 
 vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 {
-	/*ifstream in(sql.at(0).at(1) + ".tdf");
-	if (!in.is_open())
-		return false;
+	vector<vector<string>> tableInfo;
 
-	//生成vec1
-	while (!in.eof())
+	ifstream in("./data/" + db + "/" + table + ".tdf");
+	if (!in.is_open())
+		return tableInfo;
+
+	vector<string> field;
+	char buff[100];
+	while (true)
 	{
-		char buffer[100];
-		in.getline(buffer, sizeof(buffer));
-		if (strlen(buffer) != 0)
-			vec1.push_back(buffer);
+		in.getline(buff, sizeof(buff));
+		strtok(buff, " ");
+		char *name = strtok(NULL, " ");
+		if (name != NULL)
+			field.push_back(name);
+		else
+			break;
+	}
+	tableInfo.push_back(field);
+	in.close();
+
+	in.open("./data/" + db + "/" + table + ".trd");
+	if (!in.is_open())
+		return tableInfo;
+
+	while (in.eof())
+	{
+		in.getline(buff, sizeof(buff));
+		vector<string> info;
+		char *s;
+		while ((s = strtok(buff, " ")) != NULL)
+			info.push_back(s);
+		tableInfo.push_back(info);
 	}
 	in.close();
 
-	//生成vec2
-	for (size_t j = 0; j < vec1.size(); j++) {
-		vector<string> temp_vec;
-		char *temp3;
-		char temp4[100];
-		for (int i = 0; i < vec1.at(j).length(); i++)
-			temp4[i] = vec1.at(j)[i];
-		temp4[vec1.at(j).length()] = '\0';
-
-		temp3 = strtok(temp4, " ");
-		while (temp3) {
-			temp_vec.push_back(temp3);
-			temp3 = strtok(NULL, " ");
-		}
-		vec2.push_back(temp_vec);
-	}
-	return true;*/
-	return vector<vector<string>>();
+	return tableInfo;
 }
 
-vector<string> CmdParse::getField(string db, string table, string col)
+vector<vector<string>> CmdParse::getField(string db, string table, string col)
 {
-	return vector<string>();
+	vector<vector<string>> field;
+
+	ifstream in("./data/" + db + "/" + table + ".tic");
+	if (!in.is_open())
+		return field;
+
+	char buff[100];
+	while (in.eof())
+	{
+		in.getline(buff, sizeof(buff));
+		char *n = strtok(buff, " ");
+		char *f = strtok(NULL, " ");
+		if (string(f) != col)
+			continue;
+		char *t = strtok(NULL, " ");
+		vector<string> info{ n, f, t };
+		field.push_back(info);
+	}
+	in.close();
+
+	return field;
 }
 
 string CmdParse::dbShow()
