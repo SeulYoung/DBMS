@@ -634,11 +634,15 @@ string DataManage::data_update()
 string DataManage::data_select()
 {
 	ifstream in,in2;
+	bool starall=false;//判断是否是*
 	vector<string> line,l_content;
 	vector<string> v1;//存打印内容
 	for (size_t i = 0; i < sql[1].size(); i++) {
 		in.open("data//" + dbName+"//" + sql[1][i]+".tdf");
 		in2.open("data//" + dbName +"//"+ sql[1][i] + ".trd");
+		if (sql[0].size() == 2 && sql[0][1] == "*") {
+			starall = true;
+		}
 		if (!in.is_open())
 		{
 			return "查找的表不存在";
@@ -654,7 +658,22 @@ string DataManage::data_select()
 			in.getline(buffer, sizeof(buffer));
 			if (buffer[0] == '\0')break;
 			line.push_back(buffer);
-			if ((std::count(sql[0].begin(),sql[0].end(),this->explode(line[count],' ').at(1)))!=0) {
+			if (!starall) {
+				if ((std::count(sql[0].begin(), sql[0].end(), this->explode(line[count], ' ').at(1))) != 0) {
+					if (v1.size() == 0) {
+						for (int j = 0; j < l_content.size(); j++) {
+							v1.push_back(this->explode(l_content[j], '\t').at(count));
+						}
+					}
+					else {
+						for (int j = 0; j < l_content.size(); j++) {
+							v1.at(j) += "\t";
+							v1.at(j) += this->explode(l_content[j], '\t').at(count);
+						}
+					}
+				}
+			}
+			else {
 				if (v1.size() == 0) {
 					for (int j = 0; j < l_content.size(); j++) {
 						v1.push_back(this->explode(l_content[j], '\t').at(count));
@@ -667,7 +686,7 @@ string DataManage::data_select()
 					}
 				}
 			}
-			count++;
+				count++;
 		}
 		contents1.push_back(line);
 		//contents2.push_back(v1);
@@ -681,26 +700,49 @@ string DataManage::data_select()
 	vector<string> get;//记录获取到的列名
 
 	bool judge = false;
-	for (size_t i = 0; i < contents1.size(); i++) {
-		for (size_t j = 0; j < contents1[i].size(); j++) {
-			line = this->explode(contents1[i][j], ' ');//line代表某行内容
-			for (size_t k = 1; k < sql[0].size(); k++) {
-				if (sql[0][k] == line[1]) {
-					//判断是否在其他表中读到
-					if (std::count(get.begin(), get.end(), line[1]) == 0) {
-						get.push_back(line[1]);
-						r_slct << sql[0][k];
-						r_slct << "\t";
-						s_num--;
-					}
-					else {
-						return "多表中存在同个"+line[1];
+	if (!starall) {
+		for (size_t i = 0; i < contents1.size(); i++) {
+			for (size_t j = 0; j < contents1[i].size(); j++) {
+				line = this->explode(contents1[i][j], ' ');//line代表某行内容
+				for (size_t k = 1; k < sql[0].size(); k++) {
+					if (sql[0][k] == line[1]) {
+						//判断是否在其他表中读到
+						if (std::count(get.begin(), get.end(), line[1]) == 0) {
+							get.push_back(line[1]);
+							r_slct << sql[0][k];
+							r_slct << "\t";
+							s_num--;
+						}
+						else {
+							return "多表中存在同个" + line[1];
+						}
 					}
 				}
 			}
 		}
 	}
-	
+	else {
+		s_num = 0;
+		for (size_t i = 0; i < contents1.size(); i++) {
+			for (size_t j = 0; j < contents1[i].size(); j++) {
+				line = this->explode(contents1[i][j], ' ');//line代表某行内容
+				//for (size_t k = 1; k < sql[0].size(); k++) {
+					//if (sql[0][k] == line[1]) {
+						//判断是否在其他表中读到
+						//if (std::count(get.begin(), get.end(), line[1]) == 0) {
+							//get.push_back(line[1]);
+							r_slct << line[1];
+							r_slct << "\t";
+							//s_num--;
+						//}
+						//else {
+						//	return "多表中存在同个" + line[1];
+						//}
+					//}
+				//}
+			}
+		}
+	}
 	if (s_num == 0)judge = true;
 	if (judge==false){
 		return "查找的列不存在";
