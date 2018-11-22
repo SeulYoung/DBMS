@@ -637,8 +637,8 @@ string DataManage::data_select()
 	vector<string> line,l_content;
 	vector<string> v1;//存打印内容
 	for (size_t i = 0; i < sql[1].size(); i++) {
-		in.open(sql[1][i]+".tdf");
-		in2.open(sql[1][i]+".trd");
+		in.open("data//" + dbName+"//" + sql[1][i]+".tdf");
+		in2.open("data//" + dbName +"//"+ sql[1][i] + ".trd");
 		if (!in.is_open())
 		{
 			return "查找的表不存在";
@@ -670,7 +670,7 @@ string DataManage::data_select()
 			count++;
 		}
 		contents1.push_back(line);
-		contents2.push_back(v1);
+		//contents2.push_back(v1);
 		l_content.clear();
 		line.clear();
 		in.close();
