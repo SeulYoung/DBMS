@@ -6,6 +6,8 @@ DBMS::DBMS(QWidget *parent)
 	ui.setupUi(this);
 	this->setFixedSize(this->width(), this->height());
 
+	tableMenu = new QMenu();
+
 	connect(ui.refresh, SIGNAL(triggered()), this, SLOT(sysAction()));
 	connect(ui.exit, SIGNAL(triggered()), this, SLOT(sysAction()));
 	connect(ui.newDb, SIGNAL(triggered()), this, SLOT(dbAction()));
@@ -126,6 +128,64 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 
 void DBMS::tableChanged(QTableWidgetItem *item)
 {
+}
+
+void DBMS::contextMenuEvent(QContextMenuEvent *event)
+{
+	tableMenu->clear();
+	QPoint point = event->pos(); // 得到窗口坐标
+	QTableWidgetItem *tableItem = ui.table->itemAt(point);
+	QTreeWidgetItem *treeItem = ui.tree->currentItem();
+
+	if (tableItem != NULL)
+	{
+
+
+		// 菜单出现的位置为当前鼠标的位置
+		tableMenu->exec(QCursor::pos());
+		event->accept();
+	}
+	else if (treeItem != NULL)
+	{
+		disConnAll();
+		QTreeWidgetItem *parent = treeItem->parent();
+		if (parent == NULL)
+		{
+			tableMenu->addAction(ui.newDb);
+			tableMenu->addAction(ui.deleteDb);
+			tableMenu->addSeparator();
+			tableMenu->addAction(ui.newTable);
+
+			connect(ui.deleteDb, SIGNAL(triggered()), this, SLOT(dbAction()));
+			connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+		}
+		else if (treeItem->childCount() == 0)
+		{
+			tableMenu->addAction(ui.newDb);
+			tableMenu->addSeparator();
+			tableMenu->addAction(ui.newField);
+			tableMenu->addAction(ui.deleteField);
+
+			connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+			connect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+		}
+		else
+		{
+			tableMenu->addAction(ui.newDb);
+			tableMenu->addSeparator();
+			tableMenu->addAction(ui.newTable);
+			tableMenu->addAction(ui.deleteTable);
+			tableMenu->addSeparator();
+			tableMenu->addAction(ui.newField);
+
+			connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+			connect(ui.deleteTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+			connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+		}
+		// 菜单出现的位置为当前鼠标的位置
+		tableMenu->exec(QCursor::pos());
+		event->accept();
+	}
 }
 
 void DBMS::sysAction()

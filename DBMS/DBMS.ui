@@ -132,11 +132,14 @@
     <property name="title">
      <string>记录</string>
     </property>
+    <addaction name="newRec"/>
+    <addaction name="deleteRec"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
     <property name="title">
      <string>帮助</string>
     </property>
+    <addaction name="about"/>
    </widget>
    <addaction name="systemMenu"/>
    <addaction name="databaseMenu"/>
@@ -192,6 +195,21 @@
   <action name="deleteField">
    <property name="text">
     <string>删除字段</string>
+   </property>
+  </action>
+  <action name="newRec">
+   <property name="text">
+    <string>插入记录</string>
+   </property>
+  </action>
+  <action name="deleteRec">
+   <property name="text">
+    <string>删除记录</string>
+   </property>
+  </action>
+  <action name="about">
+   <property name="text">
+    <string>关于</string>
    </property>
   </action>
  </widget>
@@ -251,7 +269,6 @@
  </connections>
  <slots>
   <slot>getCmd()</slot>
-  <slot>menuClicked()</slot>
   <slot>treeClicked(QTreeWidgetItem*,int)</slot>
   <slot>tableChanged(QTableWidgetItem*)</slot>
  </slots>
