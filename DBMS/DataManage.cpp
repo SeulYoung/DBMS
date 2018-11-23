@@ -662,7 +662,18 @@ string DataManage::data_select()
 				if ((std::count(sql[0].begin(), sql[0].end(), this->explode(line[count], ' ').at(1))) != 0) {
 					if (v1.size() == 0) {
 						for (int j = 0; j < l_content.size(); j++) {
-							v1.push_back(this->explode(l_content[j], '\t').at(count));
+							if (sql.size() == 2) {
+								v1.push_back(this->explode(l_content[j], '\t').at(count));
+							}
+							else {
+								//´æÔÚÌõ¼şÅĞ¶Ï
+								if (sql[2][0] == "where") {
+
+								}
+								if (sql[2][0] == "group"&&sql[2][1] == "by") {
+
+								}
+							}
 						}
 					}
 					else {
