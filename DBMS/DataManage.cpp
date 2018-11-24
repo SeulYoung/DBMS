@@ -662,18 +662,7 @@ string DataManage::data_select()
 				if ((std::count(sql[0].begin(), sql[0].end(), this->explode(line[count], ' ').at(1))) != 0) {
 					if (v1.size() == 0) {
 						for (int j = 0; j < l_content.size(); j++) {
-							if (sql.size() == 2) {
-								v1.push_back(this->explode(l_content[j], '\t').at(count));
-							}
-							else {
-								//存在条件判断
-								if (sql[2][0] == "where") {
-
-								}
-								if (sql[2][0] == "group"&&sql[2][1] == "by") {
-
-								}
-							}
+							v1.push_back(this->explode(l_content[j], '\t').at(count));
 						}
 					}
 					else {
@@ -708,13 +697,14 @@ string DataManage::data_select()
 	}
 
 	int s_num=sql[0].size()-1;//select column number;
-	vector<string> get;//记录获取到的列名
-
+	vector<string> get;//记录select的列名
+	vector<string> get_all;//记录所有列名
 	bool judge = false;
 	if (!starall) {
 		for (size_t i = 0; i < contents1.size(); i++) {
 			for (size_t j = 0; j < contents1[i].size(); j++) {
 				line = this->explode(contents1[i][j], ' ');//line代表某行内容
+				get_all.push_back(line[1]);
 				for (size_t k = 1; k < sql[0].size(); k++) {
 					if (sql[0][k] == line[1]) {
 						//判断是否在其他表中读到
@@ -737,20 +727,10 @@ string DataManage::data_select()
 		for (size_t i = 0; i < contents1.size(); i++) {
 			for (size_t j = 0; j < contents1[i].size(); j++) {
 				line = this->explode(contents1[i][j], ' ');//line代表某行内容
-				//for (size_t k = 1; k < sql[0].size(); k++) {
-					//if (sql[0][k] == line[1]) {
-						//判断是否在其他表中读到
-						//if (std::count(get.begin(), get.end(), line[1]) == 0) {
-							//get.push_back(line[1]);
-							r_slct << line[1];
-							r_slct << "\t";
-							//s_num--;
-						//}
-						//else {
-						//	return "多表中存在同个" + line[1];
-						//}
-					//}
-				//}
+				get_all.push_back(line[1]);
+				get.push_back(line[1]);
+				r_slct << line[1];
+				r_slct << "\t";
 			}
 		}
 	}
@@ -761,8 +741,189 @@ string DataManage::data_select()
 
 	r_slct << "\n";
 	for (int m = 0; m < v1.size(); m++) {
-		r_slct << v1[m];
-		r_slct << "\n";
+		if (sql.size() == 2) {
+			r_slct << v1[m];
+			r_slct << "\n";
+		}
+		else{
+			//判断在where条件下
+			int position;//查找元素位置
+			vector <string>::iterator it;//遍历查找
+			if (sql[2][0] == "where") {
+				int and_or;//0是and ，1是or , 2啥也不是
+				for (int i = 1; i < sql[2].size(); i++) {
+					string::size_type s;
+					vector<string> small = this->explode(sql[2][i], ' ');
+					vector<string> small_s;
+					if (small.size() == 1) {
+						if ((s = small[0].find("=")) != string::npos) {
+							small_s = this->explode(small[0], '=');
+							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
+								return small_s[0] + "，该列不存在";
+							}
+							else {
+								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
+								int position_c1;
+								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
+								position_c1 = distance(get_all.begin(), it_c1);
+								for (int j = 0; j < v1.size(); j++) {
+									if (this->explode(v1[j],'\t').at(position_c1) != small_s[1]) {
+										v1.erase(v1.begin()+j);
+										j--;
+									}
+								}
+							}
+						}
+						else if ((s = small[0].find(">")) != string::npos && (s = small[0].find("<")) == string::npos) {
+							small_s = this->explode(small[0], '>');
+							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
+								return small_s[0] + "，该列不存在";
+							}
+							else {
+								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
+								int position_c1;
+								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
+								position_c1 = distance(get_all.begin(), it_c1);
+								for (int j = 0; j < v1.size(); j++) {
+									if (this->explode(v1[j], '\t').at(position_c1) < small_s[1]) {
+										v1.erase(v1.begin() + j);
+										j--;
+									}
+								}
+							}
+						}
+						else if ((s = small[0].find("<")) != string::npos && (s = small[0].find(">")) == string::npos) {
+							small_s = this->explode(small[0], '<');
+							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
+								return small_s[0] + "，该列不存在";
+							}
+							else {
+								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
+								int position_c1;
+								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
+								position_c1 = distance(get_all.begin(), it_c1);
+								for (int j = 0; j < v1.size(); j++) {
+									if (this->explode(v1[j], '\t').at(position_c1) > small_s[1]) {
+										v1.erase(v1.begin() + j);
+										j--;
+									}
+								}
+							}
+						}
+						else if ((s = small[0].find("<>")) != string::npos) {
+							small_s = this->explode(small[0], '<');
+							small_s[1].erase(small_s[1].begin());
+							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
+								return small_s[0] + "，该列不存在";
+							}
+							else {
+								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
+								int position_c1;
+								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
+								position_c1 = distance(get_all.begin(), it_c1);
+								for (int j = 0; j < v1.size(); j++) {
+									if (this->explode(v1[j], '\t').at(position_c1) == small_s[1]) {
+										v1.erase(v1.begin() + j);
+										j--;
+									}
+								}
+							}
+						}
+						else {
+							return "where后语句句型有错误";
+						}
+					}
+					else if (small.size() == 2) {
+						if (small[0] == "like") {
+
+						}
+						else if(small[1]=="and"){
+							and_or = 0;
+						}
+						else {
+							return "where后语句句型有错误";
+						}
+					}
+
+				}
+
+				//it = sql[2].begin();
+				//寻找where后面的and关键字
+				/*while ((it = find(it, sql[2].end(), "and")) != sql[2].end()) {
+					string::size_type s;
+					vector<string> small;
+					position = distance(sql[2].begin(), it);
+					string condition1 = sql[2][position - 1];
+					string condition2 = sql[2][position + 1];
+					if ((s = condition1.find("=")) != string::npos) {
+						small = this->explode(condition1,'=');
+						if (std::count(get_all.begin(), get_all.end(), small[0]) == 0) {
+							return small[0] + "，该列不存在";
+						}
+						else {
+							vector <string>::iterator it_c1;//在get_all中遍历查找到small[0]位置
+							int position_c1;
+							it_c1 = find(get_all.begin(),get_all.end(),small[0]);
+							position_c1 = distance(get_all.begin(),it_c1);
+							for (int m = 0; m < v1.size(); m++) {
+								if (v1[position_c1] != small[1]) {
+									v1.erase(it_c1);
+									m--;
+								}
+							}
+						}
+					}
+					else if ((s = condition1.find(">")) != string::npos) {
+						small = this->explode(condition1, '>');
+						if (std::count(get_all.begin(), get_all.end(), small[0]) == 0) {
+							return small[0] + ",该列不存在";
+						}
+						else {
+							vector <string>::iterator it_c1;//在get_all中遍历查找到small[0]位置
+							int position_c1;
+							it_c1 = find(get_all.begin(), get_all.end(), small[0]);
+							position_c1 = distance(get_all.begin(), it_c1);
+							for (int m = 0; m < v1.size(); m++) {
+								if (atoi(v1[position_c1].c_str()) < atoi(small[1].c_str()) ) {
+									v1.erase(it_c1);
+									m--;
+								}
+							}
+						}
+					}
+					else if ((s = condition1.find("<")) != string::npos) {
+						small = this->explode(condition1, '<');
+						if (std::count(get_all.begin(), get_all.end(), small[0]) == 0) {
+							return small[0] + ",该列不存在";
+						}
+						else {
+							vector <string>::iterator it_c1;//在get_all中遍历查找到small[0]位置
+							int position_c1;
+							it_c1 = find(get_all.begin(), get_all.end(), small[0]);
+							position_c1 = distance(get_all.begin(), it_c1);
+							for (int m = 0; m < v1.size(); m++) {
+								if (atoi(v1[position_c1].c_str()) > atoi(small[1].c_str())) {
+									v1.erase(it_c1);
+									m--;
+								}
+							}
+						}
+					}
+					else {
+						return "where之后语句句型有错误";
+					}
+					it++;
+				}*/
+
+				r_slct << v1[m];
+				r_slct << "\n";
+			}
+		}
+
+		if(sql[2].size()==4){
+			//size为4有group by功能
+			vector<string> v2;
+		}
 	}
 
 	string str=r_slct.str();
