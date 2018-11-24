@@ -333,7 +333,7 @@ string CmdParse::tableCreate()
 	string str;
 	if (tableManage.CreatDatebase(str) == 1) {
 		FieldManage fm(vCreate, dbName);
-		string s=fm.manage();
+		string s = fm.manage();
 		return s;
 	}
 	else

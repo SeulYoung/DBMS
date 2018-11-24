@@ -25,6 +25,7 @@ private:
 	vector<string> preSql;
 	CmdParse cp;
 	string sql;
+	bool isCreateTable;
 
 public slots:
 	void getCmd();
@@ -33,10 +34,11 @@ public slots:
 	void contextMenuEvent(QContextMenuEvent *event);
 	void sysAction();
 	void dbAction();
-	void createDb();
+	void createDb(QTreeWidgetItem *item, int col);
 	void tableAction();
-	void createTable();
+	void createTable(QTreeWidgetItem *item, int col);
 	void insertTableRow();
+	void consCheck(int row, int col);
 	void saveTable();
 	void fieldAction();
 };
