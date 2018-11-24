@@ -689,7 +689,7 @@ string DataManage::data_select()
 				count++;
 		}
 		contents1.push_back(line);
-		//contents2.push_back(v1);
+		contents2.push_back(v1);
 		l_content.clear();
 		line.clear();
 		in.close();
@@ -751,6 +751,7 @@ string DataManage::data_select()
 			vector <string>::iterator it;//遍历查找
 			if (sql[2][0] == "where") {
 				int and_or;//0是and ，1是or , 2啥也不是
+				//and就删除vector v1中不对的元素，or就添加vector contents2中对的元素到v1
 				for (int i = 1; i < sql[2].size(); i++) {
 					string::size_type s;
 					vector<string> small = this->explode(sql[2][i], ' ');
@@ -917,6 +918,9 @@ string DataManage::data_select()
 
 				r_slct << v1[m];
 				r_slct << "\n";
+			}
+			else if (sql[2][0] == "group by") {
+
 			}
 		}
 
