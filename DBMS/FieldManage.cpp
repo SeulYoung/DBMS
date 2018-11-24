@@ -452,6 +452,68 @@ string FieldManage::constraint_Add()
 		s += temp;
 		s += "\n";
 	}
+	else if (sql.at(2).at(0) == "check")
+	{
+		string ty;
+		//分割check字段
+		if (sql.at(2).at(1).find("between") != string::npos) {
+			size_t pos1 = sql.at(2).at(1).find("between");
+			size_t pos2 = sql.at(2).at(1).find("and");
+			string field_n = sql.at(2).at(1).substr(0, pos1 - 1);
+			string temp1 = sql.at(2).at(1).substr(pos1 + 8, pos2 - pos1 - 9);
+			string temp2 = sql.at(2).at(1).substr(pos2 + 4, sql.at(2).at(1).size() - pos2 - 3);
+			sql.at(2).erase(sql.at(2).begin() + 1);
+			sql.at(2).push_back(field_n);
+			sql.at(2).push_back(temp1);
+			sql.at(2).push_back(temp2);
+			ty = "between";
+		}
+		else if (sql.at(2).at(1).find("in") != string::npos) {
+			size_t pos1 = sql.at(2).at(1).find("in");
+			size_t pos2 = sql.at(2).at(1).find(",");
+			string field_n = sql.at(2).at(1).substr(0, pos1 - 1);
+			string temp1 = sql.at(2).at(1).substr(pos1 + 3, pos2 - pos1 - 3);
+			string temp2 = sql.at(2).at(1).substr(pos2 + 1, sql.at(2).at(1).size());
+			sql.at(2).erase(sql.at(2).begin() + 1);
+			sql.at(2).push_back(field_n);
+			sql.at(2).push_back(temp1);
+			sql.at(2).push_back(temp2);
+			ty = "in";
+		}
+		s = sql.at(1).at(1);
+		s += " ";
+		s += sql.at(2).at(1);
+		s += " ";
+		s += sql.at(2).at(0);
+		s += ty;
+		s += " ";
+		for (int i = 2; i < sql.at(2).size(); i++) {
+			s += sql.at(2).at(i);
+			s += " ";
+		}
+		s += "\n";
+
+		//检查文件中是否已有要添加的字段
+
+		for (int j = 0; j < vec1.size(); j++) {
+			if (vec1.at(j).find(sql.at(2).at(1)) != string::npos) {
+				isExist = true;
+				break;
+			}
+		}
+		if (!isExist)
+			return "错误！请求添加的字段不存在";
+
+		//>,=,<的情况
+		if (sql.at(2).at(1).find(">") != string::npos || sql.at(2).at(1).find("=") != string::npos || sql.at(2).at(1).find("<") != string::npos) {
+			if (sql.size() <= 3) {
+
+			}
+			else {
+
+			}
+		}
+	}
 
 	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tic";
 	ofstream out_file;
