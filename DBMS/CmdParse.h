@@ -15,7 +15,7 @@ public:
 	string sqlCheck(string s);
 	vector<vector<string>> getDbs();
 	vector<vector<string>> getTableInfo(string db,string table);
-	vector<string> getField(string db,string table,string col);
+	vector<vector<string>> getField(string db,string table,string col);
 
 private:
 	string dbShow();
