@@ -30,6 +30,7 @@ private:
 	string isColumn();
 	string con_check();
 	string con_parse(int, int, vector<vector<string>>);
+	bool type_check();
 	bool len_check();
 	bool getfieldV();
 };
