@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include <QComboBox>
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <set>
@@ -21,6 +22,7 @@ private:
 
 	Ui::DBMSClass ui;
 	QMenu *tableMenu;
+	vector<string> preSql;
 	CmdParse cp;
 	string sql;
 
@@ -31,6 +33,10 @@ public slots:
 	void contextMenuEvent(QContextMenuEvent *event);
 	void sysAction();
 	void dbAction();
+	void createDb();
 	void tableAction();
+	void createTable();
+	void insertTableRow();
+	void saveTable();
 	void fieldAction();
 };

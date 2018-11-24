@@ -105,6 +105,8 @@
      <string>系统</string>
     </property>
     <addaction name="refresh"/>
+    <addaction name="commit"/>
+    <addaction name="separator"/>
     <addaction name="exit"/>
    </widget>
    <widget class="QMenu" name="databaseMenu">
@@ -120,6 +122,10 @@
     </property>
     <addaction name="newTable"/>
     <addaction name="deleteTable"/>
+    <addaction name="separator"/>
+    <addaction name="editTable"/>
+    <addaction name="insertTable"/>
+    <addaction name="saveTabel"/>
    </widget>
    <widget class="QMenu" name="fieldMenu">
     <property name="title">
@@ -127,6 +133,8 @@
     </property>
     <addaction name="newField"/>
     <addaction name="deleteField"/>
+    <addaction name="separator"/>
+    <addaction name="actionb"/>
    </widget>
    <widget class="QMenu" name="recordMenu">
     <property name="title">
@@ -210,6 +218,31 @@
   <action name="about">
    <property name="text">
     <string>关于</string>
+   </property>
+  </action>
+  <action name="commit">
+   <property name="text">
+    <string>提交</string>
+   </property>
+  </action>
+  <action name="insertTable">
+   <property name="text">
+    <string>插入新行</string>
+   </property>
+  </action>
+  <action name="saveTabel">
+   <property name="text">
+    <string>保存</string>
+   </property>
+  </action>
+  <action name="editTable">
+   <property name="text">
+    <string>编辑</string>
+   </property>
+  </action>
+  <action name="actionb">
+   <property name="text">
+    <string>编辑字段</string>
    </property>
   </action>
  </widget>
