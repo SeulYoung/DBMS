@@ -94,6 +94,7 @@ string FieldManage::field_Add()
 string FieldManage::field_Add1()
 {
 	ofstream out_file;
+	ofstream out_file1;
 	string s;
 	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf";
 
@@ -137,15 +138,52 @@ string FieldManage::field_Add1()
 		order += vec1.size();
 		s += std::to_string(order);
 		s += " ";
-		for (int j = 0; j < sql.at(i).size(); j++) {
+		for (int j = 0; j < 2; j++) {
 			s += sql.at(i).at(j);
 			s += " ";
 		}
-		if (sql.at(i).size() == 2)
+		if (sql.at(i).size() > 2) {
+			int isNum = atoi(sql.at(i).at(2).c_str());
+			if (isNum == 0)
+				s += "NULL";
+			else
+				s += sql.at(i).at(2);
+		}
+		else
 			s += "NULL";
+		
 		s = s + "\n";
 	}
+	//生成约束
+	string con = "";
+	for (int i = 1; i < sql.size(); i++) {
+		if (sql.at(i).size() > 2) {
+			int isNum = atoi(sql.at(i).at(2).c_str());
+			if (sql.at(i).size() > 3 || isNum == 0) {
+				con += sql.at(i).at(0);
+				con += "_con";
+				con += " ";
+				con += sql.at(i).at(0);
+				if (sql.at(i).size() > 3)
+					con += sql.at(i).at(3);
+				else {
+					con += " ";
+					con += sql.at(i).at(2);
+				}
 
+				con = con + "\n";
+			}
+		}
+	}
+	//写入tic
+	out_file1.open("./data/" + dbName + "/" + sql.at(0).at(1) + ".tic", ios::out | ios::app);
+	if (out_file1.is_open())
+	{
+		out_file1 << (char*)con.data();
+	}
+	out_file1.close();
+
+	//写入tdf
 	out_file.open(file_Path, ios::out | ios::app);
 	if (out_file.is_open())
 	{
