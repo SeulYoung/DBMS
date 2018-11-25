@@ -23,6 +23,7 @@ private:
 	Ui::DBMSClass ui;
 	QMenu *tableMenu;
 	vector<string> preSql;
+	vector<string> backup;
 	CmdParse cp;
 	string sql;
 	bool isCreateTable;
@@ -30,7 +31,6 @@ private:
 public slots:
 	void getCmd();
 	void treeClicked(QTreeWidgetItem *item, int col);
-	void tableChanged(QTableWidgetItem *item);
 	void contextMenuEvent(QContextMenuEvent *event);
 	void sysAction();
 	void dbAction();
@@ -41,4 +41,6 @@ public slots:
 	void consCheck(int row, int col);
 	void saveTable();
 	void fieldAction();
+	void recordAction();
+	//void recordChanged(QTableWidgetItem *item);
 };

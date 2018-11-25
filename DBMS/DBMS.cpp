@@ -54,6 +54,8 @@ void DBMS::disConnAll()
 
 	disconnect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
 	disconnect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+	disconnect(ui.editField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+	disconnect(ui.saveField, SIGNAL(triggered()), this, SLOT(fieldAction()));
 }
 
 void DBMS::closeEvent(QCloseEvent *event)
@@ -90,6 +92,7 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 	QTreeWidgetItem *parent = item->parent();
 	if (parent == NULL)
 	{
+		connect(ui.newDb, SIGNAL(triggered()), this, SLOT(dbAction()));
 		connect(ui.deleteDb, SIGNAL(triggered()), this, SLOT(dbAction()));
 		connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 	}
@@ -104,12 +107,15 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 
 		ui.table->clear();
 		ui.table->setRowCount(field.size());
-		ui.table->setColumnCount(3);
-		QStringList header{ QString::fromLocal8Bit("约束名"), QString::fromLocal8Bit("列名"), QString::fromLocal8Bit("约束内容") };
+		ui.table->setColumnCount(4);
+		QStringList header{ QString::fromLocal8Bit("列名"), QString::fromLocal8Bit("类型"), QString::fromLocal8Bit("约束名"), QString::fromLocal8Bit("约束内容") };
 		ui.table->setHorizontalHeaderLabels(header);
-		for (int i = 0; i < field.size(); i++)
-			for (int j = 0; j < 3; j++)
-				ui.table->setItem(i, j, new QTableWidgetItem(QString::fromStdString(field[i][j])));
+
+		ui.table->setItem(0, 0, new QTableWidgetItem(QString::fromStdString(field[0][0])));
+		ui.table->setItem(0, 1, new QTableWidgetItem(QString::fromStdString(field[0][1])));
+		for (int i = 1; i < field.size(); i++)
+			for (int j = 0; j < 2; j++)
+				ui.table->setItem(i - 1, j + 2, new QTableWidgetItem(QString::fromStdString(field[i][j])));
 
 		connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
 		connect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
@@ -133,12 +139,13 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 
 		connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 		connect(ui.deleteTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+		connect(ui.editTable, SIGNAL(triggered()), this, SLOT(tableAction()));
+		connect(ui.insertTable, SIGNAL(triggered()), this, SLOT(insertTableRow()));
+		connect(ui.saveTabel, SIGNAL(triggered()), this, SLOT(saveTable()));
 		connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
+		connect(ui.newRec, SIGNAL(triggered()), this, SLOT(recordAction()));
+		connect(ui.deleteRec, SIGNAL(triggered()), this, SLOT(recordAction()));
 	}
-}
-
-void DBMS::tableChanged(QTableWidgetItem *item)
-{
 }
 
 void DBMS::contextMenuEvent(QContextMenuEvent *event)
@@ -193,59 +200,6 @@ void DBMS::contextMenuEvent(QContextMenuEvent *event)
 		tableMenu->exec(QCursor::pos());
 		event->accept();
 	}
-
-	/*if (tableItem != NULL)
-	{
-		tableMenu->addAction(ui.editTable);
-		tableMenu->addAction(ui.insertTable);
-		tableMenu->addAction(ui.saveTabel);
-
-		connect(ui.editTable, SIGNAL(triggered()), this, SLOT(tableAction()));
-
-		// 菜单出现的位置为当前鼠标的位置
-		tableMenu->exec(QCursor::pos());
-		event->accept();
-	}
-	else if (treeItem != NULL)
-	{
-		QTreeWidgetItem *parent = treeItem->parent();
-		if (parent == NULL)
-		{
-			tableMenu->addAction(ui.newDb);
-			tableMenu->addAction(ui.deleteDb);
-			tableMenu->addSeparator();
-			tableMenu->addAction(ui.newTable);
-
-			connect(ui.deleteDb, SIGNAL(triggered()), this, SLOT(dbAction()));
-			connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
-		}
-		else if (treeItem->childCount() == 0)
-		{
-			tableMenu->addAction(ui.newDb);
-			tableMenu->addSeparator();
-			tableMenu->addAction(ui.newField);
-			tableMenu->addAction(ui.deleteField);
-
-			connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
-			connect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
-		}
-		else
-		{
-			tableMenu->addAction(ui.newDb);
-			tableMenu->addSeparator();
-			tableMenu->addAction(ui.newTable);
-			tableMenu->addAction(ui.deleteTable);
-			tableMenu->addSeparator();
-			tableMenu->addAction(ui.newField);
-
-			connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
-			connect(ui.deleteTable, SIGNAL(triggered()), this, SLOT(tableAction()));
-			connect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
-		}
-		// 菜单出现的位置为当前鼠标的位置
-		tableMenu->exec(QCursor::pos());
-		event->accept();
-	}*/
 }
 
 void DBMS::sysAction()
@@ -254,11 +208,33 @@ void DBMS::sysAction()
 	if (s == "refresh")
 		initTree();
 	else if (s == "commit")
+	{
 		for (auto s : preSql)
 		{
 			string res = cp.sqlCheck(s);
 			ui.cmdLine->append(QString::fromLocal8Bit(res.c_str()));
 		}
+		preSql.clear();
+		backup.clear();
+	}
+	else if (s == "undo")
+	{
+		if (!preSql.empty())
+		{
+			backup.push_back(preSql.back());
+			preSql.pop_back();
+			ui.cmdLine->append(QString::fromLocal8Bit(("撤销：" + backup.back()).c_str()));
+		}
+	}
+	else if (s == "redo")
+	{
+		if (!backup.empty())
+		{
+			preSql.push_back(backup.back());
+			backup.pop_back();
+			ui.cmdLine->append(QString::fromLocal8Bit(("重做：" + preSql.back()).c_str()));
+		}
+	}
 	else
 		this->close();
 }
@@ -293,41 +269,6 @@ void DBMS::dbAction()
 	}
 }
 
-/*void CDataTree::closeEditor(QWidget * editor, QAbstractItemDelegate::EndEditHint hint)
-{
-	QString strOldName = GetOSGObject(this->currentItem())->GetPaiObject()->GetName();
-	QString strNewName = this->currentItem()->text(0);
-
-	CBaseObject * pObject = GetOSGObject(this->currentItem());
-	PaiObject * pParent = pObject->GetPaiObject()->GetParent();
-	QList<PaiObject*> ChildList;
-	pParent->GetChildren(ChildList);
-	int nChildCount = pParent->GetChildrenCount();
-	for (int i = 0; i < nChildCount; i++)
-	{
-		if (ChildList.at(i) == pObject->GetPaiObject())
-		{
-			continue;
-		}
-		QString strName = ChildList.at(i)->GetName();
-		if (strName == strNewName)
-		{
-			this->currentItem()->setText(0, strOldName);
-
-			//editor->setFocus();
-			//this->openPersistentEditor(this->currentItem());
-
-			QMessageBox::warning(NULL, "警告", "名称不能重复！");
-			//this->editItem(this->currentItem());
-			this->setItemSelected(this->currentItem(), true);
-
-			return;
-
-
-		}
-	}
-}*/
-
 void DBMS::createDb(QTreeWidgetItem *item, int col)
 {
 	disconnect(ui.tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(createDb(QTreeWidgetItem*, int)));
@@ -353,7 +294,7 @@ void DBMS::tableAction()
 		isCreateTable = true;
 		connect(ui.tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(createTable(QTreeWidgetItem*, int)));
 	}
-	else if(s == "dropTable")
+	else if (s == "dropTable")
 	{
 		ss = "drop table " + ui.tree->currentItem()->text(0).toStdString() + ";";
 		preSql.push_back(ss);
@@ -390,30 +331,24 @@ void DBMS::insertTableRow()
 {
 	ui.table->insertRow(ui.table->rowCount());
 
-	if (!isCreateTable)
-		for (int i = 0; i < ui.table->columnCount(); i++)
-			ui.table->setItem(ui.table->rowCount() - 1, i, new QTableWidgetItem());
-	else
-	{
-		ui.table->setItem(ui.table->rowCount() - 1, 0, new QTableWidgetItem());
-		QStringList typeList{ "integer", "bool", "double", "varchar", "datetime" };
-		QComboBox *type = new QComboBox();
-		type->addItems(typeList);
-		ui.table->setCellWidget(ui.table->rowCount() - 1, 1, type);
-		ui.table->setItem(ui.table->rowCount() - 1, 2, new QTableWidgetItem());
+	ui.table->setItem(ui.table->rowCount() - 1, 0, new QTableWidgetItem());
+	QStringList typeList{ "integer", "bool", "double", "varchar", "datetime" };
+	QComboBox *type = new QComboBox();
+	type->addItems(typeList);
+	ui.table->setCellWidget(ui.table->rowCount() - 1, 1, type);
+	ui.table->setItem(ui.table->rowCount() - 1, 2, new QTableWidgetItem());
 
-		QTableWidgetItem *checkPri = new QTableWidgetItem();
-		checkPri->setCheckState(Qt::Unchecked);
-		ui.table->setItem(ui.table->rowCount() - 1, 3, checkPri);
-		QTableWidgetItem *checkUni = new QTableWidgetItem();
-		checkUni->setCheckState(Qt::Unchecked);
-		ui.table->setItem(ui.table->rowCount() - 1, 4, checkUni);
-		QTableWidgetItem *checkNull = new QTableWidgetItem();
-		checkNull->setCheckState(Qt::Unchecked);
-		ui.table->setItem(ui.table->rowCount() - 1, 5, checkNull);
+	QTableWidgetItem *checkPri = new QTableWidgetItem();
+	checkPri->setCheckState(Qt::Unchecked);
+	ui.table->setItem(ui.table->rowCount() - 1, 3, checkPri);
+	QTableWidgetItem *checkUni = new QTableWidgetItem();
+	checkUni->setCheckState(Qt::Unchecked);
+	ui.table->setItem(ui.table->rowCount() - 1, 4, checkUni);
+	QTableWidgetItem *checkNull = new QTableWidgetItem();
+	checkNull->setCheckState(Qt::Unchecked);
+	ui.table->setItem(ui.table->rowCount() - 1, 5, checkNull);
 
-		ui.table->setItem(ui.table->rowCount() - 1, 6, new QTableWidgetItem());
-	}
+	ui.table->setItem(ui.table->rowCount() - 1, 6, new QTableWidgetItem());
 }
 
 void DBMS::consCheck(int row, int col)
@@ -504,4 +439,11 @@ void DBMS::fieldAction()
 		ss = "alter table " + parent->text(0).toStdString() + " drop column " + ui.tree->currentItem()->text(0).toStdString() + ";";
 		preSql.push_back(ss);
 	}
+}
+
+void DBMS::recordAction()
+{
+	if (!isCreateTable)
+		for (int i = 0; i < ui.table->columnCount(); i++)
+			ui.table->setItem(ui.table->rowCount() - 1, i, new QTableWidgetItem());
 }

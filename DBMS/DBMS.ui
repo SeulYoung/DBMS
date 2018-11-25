@@ -55,7 +55,7 @@
      </rect>
     </property>
     <attribute name="horizontalHeaderDefaultSectionSize">
-     <number>80</number>
+     <number>90</number>
     </attribute>
     <attribute name="horizontalHeaderStretchLastSection">
      <bool>true</bool>
@@ -152,7 +152,8 @@
     <addaction name="newField"/>
     <addaction name="deleteField"/>
     <addaction name="separator"/>
-    <addaction name="actionb"/>
+    <addaction name="editField"/>
+    <addaction name="saveField"/>
    </widget>
    <widget class="QMenu" name="recordMenu">
     <property name="title">
@@ -245,20 +246,20 @@
   </action>
   <action name="insertTable">
    <property name="text">
-    <string>插入新行</string>
+    <string>插入字段</string>
    </property>
   </action>
   <action name="saveTabel">
    <property name="text">
-    <string>保存</string>
+    <string>保存表</string>
    </property>
   </action>
   <action name="editTable">
    <property name="text">
-    <string>编辑</string>
+    <string>编辑表</string>
    </property>
   </action>
-  <action name="actionb">
+  <action name="editField">
    <property name="text">
     <string>编辑字段</string>
    </property>
@@ -271,6 +272,11 @@
   <action name="redo">
    <property name="text">
     <string>重做</string>
+   </property>
+  </action>
+  <action name="saveField">
+   <property name="text">
+    <string>保存字段</string>
    </property>
   </action>
  </widget>

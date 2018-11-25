@@ -155,7 +155,7 @@ vector<vector<string>> CmdParse::getField(string db, string table, string col)
 {
 	vector<vector<string>> field;
 
-	ifstream in("./data/" + db + "/" + table + ".tic");
+	ifstream in("./data/" + db + "/" + table + ".tdf");
 	if (!in.is_open())
 		return field;
 
@@ -163,12 +163,29 @@ vector<vector<string>> CmdParse::getField(string db, string table, string col)
 	while (in.eof())
 	{
 		in.getline(buff, sizeof(buff));
+		strtok(buff, " ");
+		char *n = strtok(NULL, " ");
+		if (string(n) != col)
+			continue;
+		char *t = strtok(NULL, " ");
+		vector<string> info{ n, t };
+		field.push_back(info);
+	}
+	in.close();
+
+	in.open("./data/" + db + "/" + table + ".tic");
+	if (!in.is_open())
+		return field;
+
+	while (in.eof())
+	{
+		in.getline(buff, sizeof(buff));
 		char *n = strtok(buff, " ");
 		char *f = strtok(NULL, " ");
 		if (string(f) != col)
 			continue;
-		char *t = strtok(NULL, " ");
-		vector<string> info{ n, f, t };
+		char *c = strtok(NULL, "");
+		vector<string> info{ n, c };
 		field.push_back(info);
 	}
 	in.close();
@@ -299,7 +316,7 @@ string CmdParse::tableCreate()
 						iscap = true;
 					else
 						iscon = true;
-					create.push_back(attribute);
+					create.push_back(preWhere(attribute));
 					continue;
 				}
 
