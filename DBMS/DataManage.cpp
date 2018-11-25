@@ -637,6 +637,7 @@ string DataManage::data_select()
 	bool starall=false;//判断是否是*
 	vector<string> line,l_content;
 	vector<string> v1;//存打印内容
+
 	for (size_t i = 0; i < sql[1].size(); i++) {
 		in.open("data//" + dbName+"//" + sql[1][i]+".tdf");
 		in2.open("data//" + dbName +"//"+ sql[1][i] + ".trd");
@@ -696,6 +697,7 @@ string DataManage::data_select()
 		in2.close();
 	}
 
+	//读取结束
 	int s_num=sql[0].size()-1;//select column number;
 	vector<string> get;//记录select的列名
 	vector<string> get_all;//记录所有列名
@@ -786,7 +788,7 @@ string DataManage::data_select()
 								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
 								position_c1 = distance(get_all.begin(), it_c1);
 								for (int j = 0; j < v1.size(); j++) {
-									if (this->explode(v1[j], '\t').at(position_c1) < small_s[1]) {
+									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) < atoi(small_s[1].c_str())) {
 										v1.erase(v1.begin() + j);
 										j--;
 									}
@@ -804,7 +806,7 @@ string DataManage::data_select()
 								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
 								position_c1 = distance(get_all.begin(), it_c1);
 								for (int j = 0; j < v1.size(); j++) {
-									if (this->explode(v1[j], '\t').at(position_c1) > small_s[1]) {
+									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) > atoi(small_s[1].c_str())) {
 										v1.erase(v1.begin() + j);
 										j--;
 									}
@@ -823,7 +825,7 @@ string DataManage::data_select()
 								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
 								position_c1 = distance(get_all.begin(), it_c1);
 								for (int j = 0; j < v1.size(); j++) {
-									if (this->explode(v1[j], '\t').at(position_c1) == small_s[1]) {
+									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) == atoi(small_s[1].c_str())) {
 										v1.erase(v1.begin() + j);
 										j--;
 									}
@@ -924,7 +926,7 @@ string DataManage::data_select()
 			}
 		}
 
-		if(sql[2].size()==4){
+		if(sql.size()==4){
 			//size为4有group by功能
 			vector<string> v2;
 		}
