@@ -23,20 +23,24 @@ private:
 	Ui::DBMSClass ui;
 	QMenu *tableMenu;
 	vector<string> preSql;
+	vector<string> backup;
 	CmdParse cp;
 	string sql;
+	bool isCreateTable;
 
 public slots:
 	void getCmd();
 	void treeClicked(QTreeWidgetItem *item, int col);
-	void tableChanged(QTableWidgetItem *item);
 	void contextMenuEvent(QContextMenuEvent *event);
 	void sysAction();
 	void dbAction();
-	void createDb();
+	void createDb(QTreeWidgetItem *item, int col);
 	void tableAction();
-	void createTable();
+	void createTable(QTreeWidgetItem *item, int col);
 	void insertTableRow();
+	void consCheck(int row, int col);
 	void saveTable();
 	void fieldAction();
+	void recordAction();
+	//void recordChanged(QTableWidgetItem *item);
 };
