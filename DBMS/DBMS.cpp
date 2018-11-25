@@ -8,6 +8,7 @@ DBMS::DBMS(QWidget *parent)
 
 	tableMenu = new QMenu();
 	isCreateTable = false;
+	addRecNum = 0;
 
 	connect(ui.refresh, SIGNAL(triggered()), this, SLOT(sysAction()));
 	connect(ui.commit, SIGNAL(triggered()), this, SLOT(sysAction()));
@@ -61,6 +62,7 @@ void DBMS::disConnAll()
 
 	disconnect(ui.newRec, SIGNAL(triggered()), this, SLOT(recordAction()));
 	disconnect(ui.deleteRec, SIGNAL(triggered()), this, SLOT(recordAction()));
+	disconnect(ui.saveRec, SIGNAL(triggered()), this, SLOT(saveRecord()));
 	disconnect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
 }
 
@@ -428,7 +430,8 @@ void DBMS::saveTable()
 {
 	if (isCreateTable)
 	{
-		string s = "create table " + ui.tree->currentItem()->text(0).toStdString() + " (";
+		disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
+		string s = "create table " + ui.tree->currentItem()->text(0).toStdString() + "(";
 		for (int i = 0; i < ui.table->rowCount(); i++)
 		{
 			if (ui.table->item(i, 0)->text() == "")
@@ -456,12 +459,10 @@ void DBMS::saveTable()
 				s += " " + ui.table->item(i, 6)->text().toStdString();
 			s += ",";
 		}
-		s = s.substr(0, s.size() - 1);
-		s += ");";
+		s = s.substr(0, s.size() - 1) + ");";
 		preSql.push_back(s);
 
 		isCreateTable = false;
-		disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
 	}
 	else
 	{
@@ -482,8 +483,7 @@ void DBMS::saveTable()
 				s += "(" + ui.table->item(i, 2)->text().toStdString() + ")";
 			s += ",";
 		}
-		s = s.substr(0, s.size() - 1);
-		s += ";";
+		s = s.substr(0, s.size() - 1) + ";";
 		preSql.push_back(s);
 	}
 }
@@ -513,7 +513,12 @@ void DBMS::recordAction()
 	preSql.push_back(ss);
 	if (s == "newRec")
 	{
-		insertField();
+		disconnect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
+		ui.table->insertRow(ui.table->rowCount());
+		for (int i = 0; i < ui.table->columnCount(); i++)
+			ui.table->setItem(ui.table->rowCount() - 1, i, new QTableWidgetItem());
+		addRecNum++;
+		connect(ui.saveRec, SIGNAL(triggered()), this, SLOT(saveRecord()));
 	}
 	else
 	{
@@ -522,7 +527,36 @@ void DBMS::recordAction()
 	}
 }
 
-void DBMS::recordChanged(QTableWidgetItem * item)
+void DBMS::recordChanged(QTableWidgetItem *item)
 {
+	string s = "update " + ui.tree->currentItem()->text(0).toStdString() + " set ";
+	s += ui.table->horizontalHeaderItem(item->column())->text().toStdString() + "=" + item->text().toStdString() + " where";
+	for (int i = 0; i < ui.table->columnCount(); i++)
+		if (i != item->column())
+			s += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=" + ui.table->item(item->row(), i)->text().toStdString() + " and";
 
+	s = s.substr(0, s.size() - 3) + ";";
+	preSql.push_back(s);
+}
+
+void DBMS::saveRecord()
+{
+	disconnect(ui.saveRec, SIGNAL(triggered()), this, SLOT(saveRecord()));
+	for (; addRecNum > 0; addRecNum--)
+	{
+		string s = "insert into " + ui.tree->currentItem()->text(0).toStdString() + "(";
+		string v = " values(";
+		for (int i = 0; i < ui.table->columnCount(); i++)
+		{
+			QTableWidgetItem *item = ui.table->item(ui.table->rowCount() - addRecNum, i);
+			if (item->text() != "")
+			{
+				s += ui.table->horizontalHeaderItem(i)->text().toStdString() + ",";
+				v += item->text().toStdString() + ",";
+			}
+		}
+		s = s.substr(0, s.size() - 1) + ") " + v.substr(0, v.size() - 1) + ");";
+		preSql.push_back(s);
+	}
+	connect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
 }

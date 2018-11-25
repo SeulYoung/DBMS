@@ -28,6 +28,7 @@ private:
 	CmdParse cp;
 	string sql;
 	bool isCreateTable;
+	int addRecNum;
 
 public slots:
 	void getCmd();
@@ -44,4 +45,5 @@ public slots:
 	void fieldAction();
 	void recordAction();
 	void recordChanged(QTableWidgetItem *item);
+	void saveRecord();
 };
