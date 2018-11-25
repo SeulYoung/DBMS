@@ -930,7 +930,7 @@ string CmdParse::preWhere(string s)
 			len--;
 			ismodify = true;
 		}
-		if (!ismodify)
+		if (!ismodify || i == s.size() - 1 - i)
 			break;
 	}
 

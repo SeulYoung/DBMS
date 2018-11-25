@@ -58,7 +58,7 @@
      <number>90</number>
     </attribute>
     <attribute name="horizontalHeaderStretchLastSection">
-     <bool>true</bool>
+     <bool>false</bool>
     </attribute>
     <attribute name="verticalHeaderDefaultSectionSize">
      <number>25</number>
@@ -161,6 +161,8 @@
     </property>
     <addaction name="newRec"/>
     <addaction name="deleteRec"/>
+    <addaction name="separator"/>
+    <addaction name="saveRec"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
     <property name="title">
@@ -279,6 +281,11 @@
     <string>保存字段</string>
    </property>
   </action>
+  <action name="saveRec">
+   <property name="text">
+    <string>保存记录</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -298,22 +305,6 @@
     <hint type="destinationlabel">
      <x>1077</x>
      <y>766</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>table</sender>
-   <signal>itemChanged(QTableWidgetItem*)</signal>
-   <receiver>DBMSClass</receiver>
-   <slot>tableChanged(QTableWidgetItem*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>732</x>
-     <y>261</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1062</x>
-     <y>263</y>
     </hint>
    </hints>
   </connection>
