@@ -374,15 +374,16 @@ int TableManage::DeleteDatebase(string & str)
 	//	//cout << "not exist";
 	//	return 0;
 	//}
-	
+	string frontpath = "./data/" + dbName + "/";
+
 	string endpath1 = ".tdf";
 	string endpath2 = ".tic";
 	string endpath3 = ".trd";
 	string endpath4 = ".tid";
-	string path1 = s + endpath1;
-	string path2 = s + endpath2;
-	string path3 = s + endpath3;
-	string path4 = s + endpath4;
+	string path1 = frontpath +s + endpath1;
+	string path2 = frontpath + s + endpath2;
+	string path3 = frontpath + s + endpath3;
+	string path4 = frontpath + s + endpath4;
 	if (-1 == remove(path1.c_str()) || -1 == remove(path2.c_str()) || -1 == remove(path3.c_str()) || -1 == remove(path4.c_str()))
 	{
 		str = "É¾³ı±íÊ§°Ü";
@@ -390,6 +391,7 @@ int TableManage::DeleteDatebase(string & str)
 	}
 	str = "delete table successful";
 	/*cout << "delete table successful" << endl;*/
+
 
 	return 1;
 }
