@@ -97,6 +97,7 @@ string DbManage::CreateDatabase()
 	out.close();
 	fclose(file);
 	fclose(new_file);
+	return "数据库创建成功";
 }
 
 string DbManage::DeleteDatabase()
