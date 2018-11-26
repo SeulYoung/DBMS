@@ -19,38 +19,43 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>341</width>
+      <width>291</width>
       <height>451</height>
      </rect>
     </property>
     <attribute name="headerVisible">
      <bool>true</bool>
     </attribute>
+    <attribute name="headerDefaultSectionSize">
+     <number>90</number>
+    </attribute>
     <column>
      <property name="text">
       <string>数据库</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>表</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>字段</string>
      </property>
     </column>
    </widget>
    <widget class="QTableWidget" name="table">
     <property name="geometry">
      <rect>
-      <x>349</x>
+      <x>299</x>
       <y>0</y>
-      <width>651</width>
+      <width>701</width>
       <height>451</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>90</number>
+    </attribute>
+    <attribute name="horizontalHeaderStretchLastSection">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="verticalHeaderDefaultSectionSize">
+     <number>25</number>
+    </attribute>
+    <attribute name="verticalHeaderMinimumSectionSize">
+     <number>20</number>
+    </attribute>
    </widget>
    <widget class="QTextEdit" name="cmdLine">
     <property name="enabled">
@@ -67,7 +72,7 @@
     <property name="font">
      <font>
       <family>微软雅黑</family>
-      <pointsize>11</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="readOnly">
@@ -86,7 +91,7 @@
     <property name="font">
      <font>
       <family>微软雅黑</family>
-      <pointsize>11</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
    </widget>
@@ -106,6 +111,9 @@
     </property>
     <addaction name="refresh"/>
     <addaction name="commit"/>
+    <addaction name="separator"/>
+    <addaction name="undo"/>
+    <addaction name="redo"/>
     <addaction name="separator"/>
     <addaction name="exit"/>
    </widget>
@@ -134,7 +142,8 @@
     <addaction name="newField"/>
     <addaction name="deleteField"/>
     <addaction name="separator"/>
-    <addaction name="actionb"/>
+    <addaction name="editField"/>
+    <addaction name="saveField"/>
    </widget>
    <widget class="QMenu" name="recordMenu">
     <property name="title">
@@ -142,6 +151,8 @@
     </property>
     <addaction name="newRec"/>
     <addaction name="deleteRec"/>
+    <addaction name="separator"/>
+    <addaction name="saveRec"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
     <property name="title">
@@ -227,22 +238,42 @@
   </action>
   <action name="insertTable">
    <property name="text">
-    <string>插入新行</string>
+    <string>插入字段</string>
    </property>
   </action>
   <action name="saveTabel">
    <property name="text">
-    <string>保存</string>
+    <string>保存表</string>
    </property>
   </action>
   <action name="editTable">
    <property name="text">
-    <string>编辑</string>
+    <string>编辑表</string>
    </property>
   </action>
-  <action name="actionb">
+  <action name="editField">
    <property name="text">
     <string>编辑字段</string>
+   </property>
+  </action>
+  <action name="undo">
+   <property name="text">
+    <string>撤销</string>
+   </property>
+  </action>
+  <action name="redo">
+   <property name="text">
+    <string>重做</string>
+   </property>
+  </action>
+  <action name="saveField">
+   <property name="text">
+    <string>保存字段</string>
+   </property>
+  </action>
+  <action name="saveRec">
+   <property name="text">
+    <string>保存记录</string>
    </property>
   </action>
  </widget>
@@ -264,22 +295,6 @@
     <hint type="destinationlabel">
      <x>1077</x>
      <y>766</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>table</sender>
-   <signal>itemChanged(QTableWidgetItem*)</signal>
-   <receiver>DBMSClass</receiver>
-   <slot>tableChanged(QTableWidgetItem*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>732</x>
-     <y>261</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1062</x>
-     <y>263</y>
     </hint>
    </hints>
   </connection>

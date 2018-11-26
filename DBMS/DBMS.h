@@ -18,25 +18,32 @@ public:
 private:
 	void initTree();
 	void disConnAll();
+	void clearTable();
 	void closeEvent(QCloseEvent *event);
 
 	Ui::DBMSClass ui;
 	QMenu *tableMenu;
 	vector<string> preSql;
+	vector<string> backup;
 	CmdParse cp;
 	string sql;
+	bool isCreateTable;
+	int addRecNum;
 
 public slots:
 	void getCmd();
 	void treeClicked(QTreeWidgetItem *item, int col);
-	void tableChanged(QTableWidgetItem *item);
 	void contextMenuEvent(QContextMenuEvent *event);
 	void sysAction();
 	void dbAction();
-	void createDb();
+	void createDb(QTreeWidgetItem *item, int col);
 	void tableAction();
-	void createTable();
-	void insertTableRow();
+	void createTable(QTreeWidgetItem *item, int col);
+	void insertField();
+	void consCheck(int row, int col);
 	void saveTable();
 	void fieldAction();
+	void recordAction();
+	void recordChanged(QTableWidgetItem *item);
+	void saveRecord();
 };

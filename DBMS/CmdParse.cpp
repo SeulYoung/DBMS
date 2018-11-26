@@ -54,52 +54,56 @@ vector<vector<string>> CmdParse::getDbs()
 	if(!in.is_open())
 		return dbs;
 
-	char buff[100];
+	char buff[512];
 	while (true)
 	{
 		in.getline(buff, sizeof(buff));
-		char *name = strtok(buff, "\t");
-		char *path = strtok(NULL, "\t");
-		if (name != NULL)
+		char *dname = strtok(buff, "\t");
+		char *dpath = strtok(NULL, "\t");
+		if (dname != NULL)
 		{
-			vector<string> db;
-			db.push_back(name);
-
-			ifstream table(string(path) + string(name) + ".tb");
-			if (!table.is_open())
+			ifstream table(string(dpath) + string(dname) + ".tb");
+			if (table.is_open())
 			{
-				dbs.push_back(db);
-				continue;
-			}
-
-			while (true)
-			{
-				table.getline(buff, sizeof(buff));
-				char *name = strtok(buff, "\t");
-				char *path = strtok(NULL, "\t");
-				if (name != NULL)
+				while (true)
 				{
-					db.push_back(name);
-					ifstream field(path);
-					if (!field.is_open())
-						continue;
+					vector<string> db;
+					db.push_back(dname); // 数据库名
 
-					while (true)
+					char buff[512];
+					table.getline(buff, sizeof(buff));
+					char *tname = strtok(buff, "\t");
+					char *tpath = strtok(NULL, "\t");
+					if (tname != NULL)
 					{
-						field.getline(buff, sizeof(buff));
-						strtok(buff, " ");
-						char *name = strtok(NULL, " ");
-						if (name != NULL)
-							db.push_back(name);
-						else
-							break;
+						db.push_back(tname); // 表名
+						ifstream field(tpath);
+						if (field.is_open())
+							while (true)
+							{
+								field.getline(buff, sizeof(buff));
+								strtok(buff, " ");
+								char *fname = strtok(NULL, " ");
+								if (fname != NULL)
+									db.push_back(fname); // 字段名
+								else
+									break;
+							}
+						field.close();
 					}
-					field.close();
+					else
+					{
+						dbs.push_back(db); 
+						break;
+					}
+					dbs.push_back(db);
 				}
-				else
-					break;
 			}
-			dbs.push_back(db);
+			else
+			{
+				vector<string> db{ dname };
+				dbs.push_back(db); // 空数据库
+			}
 			table.close();
 		}
 		else
@@ -119,7 +123,7 @@ vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 		return tableInfo;
 
 	vector<string> field;
-	char buff[100];
+	char buff[512];
 	while (true)
 	{
 		in.getline(buff, sizeof(buff));
@@ -155,11 +159,28 @@ vector<vector<string>> CmdParse::getField(string db, string table, string col)
 {
 	vector<vector<string>> field;
 
-	ifstream in("./data/" + db + "/" + table + ".tic");
+	ifstream in("./data/" + db + "/" + table + ".tdf");
 	if (!in.is_open())
 		return field;
 
-	char buff[100];
+	char buff[512];
+	while (in.eof())
+	{
+		in.getline(buff, sizeof(buff));
+		strtok(buff, " ");
+		char *n = strtok(NULL, " ");
+		if (string(n) != col)
+			continue;
+		char *t = strtok(NULL, " ");
+		vector<string> info{ n, t };
+		field.push_back(info);
+	}
+	in.close();
+
+	in.open("./data/" + db + "/" + table + ".tic");
+	if (!in.is_open())
+		return field;
+
 	while (in.eof())
 	{
 		in.getline(buff, sizeof(buff));
@@ -167,8 +188,8 @@ vector<vector<string>> CmdParse::getField(string db, string table, string col)
 		char *f = strtok(NULL, " ");
 		if (string(f) != col)
 			continue;
-		char *t = strtok(NULL, " ");
-		vector<string> info{ n, f, t };
+		char *c = strtok(NULL, "");
+		vector<string> info{ n, c };
 		field.push_back(info);
 	}
 	in.close();
@@ -300,7 +321,7 @@ string CmdParse::tableCreate()
 						iscap = true;
 					else
 						iscon = true;
-					create.push_back(attribute);
+					create.push_back(preWhere(attribute));
 					continue;
 				}
 
@@ -334,7 +355,7 @@ string CmdParse::tableCreate()
 	string str;
 	if (tableManage.CreatDatebase(str) == 1) {
 		FieldManage fm(vCreate, dbName);
-		string s=fm.manage();
+		string s = fm.manage();
 		return s;
 	}
 	else
@@ -914,7 +935,7 @@ string CmdParse::preWhere(string s)
 			len--;
 			ismodify = true;
 		}
-		if (!ismodify)
+		if (!ismodify || i == s.size() - 1 - i)
 			break;
 	}
 

@@ -94,6 +94,7 @@ string FieldManage::field_Add()
 string FieldManage::field_Add1()
 {
 	ofstream out_file;
+	ofstream out_file1;
 	string s;
 	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tdf";
 
@@ -137,15 +138,52 @@ string FieldManage::field_Add1()
 		order += vec1.size();
 		s += std::to_string(order);
 		s += " ";
-		for (int j = 0; j < sql.at(i).size(); j++) {
+		for (int j = 0; j < 2; j++) {
 			s += sql.at(i).at(j);
 			s += " ";
 		}
-		if (sql.at(i).size() == 2)
+		if (sql.at(i).size() > 2) {
+			int isNum = atoi(sql.at(i).at(2).c_str());
+			if (isNum == 0)
+				s += "NULL";
+			else
+				s += sql.at(i).at(2);
+		}
+		else
 			s += "NULL";
+		
 		s = s + "\n";
 	}
+	//生成约束
+	string con = "";
+	for (int i = 1; i < sql.size(); i++) {
+		if (sql.at(i).size() > 2) {
+			int isNum = atoi(sql.at(i).at(2).c_str());
+			if (sql.at(i).size() > 3 || isNum == 0) {
+				con += sql.at(i).at(0);
+				con += "_con";
+				con += " ";
+				con += sql.at(i).at(0);
+				if (sql.at(i).size() > 3)
+					con += sql.at(i).at(3);
+				else {
+					con += " ";
+					con += sql.at(i).at(2);
+				}
 
+				con = con + "\n";
+			}
+		}
+	}
+	//写入tic
+	out_file1.open("./data/" + dbName + "/" + sql.at(0).at(1) + ".tic", ios::out | ios::app);
+	if (out_file1.is_open())
+	{
+		out_file1 << (char*)con.data();
+	}
+	out_file1.close();
+
+	//写入tdf
 	out_file.open(file_Path, ios::out | ios::app);
 	if (out_file.is_open())
 	{
@@ -451,6 +489,68 @@ string FieldManage::constraint_Add()
 		string temp = sql.at(3).at(0).substr(pos + 1, sql.at(3).at(0).size());
 		s += temp;
 		s += "\n";
+	}
+	else if (sql.at(2).at(0) == "check")
+	{
+		string ty;
+		//分割check字段
+		if (sql.at(2).at(1).find("between") != string::npos) {
+			size_t pos1 = sql.at(2).at(1).find("between");
+			size_t pos2 = sql.at(2).at(1).find("and");
+			string field_n = sql.at(2).at(1).substr(0, pos1 - 1);
+			string temp1 = sql.at(2).at(1).substr(pos1 + 8, pos2 - pos1 - 9);
+			string temp2 = sql.at(2).at(1).substr(pos2 + 4, sql.at(2).at(1).size() - pos2 - 3);
+			sql.at(2).erase(sql.at(2).begin() + 1);
+			sql.at(2).push_back(field_n);
+			sql.at(2).push_back(temp1);
+			sql.at(2).push_back(temp2);
+			ty = "between";
+		}
+		else if (sql.at(2).at(1).find("in") != string::npos) {
+			size_t pos1 = sql.at(2).at(1).find("in");
+			size_t pos2 = sql.at(2).at(1).find(",");
+			string field_n = sql.at(2).at(1).substr(0, pos1 - 1);
+			string temp1 = sql.at(2).at(1).substr(pos1 + 3, pos2 - pos1 - 3);
+			string temp2 = sql.at(2).at(1).substr(pos2 + 1, sql.at(2).at(1).size());
+			sql.at(2).erase(sql.at(2).begin() + 1);
+			sql.at(2).push_back(field_n);
+			sql.at(2).push_back(temp1);
+			sql.at(2).push_back(temp2);
+			ty = "in";
+		}
+		s = sql.at(1).at(1);
+		s += " ";
+		s += sql.at(2).at(1);
+		s += " ";
+		s += sql.at(2).at(0);
+		s += ty;
+		s += " ";
+		for (int i = 2; i < sql.at(2).size(); i++) {
+			s += sql.at(2).at(i);
+			s += " ";
+		}
+		s += "\n";
+
+		//检查文件中是否已有要添加的字段
+
+		for (int j = 0; j < vec1.size(); j++) {
+			if (vec1.at(j).find(sql.at(2).at(1)) != string::npos) {
+				isExist = true;
+				break;
+			}
+		}
+		if (!isExist)
+			return "错误！请求添加的字段不存在";
+
+		//>,=,<的情况
+		if (sql.at(2).at(1).find(">") != string::npos || sql.at(2).at(1).find("=") != string::npos || sql.at(2).at(1).find("<") != string::npos) {
+			if (sql.size() <= 3) {
+
+			}
+			else {
+
+			}
+		}
 	}
 
 	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tic";

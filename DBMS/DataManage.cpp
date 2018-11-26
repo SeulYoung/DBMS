@@ -46,6 +46,9 @@ string DataManage::data_insert()
 	msg = isColumn();
 	if (msg=="存在")
 	{
+		if (!type_check()) {
+			return "数据类型不符合约束";
+		}
 		if (!len_check()) {
 			return "数据长度不符合约束";
 		}
@@ -94,9 +97,6 @@ string DataManage::data_insert()
 		return msg;
 	return "数据插入成功";
 }
-
-
-
 
 
 string DataManage::data_delete()
@@ -637,6 +637,7 @@ string DataManage::data_select()
 	bool starall=false;//判断是否是*
 	vector<string> line,l_content;
 	vector<string> v1;//存打印内容
+
 	for (size_t i = 0; i < sql[1].size(); i++) {
 		in.open("data//" + dbName+"//" + sql[1][i]+".tdf");
 		in2.open("data//" + dbName +"//"+ sql[1][i] + ".trd");
@@ -696,6 +697,7 @@ string DataManage::data_select()
 		in2.close();
 	}
 
+	//读取结束
 	int s_num=sql[0].size()-1;//select column number;
 	vector<string> get;//记录select的列名
 	vector<string> get_all;//记录所有列名
@@ -786,7 +788,7 @@ string DataManage::data_select()
 								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
 								position_c1 = distance(get_all.begin(), it_c1);
 								for (int j = 0; j < v1.size(); j++) {
-									if (this->explode(v1[j], '\t').at(position_c1) < small_s[1]) {
+									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) < atoi(small_s[1].c_str())) {
 										v1.erase(v1.begin() + j);
 										j--;
 									}
@@ -804,7 +806,7 @@ string DataManage::data_select()
 								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
 								position_c1 = distance(get_all.begin(), it_c1);
 								for (int j = 0; j < v1.size(); j++) {
-									if (this->explode(v1[j], '\t').at(position_c1) > small_s[1]) {
+									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) > atoi(small_s[1].c_str())) {
 										v1.erase(v1.begin() + j);
 										j--;
 									}
@@ -823,7 +825,7 @@ string DataManage::data_select()
 								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
 								position_c1 = distance(get_all.begin(), it_c1);
 								for (int j = 0; j < v1.size(); j++) {
-									if (this->explode(v1[j], '\t').at(position_c1) == small_s[1]) {
+									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) == atoi(small_s[1].c_str())) {
 										v1.erase(v1.begin() + j);
 										j--;
 									}
@@ -924,7 +926,7 @@ string DataManage::data_select()
 			}
 		}
 
-		if(sql[2].size()==4){
+		if(sql.size()==4){
 			//size为4有group by功能
 			vector<string> v2;
 		}
@@ -999,21 +1001,35 @@ string DataManage::con_check()
 
 	//检查约束
 	string isSuc;
-	for (int i = 2; i < sql.at(0).size(); i++) {
-		for (int j = 0; j < vec4.size(); j++) {
-			if (sql.at(0).at(i) == vec4.at(j).at(1)) {
-				isSuc = con_parse(i, j, vec4);
-				if (isSuc != "约束检查成功")
-					return isSuc;
+	if (sql.at(0).size() > 2) {
+		for (int i = 2; i < sql.at(0).size(); i++) {
+			for (int j = 0; j < vec4.size(); j++) {
+				if (sql.at(0).at(i) == vec4.at(j).at(1)) {
+					isSuc = con_parse(i-2, j, vec4);
+					if (isSuc != "约束检查成功")
+						return isSuc;
+				}
 			}
 		}
 	}
+	else {
+		for (int i = 0; i < vec2.at(i).size(); i++) {
+			for (int j = 0; j < vec4.size(); j++) {
+				if (vec2.at(i).at(1) == vec4.at(j).at(1)) {
+					isSuc = con_parse(i, j, vec4);
+					if (isSuc != "约束检查成功")
+						return isSuc;
+				}
+			}
+		}
+	}
+	
 
 	//检查not null;
 	bool isNull = false;
 	if (sql.at(0).size() > 2) {
 		for (int j = 0; j < vec4.size(); j++) {
-			if (vec4.at(j).at(2) == "not"|| vec4.at(j).at(2) == "foreign") {
+			if (vec4.at(j).at(2) == "not"|| vec4.at(j).at(2) == "primary") {
 				for (int i = 2; i < sql.at(0).size(); i++) {
 					if (sql.at(0).at(i) == vec4.at(j).at(1)) {
 						isNull = true;
@@ -1031,11 +1047,56 @@ string DataManage::con_check()
 
 string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 {
+	//读取.trd文件中的记录
+	vector<string> vec5;
+	vector<vector<string>> vec6;
+	ifstream in("./data/" + dbName + "/" + sql.at(0).at(1) + ".trd");
+	if (!in.is_open())
+		return false;
+
+	//生成vec5
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec5.push_back(buffer);
+	}
+	in.close();
+
+	//生成vec6
+	for (size_t j = 0; j < vec1.size(); j++) {
+		vector<string> temp_vec;
+		char *temp3;
+		char temp4[100];
+		for (int i = 0; i < vec1.at(j).length(); i++)
+			temp4[i] = vec5.at(j)[i];
+		temp4[vec1.at(j).length()] = '\0';
+
+		temp3 = strtok(temp4, " ");
+		while (temp3) {
+			temp_vec.push_back(temp3);
+			temp3 = strtok(NULL, " ");
+		}
+		vec6.push_back(temp_vec);
+	}
+
 	string con_re = "约束检查成功";
 
 	if (vec4.at(pos2).at(2) == "primary"|| vec4.at(pos2).at(2)=="unique")
 	{
-		
+		int order;
+		for (int i = 0; i < vec2.size(); i++) {
+			if (vec4.at(pos2).at(1) == vec2.at(i).at(1))
+			{
+				order = i;
+				break;
+			}
+		}
+		for (int i = 0; i < vec6.size(); i++) {
+			if (sql.at(1).at(pos1) == vec6.at(i).at(order))
+				return "数据不符合unique约束";
+		}
 	}
 	else if (vec4.at(pos2).at(2) == "foreign")
 	{
@@ -1043,15 +1104,53 @@ string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 	}
 	else if (vec4.at(pos2).at(2) == "default")
 	{
-		if (sql.at(1).at(pos1 - 2) != vec4.at(pos2).at(3))
+		if (sql.at(1).at(pos1) != vec4.at(pos2).at(3))
 			con_re = "数据不符合default约束";
-
 	}
 	else
 	{
 		con_re = "约束检查成功";
 	}
 	return con_re;
+}
+
+bool DataManage::type_check()
+{	
+	if (sql.at(0).size() > 2) {
+		for (int i = 2; i < sql.at(0).size(); i++) {
+			for (int j = 0; j < vec2.size(); j++) {
+				if (sql.at(0).at(i) == vec2.at(j).at(1))
+				{
+					if (vec2.at(j).at(2) == "varchar"&&sql.at(1).at(i - 2).find("'") == string::npos)
+						return false;
+					else if (vec2.at(j).at(2) == "integer"&&sql.at(1).at(i - 2).find("'") != string::npos)
+						return false;
+					else if (vec2.at(j).at(2) == "bool") {
+						if (sql.at(1).at(i - 2) != "true" || sql.at(1).at(i - 2) != "false")
+							return false;
+					}
+					else if (vec2.at(j).at(2) == "date"&&sql.at(1).at(i - 2).find("to_date") == string::npos)
+						return false;	
+				}
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < sql.at(1).size(); i++) {
+
+			if (vec2.at(i).at(2) == "varchar"&&sql.at(1).at(i).find("'") == string::npos)
+				return false;
+			else if (vec2.at(i).at(2) == "integer"&&sql.at(1).at(i).find("'") != string::npos)
+				return false;
+			else if (vec2.at(i).at(2) == "bool") {
+				if (sql.at(1).at(i) != "true" || sql.at(1).at(i) != "false")
+					return false;
+			}
+			else if (vec2.at(i).at(2) == "date"&&sql.at(1).at(i).find("to_date") == string::npos)
+				return false;
+		}
+	}
+	return true;
 }
 
 bool DataManage::len_check()
@@ -1073,9 +1172,14 @@ bool DataManage::len_check()
 	}
 	else {
 		for (int i = 0; i < sql.at(1).size(); i++) {
-			int size = atoi(vec2.at(i).at(3).c_str());
-			if (sql.at(1).at(i).size() > size)
-				return false;
+			int size;
+			if (vec2.at(i).at(3) != "NULL")
+			{
+				size = atoi(vec2.at(i).at(3).c_str());
+				if (sql.at(1).at(i).size() > size)
+					return false;
+			}
+				
 		}
 	}
 	return true;
