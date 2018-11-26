@@ -309,7 +309,7 @@ int TableManage::CreatDatebase(string & str)
 	string path5 = frontpath+s + endpath5;
 	string testpath = "./data/" + dbName;
 	string testpath2 = s + endpath2;
-	int temp = SearchDatebase(frontpath,path2);
+	int temp = SearchDatebase(frontpath,testpath2);
 	if (temp == 1) {
 		str = "表已被创建";
 		return false;
@@ -393,6 +393,23 @@ int TableManage::DeleteDatebase(string & str)
 	/*cout << "delete table successful" << endl;*/
 
 
+	vector<string>name;
+	string path5 = frontpath + dbName + ".tb";
+	char line[1024] = { 0 };
+	ifstream fin(path5, ios::in);
+	while (fin.getline(line, sizeof(line))) {
+		string cur = line;
+		if (!cur.find(s)) {
+			name.push_back(line);
+		}
+	}
+	fin.close();
+
+	ofstream fou(path5, ios::out);
+	for (int i = 0; i < name.size(); i++) {
+		fou << name[i] << endl;
+	}
+	fou.close();
 	return 1;
 }
 
