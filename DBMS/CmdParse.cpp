@@ -244,8 +244,8 @@ string CmdParse::dbCreate()
 	vCreate.push_back(name);
 
 	DbManage dm(vCreate);
-	dm.CreateDatabase();
-	return "Create database成功";
+	string str = dm.CreateDatabase();
+	return str;
 }
 
 string CmdParse::dbDrop()
@@ -259,7 +259,8 @@ string CmdParse::dbDrop()
 	vDrop.push_back(name);
 
 	DbManage dbManage(vDrop);
-	return "Drop database成功";
+	string str = dbManage.DeleteDatabase();
+	return str;
 }
 
 string CmdParse::tableCreate()
