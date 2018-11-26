@@ -62,7 +62,7 @@ string DbManage::CreateDatabase()
 	}
 	*/
 	strcpy_s(new_name, "data//");
-	strcat_s(new_name, "ruanko");
+	strcat_s(new_name, sql[0][1].c_str());
 	strcat_s(new_name, "//");
 	strcpy_s(d_path, new_name);
 	strcat_s(new_name, d_name);
