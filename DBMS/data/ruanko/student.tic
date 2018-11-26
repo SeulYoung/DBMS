@@ -1,6 +1,0 @@
-pk_sno sno primary key 
-uq_sno sno unique 
-nn_sex sex not null 
-def_clno classno default '1604' 
-age_con age checkbetween 20 25 
-sex_con sex checkin 'm' 'f' 
