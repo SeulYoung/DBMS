@@ -127,6 +127,8 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		QStringList header{ QString::fromLocal8Bit("列名"), QString::fromLocal8Bit("类型"), QString::fromLocal8Bit("约束名"), QString::fromLocal8Bit("约束内容") };
 		ui.table->setHorizontalHeaderLabels(header);
 
+		if (field.empty())
+			return;
 		ui.table->setItem(0, 0, new QTableWidgetItem(QString::fromStdString(field[0][0])));
 		ui.table->setItem(0, 1, new QTableWidgetItem(QString::fromStdString(field[0][1])));
 		for (int i = 1; i < field.size(); i++)
@@ -143,6 +145,8 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		vector<vector<string>> table = cp.getTableInfo(d, t);
 
 		clearTable();
+		if (table.empty())
+			return;
 		ui.table->setRowCount(table.size() - 1);
 		ui.table->setColumnCount(table[0].size());
 		QStringList header;
