@@ -5,7 +5,7 @@ DbManage::DbManage(vector<vector<string>> s)
 	sql = s;
 }
 
-void DbManage::CreateDatabase()
+string DbManage::CreateDatabase()
 {
 
 	char d_name[128];
@@ -25,7 +25,7 @@ void DbManage::CreateDatabase()
 	if (sizeof(d_name) > 128)
 	{
 		//cout << "Size of Database name should less than 128" << endl;
-		return;
+		return "库名超出长度";
 	}
 
 	ofstream out;
@@ -62,7 +62,7 @@ void DbManage::CreateDatabase()
 	}
 	*/
 	strcpy_s(new_name, "data//");
-	strcat_s(new_name, d_name);
+	strcat_s(new_name, "ruanko");
 	strcat_s(new_name, "//");
 	strcpy_s(d_path, new_name);
 	strcat_s(new_name, d_name);
@@ -70,10 +70,10 @@ void DbManage::CreateDatabase()
 	strcat_s(new_name, ".log");
 	strcat_s(new_name1, ".tb");
 	if ((fopen_s(&new_file, new_name, "r")) == 0) {
-		cout << "Existed database!" << endl;
+		//cout << "Existed database!" << endl;
 		//fclose(new_file);
 		fclose(file);
-		return;
+		return "数据库已存在!";
 	}
 	else {
 		//string command;
@@ -99,34 +99,23 @@ void DbManage::CreateDatabase()
 	fclose(new_file);
 }
 
-void DbManage::DeleteDatabase()
+string DbManage::DeleteDatabase()
 {
-	//vector<database> vd ;
 	char new_name[256];
 	string d_name;
-	//SYSTEMTIME d_time;
 	string d_path;
-	string d_type;
-	getchar();
-	cout << "Enter database name:";
-	getline(cin, d_name);
-	d_name += ".db";
-	cout << "Enter save path:";
-	getline(cin, d_path);
-	if (d_path == "")d_path = " ";
-	cout << "Enter database type:";
-	getline(cin, d_type);
+
+	d_name =sql[0][1];
+	d_path = "data//"+sql[0][1]+"//";
 
 	database del_database;
 	strcpy_s(del_database.name, d_name.c_str());
 	strcpy_s(del_database.path, d_path.c_str());
-	strcpy_s(del_database.type, d_type.c_str());
 
 	FILE *f;
 	FILE *f1;
 	if ((fopen_s(&f, "ruanko.db", "r")) != 0) {
-		cout << "No database in this system" << endl;
-		return;
+		return "No database in this system";
 	}
 	fclose(f);
 	//检测是否有人正在使用库
@@ -141,18 +130,11 @@ void DbManage::DeleteDatabase()
 	//file.Close();
 
 	string d_file;
-	if (d_path != " ") {
-		d_file = d_path + "//" + d_name;
-	}
-	else {
-		d_file = d_name;
-	}
+	d_file = d_path + d_name + ".tb";
 	strcpy_s(new_name, d_file.c_str());
 	//检测库是否存在
 	if ((fopen_s(&f1, new_name, "r")) != 0) {
-		cout << "This database is not existed" << endl;
-		fclose(f);
-		return;
+		return "数据库不存在";
 	}
 	fclose(f1);
 
@@ -189,15 +171,18 @@ void DbManage::DeleteDatabase()
 
 	ofstream ofs("ruanko.db", ios::binary);
 	if (!ofs) {
-		cout << "fail to open file" << endl;
-		return;
+		//cout << "fail to open file" << endl;
+		return "打开库管理文件失败";
 	}
 	ofs << strFile;
 	ofs.close();
 	//进度到这需要改成文件指针操作删除
-	if (remove(new_name) == 0) {
-		cout << "success" << endl;
+	string s = "data//" + sql[0][1];
+	strcpy_s(new_name,s.c_str());
+	if (DeleteDirectory(new_name)) {
+		return "删除成功";
 	}
+	return "删除失败";
 }
 
 string DbManage::ShowDatabase()
@@ -258,4 +243,68 @@ const vector<string> DbManage::explode(const string & s, const char & c)
 	if (buff != "") v.push_back(buff);
 
 	return v;
+}
+
+
+BOOL  DbManage::IsDirectory(const char *pDir)
+{
+	char szCurPath[500];
+	ZeroMemory(szCurPath, 500);
+	sprintf_s(szCurPath, 500, "%s//*", pDir);
+	WIN32_FIND_DATAA FindFileData;
+	ZeroMemory(&FindFileData, sizeof(WIN32_FIND_DATAA));
+
+	HANDLE hFile = FindFirstFileA(szCurPath, &FindFileData); /**< find first file by given path. */
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		FindClose(hFile);
+		return FALSE; /** 如果不能找到第一个文件，那么没有目录 */
+	}
+	else
+	{
+		FindClose(hFile);
+		return TRUE;
+	}
+
+}
+
+BOOL  DbManage::DeleteDirectory(const char * DirName)
+{
+	//    CFileFind tempFind;        //声明一个CFileFind类变量，以用来搜索
+	char szCurPath[MAX_PATH];        //用于定义搜索格式
+	_snprintf(szCurPath, MAX_PATH, "%s//*.*", DirName);    //匹配格式为*.*,即该目录下的所有文件
+	WIN32_FIND_DATAA FindFileData;
+	ZeroMemory(&FindFileData, sizeof(WIN32_FIND_DATAA));
+	HANDLE hFile = FindFirstFileA(szCurPath, &FindFileData);
+	BOOL IsFinded = TRUE;
+	while (IsFinded)
+	{
+		IsFinded = FindNextFileA(hFile, &FindFileData);    //递归搜索其他的文件
+		if (strcmp(FindFileData.cFileName, ".") && strcmp(FindFileData.cFileName, "..")) //如果不是"." ".."目录
+		{
+			std::string strFileName = "";
+			strFileName = strFileName + DirName + "//" + FindFileData.cFileName;
+			std::string strTemp;
+			strTemp = strFileName;
+			if (IsDirectory(strFileName.c_str())) //如果是目录，则递归地调用
+			{
+				printf("目录为:%s/n", strFileName.c_str());
+				DeleteDirectory(strTemp.c_str());
+			}
+			else
+			{
+				DeleteFileA(strTemp.c_str());
+			}
+		}
+	}
+	FindClose(hFile);
+
+	BOOL bRet = RemoveDirectoryA(DirName);
+	if (bRet == 0) //删除目录
+	{
+		printf("删除%s目录失败！/n", DirName);
+		return FALSE;
+	}
+	return TRUE;
 }
