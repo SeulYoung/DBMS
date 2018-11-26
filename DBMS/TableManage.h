@@ -24,7 +24,7 @@ public:
 	void ListDatebase(string s);	//列出表
 	string getCurenttime();      //得到当前时间
 	int SaveInfo(string s);			//保存信息
-	int SearchDatebase(string s);	//验证表唯一性
+	int SearchDatebase(string path,string name);	//验证表唯一性
 	int AlterDatebase(string s);	//修改表
 	void getFiles(string path, vector<string>& files);
 	int CheckExist(string s);

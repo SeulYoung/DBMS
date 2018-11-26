@@ -126,19 +126,19 @@ int TableManage::SaveInfo(string s)
 	return 0;
 }
 
-int TableManage::SearchDatebase(string s)
+int TableManage::SearchDatebase(string path,string name)
 {
-	string path = "D:\\GitHub\\DBMS";
+
 	vector<string> files;
 	getFiles(path, files);
-	string temp = "D:\\GitHub\\DBMS\\" + s + ".tb";
+	string temp = path +"\\" + name;
 	//char str[30];
 	int size = files.size();
 	for (int i = 0; i < size; i++)
 	{
 		if (files[i].c_str() == temp) {
 
-			cout << "haha" << endl;
+
 			return 1;
 		}
 		cout << files[i].c_str() << endl;
@@ -151,10 +151,10 @@ int TableManage::SearchDatebase(string s)
 int TableManage::AlterDatebase(string s)
 {
 
-	if (SearchDatebase(s) == 0) {
+	/*if (SearchDatebase(s) == 0) {
 		cout << "not exist";
 		return 0;
-	}
+	}*/
 	string path = s + ".tb";
 	string path1 = s + ".tdf";
 	string path2 = s + ".trd";
@@ -239,27 +239,33 @@ int TableManage::AlterDatebase(string s)
 void TableManage::getFiles(string path, vector<string>& files)
 {
 	//文件句柄  
-	long   hFile = 0;
+	long long hFile = 0;
 	//文件信息  
 	struct _finddata_t fileinfo;
 	string p;
 	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
 	{
+
 		do
 		{
-			//如果是目录,迭代之  
-			//如果不是,加入列表  
-			if ((fileinfo.attrib &  _A_SUBDIR))
-			{
-				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-					getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
-			}
-			else
-			{
-				files.push_back(p.assign(path).append("\\").append(fileinfo.name));
-			}
+			files.push_back(p.assign(path).append("\\").append(fileinfo.name));
 		} while (_findnext(hFile, &fileinfo) == 0);
 		_findclose(hFile);
+		//do
+		//{
+		//	//如果是目录,迭代之  
+		//	//如果不是,加入列表  
+		//	if ((fileinfo.attrib &  _A_SUBDIR))
+		//	{
+		//		if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+		//			getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
+		//	}
+		//	else
+		//	{
+		//		files.push_back(p.assign(path).append("\\").append(fileinfo.name));
+		//	}
+		//} while (_findnext(hFile, &fileinfo) == 0);
+		//_findclose(hFile);
 
 	}
 }
@@ -297,7 +303,6 @@ int TableManage::CreatDatebase(string & str)
 	string s = sql[0][1];
 	string frontpath = "./data/" + dbName + "/";
 
-	
 	string endpath1 = ".tb";
 	string endpath2 = ".tdf";
 	string endpath3 = ".tic";
@@ -308,9 +313,11 @@ int TableManage::CreatDatebase(string & str)
 	string path3 = frontpath+s + endpath3;
 	string path4 = frontpath+s + endpath4;
 	string path5 = frontpath+s + endpath5;
-	int temp = SearchDatebase(s);
+	string testpath = "./data/" + dbName;
+	string testpath2 = s + endpath2;
+	int temp = SearchDatebase(frontpath,testpath2);
 	if (temp == 1) {
-		str = "table already exist";
+		str = "表已被创建";
 		return false;
 	}
 	if (ValidDatebase(s) == -1) {
@@ -334,16 +341,18 @@ int TableManage::CreatDatebase(string & str)
 	file1.close();
 
 	string datebasename;
-	ofstream ofile;               //定义输出文件
-	ofile.open(path1, ios::app);     //作为输出文件打开
-	ofile << s << '\t';
-	ofile << path2 << '\t';
-	ofile << path3 << '\t';
-	ofile << path4 << '\t';
-	ofile << path5 << '\t';
-	ofile << getCurenttime() << endl;
-	ofile.close();
-	getchar();
+
+	//if (SearchDatebase(frontpath, testpath2) == 0) {
+		ofstream ofile;               //定义输出文件
+		ofile.open(path1, ios::app);     //作为输出文件打开
+		ofile << s << '\t';
+		ofile << path2 << '\t';
+		ofile << path3 << '\t';
+		ofile << path4 << '\t';
+		ofile << path5 << '\t';
+		ofile << getCurenttime() << endl;
+		ofile.close();
+	//}
 	return 1;
 }
 
@@ -371,15 +380,16 @@ int TableManage::DeleteDatebase(string & str)
 	//	//cout << "not exist";
 	//	return 0;
 	//}
-	
+	string frontpath = "./data/" + dbName + "/";
+
 	string endpath1 = ".tdf";
 	string endpath2 = ".tic";
 	string endpath3 = ".trd";
 	string endpath4 = ".tid";
-	string path1 = s + endpath1;
-	string path2 = s + endpath2;
-	string path3 = s + endpath3;
-	string path4 = s + endpath4;
+	string path1 = frontpath +s + endpath1;
+	string path2 = frontpath + s + endpath2;
+	string path3 = frontpath + s + endpath3;
+	string path4 = frontpath + s + endpath4;
 	if (-1 == remove(path1.c_str()) || -1 == remove(path2.c_str()) || -1 == remove(path3.c_str()) || -1 == remove(path4.c_str()))
 	{
 		str = "删除表失败";
@@ -388,6 +398,24 @@ int TableManage::DeleteDatebase(string & str)
 	str = "delete table successful";
 	/*cout << "delete table successful" << endl;*/
 
+
+	vector<string>name;
+	string path5 = frontpath + dbName + ".tb";
+	char line[1024] = { 0 };
+	ifstream fin(path5, ios::in);
+	while (fin.getline(line, sizeof(line))) {
+		string cur = line;
+		if (!cur.find(s)) {
+			name.push_back(line);
+		}
+	}
+	fin.close();
+
+	ofstream fou(path5, ios::out);
+	for (int i = 0; i < name.size(); i++) {
+		fou << name[i] << endl;
+	}
+	fou.close();
 	return 1;
 }
 

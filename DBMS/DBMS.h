@@ -18,6 +18,7 @@ public:
 private:
 	void initTree();
 	void disConnAll();
+	void clearTable();
 	void closeEvent(QCloseEvent *event);
 
 	Ui::DBMSClass ui;
@@ -27,6 +28,7 @@ private:
 	CmdParse cp;
 	string sql;
 	bool isCreateTable;
+	int addRecNum;
 
 public slots:
 	void getCmd();
@@ -37,10 +39,11 @@ public slots:
 	void createDb(QTreeWidgetItem *item, int col);
 	void tableAction();
 	void createTable(QTreeWidgetItem *item, int col);
-	void insertTableRow();
+	void insertField();
 	void consCheck(int row, int col);
 	void saveTable();
 	void fieldAction();
 	void recordAction();
-	//void recordChanged(QTableWidgetItem *item);
+	void recordChanged(QTableWidgetItem *item);
+	void saveRecord();
 };

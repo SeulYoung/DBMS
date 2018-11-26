@@ -38,3 +38,7 @@ x64/
 
 # QT Creator
 GeneratedFiles/
+
+# DBMS
+*.db
+data/
