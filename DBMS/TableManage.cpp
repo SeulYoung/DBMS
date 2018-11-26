@@ -126,19 +126,19 @@ int TableManage::SaveInfo(string s)
 	return 0;
 }
 
-int TableManage::SearchDatebase(string s)
+int TableManage::SearchDatebase(string path,string name)
 {
-	string path = "D:\\GitHub\\DBMS";
+
 	vector<string> files;
 	getFiles(path, files);
-	string temp = "D:\\GitHub\\DBMS\\" + s + ".tb";
+	string temp = path +"\\" + name;
 	//char str[30];
 	int size = files.size();
 	for (int i = 0; i < size; i++)
 	{
 		if (files[i].c_str() == temp) {
 
-			cout << "haha" << endl;
+
 			return 1;
 		}
 		cout << files[i].c_str() << endl;
@@ -151,10 +151,10 @@ int TableManage::SearchDatebase(string s)
 int TableManage::AlterDatebase(string s)
 {
 
-	if (SearchDatebase(s) == 0) {
+	/*if (SearchDatebase(s) == 0) {
 		cout << "not exist";
 		return 0;
-	}
+	}*/
 	string path = s + ".tb";
 	string path1 = s + ".tdf";
 	string path2 = s + ".trd";
@@ -297,7 +297,6 @@ int TableManage::CreatDatebase(string & str)
 	string s = sql[0][1];
 	string frontpath = "./data/" + dbName + "/";
 
-	
 	string endpath1 = ".tb";
 	string endpath2 = ".tdf";
 	string endpath3 = ".tic";
@@ -308,9 +307,11 @@ int TableManage::CreatDatebase(string & str)
 	string path3 = frontpath+s + endpath3;
 	string path4 = frontpath+s + endpath4;
 	string path5 = frontpath+s + endpath5;
-	int temp = SearchDatebase(s);
+	string testpath = "./data/" + dbName;
+	string testpath2 = s + endpath2;
+	int temp = SearchDatebase(frontpath,path2);
 	if (temp == 1) {
-		str = "table already exist";
+		str = "表已被创建";
 		return false;
 	}
 	if (ValidDatebase(s) == -1) {
@@ -334,16 +335,18 @@ int TableManage::CreatDatebase(string & str)
 	file1.close();
 
 	string datebasename;
-	ofstream ofile;               //定义输出文件
-	ofile.open(path1, ios::app);     //作为输出文件打开
-	ofile << s << '\t';
-	ofile << path2 << '\t';
-	ofile << path3 << '\t';
-	ofile << path4 << '\t';
-	ofile << path5 << '\t';
-	ofile << getCurenttime() << endl;
-	ofile.close();
-	getchar();
+
+	if (SearchDatebase(frontpath, testpath2) == 0) {
+		ofstream ofile;               //定义输出文件
+		ofile.open(path1, ios::app);     //作为输出文件打开
+		ofile << s << '\t';
+		ofile << path2 << '\t';
+		ofile << path3 << '\t';
+		ofile << path4 << '\t';
+		ofile << path5 << '\t';
+		ofile << getCurenttime() << endl;
+		ofile.close();
+	}
 	return 1;
 }
 
@@ -371,15 +374,16 @@ int TableManage::DeleteDatebase(string & str)
 	//	//cout << "not exist";
 	//	return 0;
 	//}
-	
+	string frontpath = "./data/" + dbName + "/";
+
 	string endpath1 = ".tdf";
 	string endpath2 = ".tic";
 	string endpath3 = ".trd";
 	string endpath4 = ".tid";
-	string path1 = s + endpath1;
-	string path2 = s + endpath2;
-	string path3 = s + endpath3;
-	string path4 = s + endpath4;
+	string path1 = frontpath +s + endpath1;
+	string path2 = frontpath + s + endpath2;
+	string path3 = frontpath + s + endpath3;
+	string path4 = frontpath + s + endpath4;
 	if (-1 == remove(path1.c_str()) || -1 == remove(path2.c_str()) || -1 == remove(path3.c_str()) || -1 == remove(path4.c_str()))
 	{
 		str = "删除表失败";
@@ -387,6 +391,7 @@ int TableManage::DeleteDatebase(string & str)
 	}
 	str = "delete table successful";
 	/*cout << "delete table successful" << endl;*/
+
 
 	return 1;
 }
