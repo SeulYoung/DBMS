@@ -166,7 +166,7 @@ string DataManage::data_delete()
 	}*/
 	//取出数据表中的值
 	string name = sql[0][1];
-	string path = name + ".trd";
+	string path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".trd";
 	vector<vector<string>> rst;
 	ifstream fin1(path);
 	string line;
@@ -372,7 +372,7 @@ string DataManage::data_update()
 	}*/
 	//取出数据表中的值
 	string name = sql[0][1];
-	string path = name + ".trd";
+	string path = "./data/" + dbName + "/" + sql.at(0).at(1)  + ".trd";
 	vector<vector<string>> rst;
 	ifstream fin1(path);
 	string line;
@@ -408,29 +408,13 @@ string DataManage::data_update()
 
 		//按行判断数据
 		int ptemp = 1;
-		for (int i = 0; i < rst.size(); i++) {
-			if (judge.at(0).at(2) == "=") {
+		for (int i = 0; i < rst.size() -1; i++) {
+			
 				if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
 					ptemp = 0;
 					rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
 				}
-			}
-			if (judge.at(0).at(2) == ">") {
-				string temp2 = rst.at(2).at(i).substr(1, rst.at(i).at(pos).size() - 1);
-				int mtemp = atoi(temp2.c_str()), judge_temp = atoi(judge.at(0).at(1).c_str());
-				if (judge_temp > mtemp) {
-					ptemp = 0;
-					rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
-				}
-			}
-			if (judge.at(0).at(2) == "<") {
-				string temp2 = rst.at(2).at(i).substr(1, rst.at(i).at(pos).size() - 1);
-				int mtemp = atoi(temp2.c_str()), judge_temp = atoi(judge.at(0).at(1).c_str());
-				if (judge_temp < mtemp) {
-					ptemp = 0;
-					rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
-				}
-			}
+			
 		}if (ptemp) {
 			return "未选定行";
 		}
@@ -456,7 +440,7 @@ string DataManage::data_update()
 
 		//按行判断数据
 		int ptemp = 1;
-		for (int i = 0; i < rst.size(); i++) {
+		for (int i = 0; i < rst.size() -1; i++) {
 			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
 				ptemp = 0;
 				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
@@ -546,7 +530,7 @@ string DataManage::data_update()
 	vector<string> vec3;
 	vector<vector<string>> vec4;
 
-	ifstream in(sql.at(0).at(1) + ".tic");
+	ifstream in("./data/" + dbName + "/" + sql.at(0).at(1)  + ".tic");
 	if (!in.is_open())
 	{
 		return"请求表不存在。";
@@ -581,7 +565,7 @@ string DataManage::data_update()
 	//检查约束
 	int curtemp = 1;
 	//约束表逐行判断
-	for (int i = 0; i < vec4.size(); i++) {
+	/*for (int i = 0; i < vec4.size(); i++) {
 		for (int j = 0; j < vec2.size(); j++) {
 			if (vec4.at(i).at(1) == vec2.at(j).at(1)) {
 				if (vec4.at(i).at(2) == "unique") {
@@ -609,7 +593,7 @@ string DataManage::data_update()
 			}
 		
 		}
-	}
+	}*/
 
 
 

@@ -16,7 +16,7 @@ string CmdParse::sqlCheck(string s)
 	regex tDrop("^drop table \\w+;$");
 	regex tInsert("^insert into \\w+\\s?(\\(.+\\))?\\svalues\\s?\\(.+\\);$");
 	regex tDelete("^delete from \\w+\\swhere\\s?\\(?.+\\)?;$");
-	regex tUpdate("^update \\w+\\sset\\s(\\s?\\w+=\\w+\\s?,)*(\\s?\\w+=\\w+\\s)(where.+)?;$");
+	regex tUpdate("^update \\w+\\sset\\s(\\s?\\w+=.+\\s?,)*(\\s?\\w+=.+\\s)(where.+)?;$");
 	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
 	sql = preSql(s);
@@ -141,12 +141,15 @@ vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 	if (!in.is_open())
 		return tableInfo;
 
-	while (in.eof())
+	while (true)
 	{
 		in.getline(buff, sizeof(buff));
 		vector<string> info;
-		char *s;
-		while ((s = strtok(buff, " ")) != NULL)
+		char *s = strtok(buff, " ");
+		if (s == NULL)
+			break;
+		info.push_back(s);
+		while ((s = strtok(NULL, " ")) != NULL)
 			info.push_back(s);
 		tableInfo.push_back(info);
 	}
