@@ -1459,10 +1459,11 @@ string DataManage::con_check()
 						break;
 					}
 				}
-			}
-			if (!isNull)
+				if (!isNull)
 				return "数据不符合非空约束";
-			isNull = false;
+				isNull = false;
+			}
+			
 		}
 		
 	}
@@ -1522,15 +1523,6 @@ string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 			if (sql.at(1).at(pos1) == vec6.at(i).at(order))
 				return "数据不符合unique约束";
 		}
-	}
-	else if (vec4.at(pos2).at(2) == "foreign")
-	{
-
-	}
-	else if (vec4.at(pos2).at(2) == "default")
-	{
-		if (sql.at(1).at(pos1) != vec4.at(pos2).at(3))
-			con_re = "数据不符合default约束";
 	}
 	else if (vec4.at(pos2).at(2) == "checkbetween")
 	{
