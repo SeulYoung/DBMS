@@ -66,7 +66,7 @@ void DBMS::initType()
 			break;
 		char *t = strtok(NULL, " ");
 		if (string(t) == "varchar")
-			charType.insert(t);
+			charType.insert(n);
 	}
 	in.close();
 }
@@ -186,7 +186,12 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		ui.table->setHorizontalHeaderLabels(header);
 		for (int i = 1; i < table.size(); i++)
 			for (int j = 0; j < table[i].size(); j++)
-				ui.table->setItem(i - 1, j, new QTableWidgetItem(QString::fromStdString(table[i][j])));
+			{
+				string s = table[i][j];
+				if (s[0] == '\'')
+					s = s.substr(1, s.size() - 2);
+				ui.table->setItem(i - 1, j, new QTableWidgetItem(QString::fromStdString(s)));
+			}
 		initType();
 
 		connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
@@ -624,7 +629,7 @@ void DBMS::recordChanged(QTableWidgetItem *item)
 			if (charType.find(ui.table->horizontalHeaderItem(i)->text().toStdString()) == charType.end()) // 类型不为字符串
 				s += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=" + ui.table->item(item->row(), i)->text().toStdString() + " and";
 			else
-				s += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=\"" + ui.table->item(item->row(), i)->text().toStdString() + "\" and";
+				s += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=\'" + ui.table->item(item->row(), i)->text().toStdString() + "\' and";
 
 	s = s.substr(0, s.size() - 3) + ";";
 	preSql.push_back(s);
@@ -647,7 +652,7 @@ void DBMS::saveRecord()
 				if (charType.find(ui.table->horizontalHeaderItem(i)->text().toStdString()) == charType.end()) // 类型不为字符串
 					v += item->text().toStdString() + ",";
 				else
-					v += "\"" + item->text().toStdString() + "\"" + ",";
+					v += "\'" + item->text().toStdString() + "\'" + ",";
 			}
 		}
 		s = s.substr(0, s.size() - 1) + ") " + v.substr(0, v.size() - 1) + ");";

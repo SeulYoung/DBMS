@@ -141,12 +141,15 @@ vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 	if (!in.is_open())
 		return tableInfo;
 
-	while (in.eof())
+	while (true)
 	{
 		in.getline(buff, sizeof(buff));
 		vector<string> info;
-		char *s;
-		while ((s = strtok(buff, " ")) != NULL)
+		char *s = strtok(buff, " ");
+		if (s == NULL)
+			break;
+		info.push_back(s);
+		while ((s = strtok(NULL, " ")) != NULL)
 			info.push_back(s);
 		tableInfo.push_back(info);
 	}
