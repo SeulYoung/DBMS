@@ -633,307 +633,696 @@ string DataManage::data_update()
 
 string DataManage::data_select()
 {
-	ifstream in,in2;
-	bool starall=false;//判断是否是*
-	vector<string> line,l_content;
-	vector<string> v1;//存打印内容
+	string s = "";
+	//获得.tdf内容
+	ifstream in("./data/" + dbName + "/" + sql.at(1).at(0) + ".tdf");
+	if (!in.is_open())
+		return false;
 
-	for (size_t i = 0; i < sql[1].size(); i++) {
-		in.open("data//" + dbName+"//" + sql[1][i]+".tdf");
-		in2.open("data//" + dbName +"//"+ sql[1][i] + ".trd");
-		if (sql[0].size() == 2 && sql[0][1] == "*") {
-			starall = true;
+	//生成vec1
+	while (!in.eof())
+	{
+		char buffer[100];
+		in.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec1.push_back(buffer);
+	}
+	in.close();
+
+	//生成vec2
+	for (size_t j = 0; j < vec1.size(); j++) {
+		vector<string> temp_vec;
+		char *temp3;
+		char temp4[100];
+		for (int i = 0; i < vec1.at(j).length(); i++)
+			temp4[i] = vec1.at(j)[i];
+		temp4[vec1.at(j).length()] = '\0';
+
+		temp3 = strtok(temp4, " ");
+		while (temp3) {
+			temp_vec.push_back(temp3);
+			temp3 = strtok(NULL, " ");
 		}
-		if (!in.is_open())
-		{
-			return "查找的表不存在";
+		vec2.push_back(temp_vec);
+	}
+
+	//获得.trd内容
+	vector<string> vec3;
+	vector<vector<string>> content;
+	ifstream in1("./data/" + dbName + "/" + sql.at(1).at(0) + ".trd");
+	if (!in1.is_open())
+		return "请求表不存在";
+
+	while (!in1.eof())
+	{
+		char buffer[100];
+		in1.getline(buffer, sizeof(buffer));
+		if (strlen(buffer) != 0)
+			vec3.push_back(buffer);
+	}
+	in1.close();
+
+	for (size_t j = 0; j < vec3.size(); j++) {
+		vector<string> temp_vec;
+		char *temp3;
+		char temp4[100];
+		for (int i = 0; i < vec3.at(j).length(); i++)
+			temp4[i] = vec3.at(j)[i];
+		temp4[vec3.at(j).length()] = '\0';
+
+		temp3 = strtok(temp4, " ");
+		while (temp3) {
+			temp_vec.push_back(temp3);
+			temp3 = strtok(NULL, " ");
 		}
-		char buffer[128];
-		int count = 0;//记录读到第几列
-		while (!in2.eof()) {
-			in2.getline(buffer, sizeof(buffer));
-			if (buffer[0] == '\0')break;
-			l_content.push_back(buffer);
-		}
-		while (!in.eof()) {
-			in.getline(buffer, sizeof(buffer));
-			if (buffer[0] == '\0')break;
-			line.push_back(buffer);
-			if (!starall) {
-				if ((std::count(sql[0].begin(), sql[0].end(), this->explode(line[count], ' ').at(1))) != 0) {
-					if (v1.size() == 0) {
-						for (int j = 0; j < l_content.size(); j++) {
-							v1.push_back(this->explode(l_content[j], '\t').at(count));
+		content.push_back(temp_vec);
+	}
+
+	fin_s = content;
+
+	if (sql.size() != 2) {
+
+		//where中比较的判断
+		if (sql.at(2).at(0) == "where") {
+			int sig;
+			for (int i = 1; i < sql.at(2).size(); i++) {
+
+				if (sql[2][i].find("and") != string::npos && sql[2][i].find("between") == string::npos) {
+					size_t pos = sql.at(2).at(i).find("and");
+					string temp = sql.at(2).at(i).substr(0, pos - 1);
+					sql.at(2).erase(sql.at(2).begin() + i);
+					sql.at(2).insert(sql.at(2).begin() + i, temp);
+					
+					sig = 0;
+				}
+				else if (sql[2][i].find("or") != string::npos) {
+					size_t pos = sql.at(2).at(i).find("or");
+					string temp = sql.at(2).at(i).substr(0, pos - 1);
+					sql.at(2).erase(sql.at(2).begin() + i);
+					sql.at(2).insert(sql.at(2).begin() + i , temp);
+					
+					sig = 1;
+				}
+				if (sql[2][i].find(">") != string::npos || sql[2][i].find("<") != string::npos || sql[2][i].find("=") != string::npos || sql[2][i].find("<>") != string::npos)
+				{
+					if (sig == 1) {
+						if (compare(i, sql.at(2).at(2)) == "列不存在")
+							return "列不存在";
+						break;
+					}
+					else
+						if (compare(i, "null") == "列不存在")
+							return "列不存在";
+				}
+
+				//where中其他的判断
+				if (sql[2][i].find("between") != string::npos)
+				{
+					vector<string>  condition = explode(sql[2][1], ' ');
+					int pos1 = -1;
+					for (int j = 0; j < vec2.size(); j++) {
+						if (condition.at(0) == vec2.at(j).at(1)) {
+							pos1 = j;
+							break;
+						}
+					}
+					if (pos1 == -1)	return "列不存在";
+
+					for (int n = 0; n < fin_s.size(); n++)
+						if (atoi(fin_s.at(n).at(pos1).c_str()) < atoi(condition.at(2).c_str()) || atoi(fin_s.at(n).at(pos1).c_str()) > atoi(sql.at(2).at(2).c_str()))
+						{
+							fin_s.erase(fin_s.begin() + n);
+							n--;
+						}
+					break;
+				}
+				else if (sql[2][i].find("in") != string::npos) {
+					size_t p = sql.at(2).at(i).find("(");
+					string fieldS;
+					if (sql[2][i].find("not") != string::npos)
+						fieldS = sql.at(2).at(i).substr(0, p - 7);
+					else
+						fieldS = sql.at(2).at(i).substr(0, p - 3);
+					string tem = sql.at(2).at(i).substr(p + 1, sql.at(2).at(i).size());
+					vector<string>  condition = explode(tem, ',');
+
+					int pos1 = -1;
+					for (int j = 0; j < vec2.size(); j++) {
+						if (fieldS == vec2.at(j).at(1)) {
+							pos1 = j;
+							break;
+						}
+					}
+					if (pos1 == -1)
+						return "列不存在";
+					if (sql[2][i].find("not") != string::npos) {
+						
+							for (int m = 0; m < condition.size(); m++) {
+								for (int n = 0; n < fin_s.size(); n++) {
+									if (fin_s.at(n).at(pos1) == condition.at(m)) {
+										fin_s.erase(fin_s.begin() + n);
+										n--;
+									}
+								}
 						}
 					}
 					else {
-						for (int j = 0; j < l_content.size(); j++) {
-							v1.at(j) += "\t";
-							v1.at(j) += this->explode(l_content[j], '\t').at(count);
+						bool signal = false;
+						for (int n = 0; n < fin_s.size(); n++) {
+							signal = false;
+							for (int m = 0; m < condition.size(); m++) {
+								if (fin_s.at(n).at(pos1) == condition.at(m)) {
+									signal = true;
+									break;
+								}
+							}
+							if (!signal) {
+								fin_s.erase(fin_s.begin() + n);
+								n--;
+							}
+								
 						}
 					}
+					break;
+				}
+				else if (sql[2][i].find("like") != string::npos) {
+					size_t p = sql.at(2).at(i).find("like");
+					string fieldS;
+					fieldS = sql.at(2).at(i).substr(0, p - 1);
+					string tem = sql.at(2).at(i).substr(p + 5, sql.at(2).at(i).size());
+					vector<string>  condition = explode(tem, '%');
+
+					int pos1 = -1;
+					for (int j = 0; j < vec2.size(); j++) {
+						if (fieldS == vec2.at(j).at(1)) {
+							pos1 = j;
+							break;
+						}
+					}
+					if (pos1 == -1)
+						return "列不存在";
+					//匹配like
+					for (int n = 0; n < fin_s.size(); n++) {
+						size_t position;
+						if (condition.at(0) == "'") {
+							position = fin_s.at(n).at(pos1).find(condition.at(1));
+							if (position != string::npos && position > 1);
+							else {
+								fin_s.erase(fin_s.begin() + n);
+								n--;
+							}
+								
+						}
+						else if (condition.at(1) == "'") {
+							position = fin_s.at(n).at(pos1).find(condition.at(0));
+							if (position != string::npos&&position < fin_s.at(n).at(pos1).size());
+							else {
+								fin_s.erase(fin_s.begin() + n);
+								n--;
+							}
+								
+						}
+					}
+				}
+				else if (sql[2][i].find("is null") != string::npos) {
+					vector<string>  condition = explode(sql[2][i], ' ');
+					int pos1 = -1;
+					for (int j = 0; j < vec2.size(); j++) {
+						if (condition[0] == vec2.at(j).at(1)) {
+							pos1 = j;
+							break;
+						}
+					}
+					if (pos1 == -1)
+						return "列不存在";
+					for (int n = 0; n < fin_s.size(); n++) {
+						if (fin_s.at(n).at(pos1) != "NULL") {
+							fin_s.erase(fin_s.begin() + n);
+							n--;
+						}
+							
+					}
+				}
+			}
+			if (sql.size() > 3) {
+				//group by
+				if (sql.at(3).at(0) == "group by") {
+									
+					vector<vector<string>> temp;
+					
+					int pos = -1;
+					for (int j = 0; j < vec2.size(); j++) {
+						if (sql.at(3).at(1) == vec2.at(j).at(1)) {
+							pos = j;
+							break;
+						}
+					}
+					if (pos == -1)
+						return "列不存在";
+					
+					vector<string> group_type;
+					vector<vector<string>> pre_temp = fin_s;
+					vector<int> num;			//记录第一次分组每个组的数量
+					int number = 0;
+					
+					for (int m = 0; m < pre_temp.size(); m++) {
+						group_type.push_back(pre_temp.at(m).at(pos));
+						string g = pre_temp.at(m).at(pos);
+						for (int i = 0; i < pre_temp.size(); i++) {
+							if (pre_temp.at(i).at(pos) == g) {
+								pre_temp.erase(pre_temp.begin() + i);
+								i--;
+								number++;
+							}
+						}
+						num.push_back(number);
+						number = 0;
+						m--;
+					}
+					for (int i = 0; i < num.size(); i++) {
+						for (int j = 0; j < fin_s.size(); j++) {
+							if (fin_s.at(j).at(pos) == group_type.at(i))
+								temp.push_back(fin_s.at(j));
+						}
+					}
+					fin_s = temp;
+					//若有第二个group
+					if (sql.at(3).size() > 2) {
+						int pos = -1;
+						for (int j = 0; j < vec2.size(); j++) {
+							if (sql.at(3).at(2) == vec2.at(j).at(1)) {
+								pos = j;
+								break;
+							}
+						}
+						if (pos == -1)
+							return "列不存在";
+
+						vector<vector<string>> temp1;
+						vector<vector<string>> pre_temp1 = fin_s;
+						for (int n = 0; n < num.size(); n++) {
+							vector<string> group_type1;
+							
+							vector<int> num1;			//记录第一次分组每个组的数量
+							int number1 = 0;
+
+							int l = num.at(n);
+							for (int m = 0; m < l; m++) {
+								group_type1.push_back(pre_temp1.at(m).at(pos));
+								string g = pre_temp1.at(m).at(pos);
+								
+								for (int i = 0; i < l ; i++) {
+									if (pre_temp1.at(i).at(pos) == g) {
+										pre_temp1.erase(pre_temp1.begin() + i);
+										i--;
+										number1++;
+										l--;
+									}
+								}
+								
+								num1.push_back(number1);
+								number1 = 0;
+								m--;
+							}
+							int sum = 0;
+							for (int d = 0; d < n; d++)
+								sum += num.at(d);
+							for (int i = 0; i < num1.size(); i++) {
+								for (int j = 0; j < num.at(n); j++) {
+									if (fin_s.at(j+sum).at(pos) == group_type1.at(i))
+										temp1.push_back(fin_s.at(j+sum));
+								}
+							}
+						}
+						fin_s = temp1;
+					}
+				}
+				else if (sql.at(3).at(0) == "order by") {
+					int pos = -1;
+					for (int j = 0; j < vec2.size(); j++) {
+						if (sql.at(2).at(1) == vec2.at(j).at(1)) {
+							pos = j;
+							break;
+						}
+					}
+					if (pos == -1)
+						return "列不存在";
+
+					vector<vector<string>> temp;
+					vector<string> temp1;
+					if (sql.at(2).size() == 2) {
+
+						int leng = fin_s.size();
+
+						for (int j = 0; j < leng; j++) {
+							int pos1 = 0;
+							temp1 = fin_s.at(0);
+							for (int i = 0; i < fin_s.size() - 1; i++) {
+								if (temp1.at(pos) > fin_s.at(i + 1).at(pos)) {
+									temp1 = fin_s.at(i + 1);
+									pos1 = i + 1;
+								}
+							}
+							fin_s.erase(fin_s.begin() + pos1);
+							temp.push_back(temp1);
+						}
+					}
+					else {
+						if (sql.at(2).at(2) == "asc") {
+							int leng = fin_s.size();
+
+							for (int j = 0; j < leng; j++) {
+								int pos1 = 0;
+								temp1 = fin_s.at(0);
+								for (int i = 0; i < fin_s.size() - 1; i++) {
+									if (temp1.at(pos) > fin_s.at(i + 1).at(pos)) {
+										temp1 = fin_s.at(i + 1);
+										pos1 = i + 1;
+									}
+								}
+								fin_s.erase(fin_s.begin() + pos1);
+								temp.push_back(temp1);
+							}
+						}
+						else if (sql.at(2).at(2) == "desc") {
+							int leng = fin_s.size();
+
+							for (int j = 0; j < leng; j++) {
+								int pos1 = 0;
+								temp1 = fin_s.at(0);
+								for (int i = 0; i < fin_s.size() - 1; i++) {
+									if (temp1.at(pos) < fin_s.at(i + 1).at(pos)) {
+										temp1 = fin_s.at(i + 1);
+										pos1 = i + 1;
+									}
+								}
+								fin_s.erase(fin_s.begin() + pos1);
+								temp.push_back(temp1);
+							}
+						}
+					}
+					fin_s = temp;
+				}
+				//有了group by之后的东西
+				if (sql.size() > 4) {
+
+				}
+			}
+
+
+		}
+		else if (sql.at(2).at(0) == "order by") {
+			int pos = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (sql.at(2).at(1) == vec2.at(j).at(1)) {
+					pos = j;
+					break;
+				}
+			}
+			if (pos == -1)
+				return "列不存在";
+
+			vector<vector<string>> temp;
+			vector<string> temp1;
+			if (sql.at(2).size() == 2) {
+
+				int leng = fin_s.size();
+
+				for (int j = 0; j < leng; j++) {
+					int pos1 = 0;
+					temp1 = fin_s.at(0);
+					for (int i = 0; i < fin_s.size() - 1; i++) {
+						if (temp1.at(pos) > fin_s.at(i + 1).at(pos)) {
+							temp1 = fin_s.at(i + 1);
+							pos1 = i + 1;
+						}
+					}
+					fin_s.erase(fin_s.begin() + pos1);
+					temp.push_back(temp1);
 				}
 			}
 			else {
-				if (v1.size() == 0) {
-					for (int j = 0; j < l_content.size(); j++) {
-						v1.push_back(this->explode(l_content[j], '\t').at(count));
-					}
-				}
-				else {
-					for (int j = 0; j < l_content.size(); j++) {
-						v1.at(j) += "\t";
-						v1.at(j) += this->explode(l_content[j], '\t').at(count);
-					}
-				}
-			}
-				count++;
-		}
-		contents1.push_back(line);
-		contents2.push_back(v1);
-		l_content.clear();
-		line.clear();
-		in.close();
-		in2.close();
-	}
+				if (sql.at(2).at(2) == "asc") {
+					int leng = fin_s.size();
 
-	//读取结束
-	int s_num=sql[0].size()-1;//select column number;
-	vector<string> get;//记录select的列名
-	vector<string> get_all;//记录所有列名
-	bool judge = false;
-	if (!starall) {
-		for (size_t i = 0; i < contents1.size(); i++) {
-			for (size_t j = 0; j < contents1[i].size(); j++) {
-				line = this->explode(contents1[i][j], ' ');//line代表某行内容
-				get_all.push_back(line[1]);
-				for (size_t k = 1; k < sql[0].size(); k++) {
-					if (sql[0][k] == line[1]) {
-						//判断是否在其他表中读到
-						if (std::count(get.begin(), get.end(), line[1]) == 0) {
-							get.push_back(line[1]);
-							r_slct << sql[0][k];
-							r_slct << "\t";
-							s_num--;
+					for (int j = 0; j < leng; j++) {
+						int pos1 = 0;
+						temp1 = fin_s.at(0);
+						for (int i = 0; i < fin_s.size() - 1; i++) {
+							if (temp1.at(pos) > fin_s.at(i + 1).at(pos)) {
+								temp1 = fin_s.at(i + 1);
+								pos1 = i + 1;
+							}
 						}
-						else {
-							return "多表中存在同个" + line[1];
-						}
+						fin_s.erase(fin_s.begin() + pos1);
+						temp.push_back(temp1);
 					}
 				}
+				else if (sql.at(2).at(2) == "desc") {
+					int leng = fin_s.size();
+
+					for (int j = 0; j < leng; j++) {
+						int pos1 = 0;
+						temp1 = fin_s.at(0);
+						for (int i = 0; i < fin_s.size() - 1; i++) {
+							if (temp1.at(pos) < fin_s.at(i + 1).at(pos)) {
+								temp1 = fin_s.at(i + 1);
+								pos1 = i + 1;
+							}
+						}
+						fin_s.erase(fin_s.begin() + pos1);
+						temp.push_back(temp1);
+					}
+				}
+
 			}
+			fin_s = temp;
+		}
+
+
+	}
+	//判断是否为*
+	if (sql.at(0).size() == 2 && sql.at(0).at(1) == "*")
+	{
+		for (int i = 0; i < vec2.size(); i++) {
+			s += vec2.at(i).at(1);
+			s += "\t";
+		}
+		s += "\n";
+		for (int i = 0; i < fin_s.size(); i++) {
+			for (int j = 0; j < fin_s.at(i).size(); j++) {
+				s += fin_s.at(i).at(j);
+				s += "\t";
+			}
+			s += "\n";
 		}
 	}
 	else {
-		s_num = 0;
-		for (size_t i = 0; i < contents1.size(); i++) {
-			for (size_t j = 0; j < contents1[i].size(); j++) {
-				line = this->explode(contents1[i][j], ' ');//line代表某行内容
-				get_all.push_back(line[1]);
-				get.push_back(line[1]);
-				r_slct << line[1];
-				r_slct << "\t";
-			}
-		}
-	}
-	if (s_num == 0)judge = true;
-	if (judge==false){
-		return "查找的列不存在";
-	}
-
-	r_slct << "\n";
-	for (int m = 0; m < v1.size(); m++) {
-		if (sql.size() == 2) {
-			r_slct << v1[m];
-			r_slct << "\n";
-		}
-		else{
-			//判断在where条件下
-			int position;//查找元素位置
-			vector <string>::iterator it;//遍历查找
-			if (sql[2][0] == "where") {
-				int and_or;//0是and ，1是or , 2啥也不是
-				//and就删除vector v1中不对的元素，or就添加vector contents2中对的元素到v1
-				for (int i = 1; i < sql[2].size(); i++) {
-					string::size_type s;
-					vector<string> small = this->explode(sql[2][i], ' ');
-					vector<string> small_s;
-					if (small.size() == 1) {
-						if ((s = small[0].find("=")) != string::npos) {
-							small_s = this->explode(small[0], '=');
-							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
-								return small_s[0] + "，该列不存在";
-							}
-							else {
-								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
-								int position_c1;
-								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
-								position_c1 = distance(get_all.begin(), it_c1);
-								for (int j = 0; j < v1.size(); j++) {
-									if (this->explode(v1[j],'\t').at(position_c1) != small_s[1]) {
-										v1.erase(v1.begin()+j);
-										j--;
-									}
-								}
-							}
-						}
-						else if ((s = small[0].find(">")) != string::npos && (s = small[0].find("<")) == string::npos) {
-							small_s = this->explode(small[0], '>');
-							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
-								return small_s[0] + "，该列不存在";
-							}
-							else {
-								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
-								int position_c1;
-								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
-								position_c1 = distance(get_all.begin(), it_c1);
-								for (int j = 0; j < v1.size(); j++) {
-									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) < atoi(small_s[1].c_str())) {
-										v1.erase(v1.begin() + j);
-										j--;
-									}
-								}
-							}
-						}
-						else if ((s = small[0].find("<")) != string::npos && (s = small[0].find(">")) == string::npos) {
-							small_s = this->explode(small[0], '<');
-							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
-								return small_s[0] + "，该列不存在";
-							}
-							else {
-								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
-								int position_c1;
-								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
-								position_c1 = distance(get_all.begin(), it_c1);
-								for (int j = 0; j < v1.size(); j++) {
-									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) > atoi(small_s[1].c_str())) {
-										v1.erase(v1.begin() + j);
-										j--;
-									}
-								}
-							}
-						}
-						else if ((s = small[0].find("<>")) != string::npos) {
-							small_s = this->explode(small[0], '<');
-							small_s[1].erase(small_s[1].begin());
-							if ((std::count(get_all.begin(), get_all.end(), small_s[0])) == 0) {
-								return small_s[0] + "，该列不存在";
-							}
-							else {
-								vector <string>::iterator it_c1;//在get_all中遍历查找到small_s[0]位置
-								int position_c1;
-								it_c1 = find(get_all.begin(), get_all.end(), small_s[0]);
-								position_c1 = distance(get_all.begin(), it_c1);
-								for (int j = 0; j < v1.size(); j++) {
-									if (atoi(this->explode(v1[j], '\t').at(position_c1).c_str()) == atoi(small_s[1].c_str())) {
-										v1.erase(v1.begin() + j);
-										j--;
-									}
-								}
-							}
-						}
-						else {
-							return "where后语句句型有错误";
-						}
-					}
-					else if (small.size() == 2) {
-						if (small[0] == "like") {
-
-						}
-						else if(small[1]=="and"){
-							and_or = 0;
-						}
-						else {
-							return "where后语句句型有错误";
-						}
-					}
-
+		vector<int> sec_co;
+		for (int i = 1; i < sql.at(0).size(); i++)
+		{
+			int pos = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (sql.at(0).at(i) == vec2.at(j).at(1)) {
+					pos = j;
+					break;
 				}
-
-				//it = sql[2].begin();
-				//寻找where后面的and关键字
-				/*while ((it = find(it, sql[2].end(), "and")) != sql[2].end()) {
-					string::size_type s;
-					vector<string> small;
-					position = distance(sql[2].begin(), it);
-					string condition1 = sql[2][position - 1];
-					string condition2 = sql[2][position + 1];
-					if ((s = condition1.find("=")) != string::npos) {
-						small = this->explode(condition1,'=');
-						if (std::count(get_all.begin(), get_all.end(), small[0]) == 0) {
-							return small[0] + "，该列不存在";
-						}
-						else {
-							vector <string>::iterator it_c1;//在get_all中遍历查找到small[0]位置
-							int position_c1;
-							it_c1 = find(get_all.begin(),get_all.end(),small[0]);
-							position_c1 = distance(get_all.begin(),it_c1);
-							for (int m = 0; m < v1.size(); m++) {
-								if (v1[position_c1] != small[1]) {
-									v1.erase(it_c1);
-									m--;
-								}
-							}
-						}
-					}
-					else if ((s = condition1.find(">")) != string::npos) {
-						small = this->explode(condition1, '>');
-						if (std::count(get_all.begin(), get_all.end(), small[0]) == 0) {
-							return small[0] + ",该列不存在";
-						}
-						else {
-							vector <string>::iterator it_c1;//在get_all中遍历查找到small[0]位置
-							int position_c1;
-							it_c1 = find(get_all.begin(), get_all.end(), small[0]);
-							position_c1 = distance(get_all.begin(), it_c1);
-							for (int m = 0; m < v1.size(); m++) {
-								if (atoi(v1[position_c1].c_str()) < atoi(small[1].c_str()) ) {
-									v1.erase(it_c1);
-									m--;
-								}
-							}
-						}
-					}
-					else if ((s = condition1.find("<")) != string::npos) {
-						small = this->explode(condition1, '<');
-						if (std::count(get_all.begin(), get_all.end(), small[0]) == 0) {
-							return small[0] + ",该列不存在";
-						}
-						else {
-							vector <string>::iterator it_c1;//在get_all中遍历查找到small[0]位置
-							int position_c1;
-							it_c1 = find(get_all.begin(), get_all.end(), small[0]);
-							position_c1 = distance(get_all.begin(), it_c1);
-							for (int m = 0; m < v1.size(); m++) {
-								if (atoi(v1[position_c1].c_str()) > atoi(small[1].c_str())) {
-									v1.erase(it_c1);
-									m--;
-								}
-							}
-						}
-					}
-					else {
-						return "where之后语句句型有错误";
-					}
-					it++;
-				}*/
-
-				r_slct << v1[m];
-				r_slct << "\n";
 			}
-			else if (sql[2][0] == "group by") {
+			if (pos == -1)
+				return "列不存在";
 
-			}
+			sec_co.push_back(pos);
+			s += sql.at(0).at(i);
+			s += "\t";
 		}
-
-		if(sql.size()==4){
-			//size为4有group by功能
-			vector<string> v2;
+		s += "\n";
+		for (int i = 0; i < fin_s.size(); i++)
+		{
+			for (int j = 0; j < sec_co.size(); j++) {
+				s += fin_s.at(i).at(sec_co.at(j));
+				s += "\t";
+			}
+			s += "\n";
 		}
 	}
+	return s;
 
-	string str=r_slct.str();
-	return str;
+}
+
+string DataManage::compare(int pos, string s3) {
+	int size = fin_s.size();
+	if (s3 == "null") {
+		if (sql.at(2).at(pos).find("=") != string::npos) {
+			vector<string>  condition = explode(sql[2][pos], '=');
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (condition.at(0) == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			for (int i = 0; i < size; i++)
+				if (fin_s.at(i).at(pos1) != condition.at(1)) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+					
+		}
+		else if (sql.at(2).at(pos).find("<>") != string::npos) {
+			vector<string>  condition = explode(sql[2][pos], '<>');
+			string str = condition.at(0).substr(0, condition.at(0).size() - 1);
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (str == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			for (int i = 0; i < size; i++)
+				if (fin_s.at(i).at(pos1) == condition.at(1)) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+		}
+		else if (sql.at(2).at(pos).find(">") != string::npos) {
+			vector<string>  condition = explode(sql[2][pos], '>');
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (condition.at(0) == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			string s1;
+			string s2 = condition.at(1).substr(1, condition.at(1).size() - 1);
+			for (int i = 0; i < size; i++) {
+				s1 = fin_s.at(i).at(pos1).substr(1, fin_s.at(i).at(pos1).size());
+				if (atoi(s1.c_str()) <= atoi(s2.c_str())) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+			}
+				
+		}
+		else if (sql.at(2).at(pos).find("<") != string::npos) {
+			vector<string>  condition = explode(sql[2][pos], '<');
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (condition.at(0) == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			string s1;
+			string s2 = condition.at(1).substr(1, condition.at(1).size() - 1);
+			for (int i = 0; i < size; i++) {
+				s1 = fin_s.at(i).at(pos1).substr(1, fin_s.at(i).at(pos1).size());
+				if (atoi(s1.c_str()) >= atoi(s2.c_str())) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+			}
+				
+		}
+	}
+	else {
+		if (sql.at(2).at(pos).find("=") != string::npos) {
+			vector<string>  condition1 = explode(sql[2][pos], '=');
+			vector<string>  condition2 = explode(s3, '=');
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (condition1.at(0) == vec2.at(j).at(1) || condition2.at(0) == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			for (int i = 0; i < size; i++)
+				if (fin_s.at(i).at(pos1) != condition1.at(1) && fin_s.at(i).at(pos1) != condition2.at(1)) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+		}
+		else if (sql.at(2).at(pos).find("<>") != string::npos) {
+			vector<string>  condition1 = explode(sql[2][pos], '<>');
+			vector<string>  condition2 = explode(s3, '<>');
+			string str1 = condition1.at(0).substr(0, condition1.at(0).size() - 1);
+			string str2 = condition2.at(0).substr(0, condition2.at(0).size() - 1);
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (str1 == vec2.at(j).at(1) || str2 == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			for (int i = 0; i < size; i++)
+				if (fin_s.at(i).at(pos1) == condition1.at(1) || fin_s.at(i).at(pos1) == condition2.at(1)) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+		}
+		else if (sql.at(2).at(pos).find(">") != string::npos) {
+			vector<string>  condition1 = explode(sql[2][pos], '>');
+			vector<string>  condition2 = explode(s3, '>');
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (condition1.at(0) == vec2.at(j).at(1) || condition2.at(0) == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			string s1;
+			string s2 = condition1.at(1).substr(1, condition1.at(1).size() - 1);
+			string s3 = condition2.at(1).substr(1, condition2.at(1).size() - 1);
+			for (int i = 0; i < size; i++) {
+				s1 = fin_s.at(i).at(pos1).substr(1, fin_s.at(i).at(pos1).size());
+				if (atoi(s1.c_str()) <= atoi(s2.c_str()) && atoi(s1.c_str()) <= atoi(s3.c_str())) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+			}
+				
+		}
+		else if (sql.at(2).at(pos).find("<") != string::npos) {
+			vector<string>  condition1 = explode(sql[2][pos], '<');
+			vector<string>  condition2 = explode(s3, '<');
+			int pos1 = -1;
+			for (int j = 0; j < vec2.size(); j++) {
+				if (condition1.at(0) == vec2.at(j).at(1) || condition2.at(0) == vec2.at(j).at(1)) {
+					pos1 = j;
+					break;
+				}
+			}
+			if (pos1 == -1)	return "列不存在";
+			string s1;
+			string s2 = condition1.at(1).substr(1, condition1.at(1).size() - 1);
+			string s3 = condition2.at(1).substr(1, condition2.at(1).size() - 1);
+			for (int i = 0; i < size; i++) {
+				s1 = fin_s.at(i).at(pos1).substr(1, fin_s.at(i).at(pos1).size());
+				if (atoi(s1.c_str()) >= atoi(s2.c_str()) || atoi(s1.c_str()) >= atoi(s3.c_str())) {
+					fin_s.erase(fin_s.begin() + i);
+					size--;
+					i--;
+				}
+			}
+				
+		}
+	}
+	return "比较成功";
+
 }
 
 //判断是否是已存在的列
@@ -1004,27 +1393,52 @@ string DataManage::con_check()
 	if (sql.at(0).size() > 2) {
 		for (int i = 2; i < sql.at(0).size(); i++) {
 			for (int j = 0; j < vec4.size(); j++) {
-				if (sql.at(0).at(i) == vec4.at(j).at(1)) {
-					isSuc = con_parse(i-2, j, vec4);
-					if (isSuc != "约束检查成功")
-						return isSuc;
+				if (vec4.at(j).at(1).find(',') != string::npos) {
+					vector<string> temp= explode(vec4.at(j).at(1),',');
+					for (int m = 0; m < temp.size(); m++) {
+						if (sql.at(0).at(i) == temp.at(m)) {
+							isSuc = con_parse(i - 2, j, vec4);
+							if (isSuc != "约束检查成功")
+								return isSuc;
+						}
+					}
 				}
+				else {
+					if (sql.at(0).at(i) == vec4.at(j).at(1)) {
+						isSuc = con_parse(i - 2, j, vec4);
+						if (isSuc != "约束检查成功")
+							return isSuc;
+					}
+				}
+				
 			}
 		}
 	}
 	else {
 		for (int i = 0; i < vec2.at(i).size(); i++) {
 			for (int j = 0; j < vec4.size(); j++) {
-				if (vec2.at(i).at(1) == vec4.at(j).at(1)) {
-					isSuc = con_parse(i, j, vec4);
-					if (isSuc != "约束检查成功")
-						return isSuc;
+				if (vec4.at(j).at(1).find(',') != string::npos) {
+					vector<string> temp = explode(vec4.at(j).at(1), ',');
+					for (int m = 0; m < temp.size(); m++) {
+						if (vec2.at(i).at(1) == temp.at(m)) {
+							isSuc = con_parse(i, j, vec4);
+							if (isSuc != "约束检查成功")
+								return isSuc;
+						}
+					}
 				}
+				else {
+					if (vec2.at(i).at(1) == vec4.at(j).at(1)) {
+						isSuc = con_parse(i, j, vec4);
+						if (isSuc != "约束检查成功")
+							return isSuc;
+					}
+				}
+				
 			}
 		}
 	}
 	
-
 	//检查not null;
 	bool isNull = false;
 	if (sql.at(0).size() > 2) {
@@ -1037,9 +1451,11 @@ string DataManage::con_check()
 					}
 				}
 			}
+			if (!isNull)
+				return "数据不符合非空约束";
+			isNull = false;
 		}
-		if (!isNull)
-			return "数据不符合非空约束";
+		
 	}
 
 	return "约束检查成功";
@@ -1052,7 +1468,7 @@ string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 	vector<vector<string>> vec6;
 	ifstream in("./data/" + dbName + "/" + sql.at(0).at(1) + ".trd");
 	if (!in.is_open())
-		return false;
+		return "请求表不存在";
 
 	//生成vec5
 	while (!in.eof())
@@ -1065,13 +1481,13 @@ string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 	in.close();
 
 	//生成vec6
-	for (size_t j = 0; j < vec1.size(); j++) {
+	for (size_t j = 0; j < vec5.size(); j++) {
 		vector<string> temp_vec;
 		char *temp3;
 		char temp4[100];
-		for (int i = 0; i < vec1.at(j).length(); i++)
+		for (int i = 0; i < vec5.at(j).length(); i++)
 			temp4[i] = vec5.at(j)[i];
-		temp4[vec1.at(j).length()] = '\0';
+		temp4[vec5.at(j).length()] = '\0';
 
 		temp3 = strtok(temp4, " ");
 		while (temp3) {
@@ -1107,6 +1523,43 @@ string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 		if (sql.at(1).at(pos1) != vec4.at(pos2).at(3))
 			con_re = "数据不符合default约束";
 	}
+	else if (vec4.at(pos2).at(2) == "checkbetween")
+	{
+		if (sql.at(1).at(pos1) < vec4.at(pos2).at(3)|| sql.at(1).at(pos1) > vec4.at(pos2).at(4))
+			con_re = "数据不符合between约束";
+	}
+	else if (vec4.at(pos2).at(2) == "checkin")
+	{
+		bool sig = false;
+		for (int i = 3; i < vec4.at(pos2).size(); i++) {
+			if (sql.at(1).at(pos1) == vec4.at(pos2).at(i)) {
+				sig = true;
+				break;
+			}
+		}
+		if (!sig)
+			con_re = "数据不符合check in约束";
+	}
+	else if (vec4.at(pos2).at(2) == "check>=<")
+	{
+		if (vec4.at(pos2).size() < 10) {
+			for (int i = 3; i < vec4.at(pos2).size(); i = i + 3) {
+				if (vec4.at(pos2).at(i + 1) == "="){
+					if (sql.at(1).at(pos1) != vec4.at(pos2).at(i + 2))
+						con_re = "数据不符合check>=<约束";
+				}
+				else if (vec4.at(pos2).at(i + 1) == ">") {
+					if (sql.at(1).at(pos1) <= vec4.at(pos2).at(i + 2))
+						con_re = "数据不符合check>=<约束";
+				}
+				else if (vec4.at(pos2).at(i + 1) == "<") {
+					if (sql.at(1).at(pos1) >= vec4.at(pos2).at(i + 2))
+						con_re = "数据不符合check>=<约束";
+				}
+			}
+		}
+		
+	}
 	else
 	{
 		con_re = "约束检查成功";
@@ -1122,6 +1575,8 @@ bool DataManage::type_check()
 				if (sql.at(0).at(i) == vec2.at(j).at(1))
 				{
 					if (vec2.at(j).at(2) == "varchar"&&sql.at(1).at(i - 2).find("'") == string::npos)
+						return false;
+					else if (vec2.at(j).at(2) == "varchar2"&&sql.at(1).at(i-2).find("'") == string::npos)
 						return false;
 					else if (vec2.at(j).at(2) == "integer"&&sql.at(1).at(i - 2).find("'") != string::npos)
 						return false;
@@ -1139,6 +1594,8 @@ bool DataManage::type_check()
 		for (int i = 0; i < sql.at(1).size(); i++) {
 
 			if (vec2.at(i).at(2) == "varchar"&&sql.at(1).at(i).find("'") == string::npos)
+				return false;
+			else if (vec2.at(i).at(2) == "varchar2"&&sql.at(1).at(i).find("'") == string::npos)
 				return false;
 			else if (vec2.at(i).at(2) == "integer"&&sql.at(1).at(i).find("'") != string::npos)
 				return false;
@@ -1175,7 +1632,7 @@ bool DataManage::len_check()
 			int size;
 			if (vec2.at(i).at(3) != "NULL")
 			{
-				size = atoi(vec2.at(i).at(3).c_str());
+				size = atoi(vec2.at(i).at(3).c_str())+2;
 				if (sql.at(1).at(i).size() > size)
 					return false;
 			}
@@ -1219,3 +1676,4 @@ bool DataManage::getfieldV()
 	}
 	return true;
 }
+

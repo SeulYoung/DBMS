@@ -141,12 +141,15 @@ vector<vector<string>> CmdParse::getTableInfo(string db, string table)
 	if (!in.is_open())
 		return tableInfo;
 
-	while (in.eof())
+	while (true)
 	{
 		in.getline(buff, sizeof(buff));
 		vector<string> info;
-		char *s;
-		while ((s = strtok(buff, " ")) != NULL)
+		char *s = strtok(buff, " ");
+		if (s == NULL)
+			break;
+		info.push_back(s);
+		while ((s = strtok(NULL, " ")) != NULL)
 			info.push_back(s);
 		tableInfo.push_back(info);
 	}
@@ -164,11 +167,13 @@ vector<vector<string>> CmdParse::getField(string db, string table, string col)
 		return field;
 
 	char buff[512];
-	while (in.eof())
+	while (true)
 	{
 		in.getline(buff, sizeof(buff));
 		strtok(buff, " ");
 		char *n = strtok(NULL, " ");
+		if (n == NULL)
+			break;
 		if (string(n) != col)
 			continue;
 		char *t = strtok(NULL, " ");
@@ -181,11 +186,13 @@ vector<vector<string>> CmdParse::getField(string db, string table, string col)
 	if (!in.is_open())
 		return field;
 
-	while (in.eof())
+	while (true)
 	{
 		in.getline(buff, sizeof(buff));
 		char *n = strtok(buff, " ");
 		char *f = strtok(NULL, " ");
+		if (f == NULL)
+			break;
 		if (string(f) != col)
 			continue;
 		char *c = strtok(NULL, "");

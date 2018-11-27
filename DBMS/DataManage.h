@@ -19,9 +19,7 @@ private:
 	vector<vector<string>> sql;
 	vector<string> vec1;
 	vector<vector<string>> vec2;
-	vector<vector<string>> contents1;//select记录tdf表中内容
-	vector<vector<string>> contents2;//select记录trd表中内容
-	stringstream r_slct;//select return str
+	vector<vector<string>> fin_s;
 
 	string dbName; //当前使用的数据库名称
 	string data_insert();
@@ -34,4 +32,6 @@ private:
 	bool type_check();
 	bool len_check();
 	bool getfieldV();
+
+	string compare(int pos,string s3);
 };

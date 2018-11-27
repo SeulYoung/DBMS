@@ -342,7 +342,7 @@ int TableManage::CreatDatebase(string & str)
 
 	string datebasename;
 
-	if (SearchDatebase(frontpath, testpath2) == 0) {
+	//if (SearchDatebase(frontpath, testpath2) == 0) {
 		ofstream ofile;               //定义输出文件
 		ofile.open(path1, ios::app);     //作为输出文件打开
 		ofile << s << '\t';
@@ -352,7 +352,7 @@ int TableManage::CreatDatebase(string & str)
 		ofile << path5 << '\t';
 		ofile << getCurenttime() << endl;
 		ofile.close();
-	}
+	//}
 	return 1;
 }
 
@@ -405,7 +405,7 @@ int TableManage::DeleteDatebase(string & str)
 	ifstream fin(path5, ios::in);
 	while (fin.getline(line, sizeof(line))) {
 		string cur = line;
-		if (!cur.find(s)) {
+		if (cur.find(s) == string::npos ) {
 			name.push_back(line);
 		}
 	}

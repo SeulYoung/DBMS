@@ -467,7 +467,7 @@ string FieldManage::constraint_Add()
 			s += "\n";
 		}
 	}
-	else if (sql.at(2).at(0) == "foreign key")
+	else if (sql.at(2).at(0).find("foreign key")!=string::npos)
 	{
 		//检查文件中是否已有要添加的字段
 		for (int j = 0; j < vec1.size(); j++) {
@@ -493,6 +493,122 @@ string FieldManage::constraint_Add()
 	else if (sql.at(2).at(0) == "check")
 	{
 		string ty;
+
+		//>,=,<的情况
+		vector<string> judge;
+		judge.push_back(">");
+		judge.push_back("<");
+		judge.push_back("=");
+		if (sql.at(2).at(1).find(">") != string::npos || sql.at(2).at(1).find("=") != string::npos || sql.at(2).at(1).find("<") != string::npos) {
+			if (sql.size() <= 3) {
+				if (sql.at(2).at(1).find("and") != string::npos) {
+					size_t pos1 = sql.at(2).at(1).find("and");
+					string temp1 = sql.at(2).at(1).substr(0, pos1 - 1);
+					string temp2 = sql.at(2).at(1).substr(pos1+4, sql.at(2).at(1).size());
+					sql.at(2).erase(sql.at(2).begin() + 1);
+					sql.at(2).push_back(temp1);
+					sql.at(2).push_back(temp2);
+
+					for (int i = 1; i < sql.at(2).size(); i++) {
+						if (i == 2)
+							i = 4;
+						else if (i == 5)
+							i = sql.at(2).size() - 1;
+						for (int j = 0; j < judge.size(); j++) {
+							if (sql.at(2).at(i).find(judge.at(j)) != string::npos)
+							{
+								size_t pos2 = sql.at(2).at(i).find(judge.at(j));
+								string temp3 = sql.at(2).at(i).substr(0, pos2);
+								string temp4 = sql.at(2).at(i).substr(pos2+1, sql.at(2).at(i).size());
+								sql.at(2).erase(sql.at(2).begin() + i);
+								sql.at(2).insert(sql.at(2).begin() + i,temp3);
+								sql.at(2).insert(sql.at(2).begin() + i + 1, judge.at(j));
+								sql.at(2).insert(sql.at(2).begin() + i + 2, temp4);
+							}
+						}
+					}
+				}
+				else {
+					for (int j = 0; j < judge.size(); j++) {
+						if (sql.at(2).at(1).find(judge.at(j)) != string::npos)
+						{
+							size_t pos1 = sql.at(2).at(1).find(judge.at(j));
+							string temp3 = sql.at(2).at(1).substr(0, pos1);
+							string temp4 = sql.at(2).at(1).substr(pos1 + 1, sql.at(2).at(1).size());
+							sql.at(2).erase(sql.at(2).begin() + 1);
+							sql.at(2).insert(sql.at(2).begin() + 1, temp3);
+							sql.at(2).insert(sql.at(2).begin() + 2, judge.at(j));
+							sql.at(2).insert(sql.at(2).begin() + 3, temp4);
+						}
+					}	
+				}
+			}
+			//有or
+			else {
+				for (int m = 2; m < sql.size(); m++) {
+
+					size_t pos1 = sql.at(m).at(1).find("and");
+					string temp1;
+					if (m == 3)
+						temp1 = sql.at(m).at(1).substr(0, pos1 - 1);
+					else
+						temp1 = sql.at(m).at(1).substr(1, pos1 - 2);
+					string temp2 = sql.at(m).at(1).substr(pos1 + 4, sql.at(m).at(1).size());
+					sql.at(m).erase(sql.at(m).begin() + 1);
+					sql.at(m).push_back(temp1);
+					sql.at(m).push_back(temp2);
+
+					for (int i = 1; i < sql.at(m).size(); i++) {
+						if (i == 2)
+							i = 4;
+						else if (i == 5)
+							break;
+						for (int j = 0; j < judge.size(); j++) {
+							if (sql.at(m).at(i).find(judge.at(j)) != string::npos)
+							{
+								size_t pos2 = sql.at(m).at(i).find(judge.at(j));
+								string temp3 = sql.at(m).at(i).substr(0, pos2);
+								string temp4 = sql.at(m).at(i).substr(pos2 + 1, sql.at(m).at(i).size());
+								sql.at(m).erase(sql.at(m).begin() + i);
+								sql.at(m).insert(sql.at(m).begin() + i, temp3);
+								sql.at(m).insert(sql.at(m).begin() + i + 1, judge.at(j));
+								sql.at(m).insert(sql.at(m).begin() + i + 2, temp4);
+							}
+						}
+					}
+
+				}
+			}
+			ty = ">=<";
+		}
+		if (ty == ">=<") {
+			s = sql.at(1).at(1);
+			s += " ";
+			for (int n = 2; n < sql.size(); n++) {
+				if (n == 2) {
+					s += sql.at(n).at(1);
+					if (sql.at(n).size() > 5) {
+						s += ",";
+						s += sql.at(n).at(4);
+					}
+					s += " ";
+					s += "ckeck";
+					s += ty;
+					s += " ";
+				}
+				if (n == 3) {
+					s += "or";
+					s += " ";
+				}
+				for (int j = 1; j < sql.at(n).size(); j++) {
+					s += sql.at(n).at(j);
+					s += " ";
+				}
+			}
+			s += "\n";
+		}
+
+		
 		//分割check字段
 		if (sql.at(2).at(1).find("between") != string::npos) {
 			size_t pos1 = sql.at(2).at(1).find("between");
@@ -518,39 +634,20 @@ string FieldManage::constraint_Add()
 			sql.at(2).push_back(temp2);
 			ty = "in";
 		}
-		s = sql.at(1).at(1);
-		s += " ";
-		s += sql.at(2).at(1);
-		s += " ";
-		s += sql.at(2).at(0);
-		s += ty;
-		s += " ";
-		for (int i = 2; i < sql.at(2).size(); i++) {
-			s += sql.at(2).at(i);
+		if (ty == "in" || ty == "between") {
+			s = sql.at(1).at(1);
 			s += " ";
-		}
-		s += "\n";
-
-		//检查文件中是否已有要添加的字段
-
-		for (int j = 0; j < vec1.size(); j++) {
-			if (vec1.at(j).find(sql.at(2).at(1)) != string::npos) {
-				isExist = true;
-				break;
+			s += sql.at(2).at(1);
+			s += " ";
+			s += sql.at(2).at(0);
+			s += ty;
+			s += " ";
+			for (int i = 2; i < sql.at(2).size(); i++) {
+				s += sql.at(2).at(i);
+				s += " ";
 			}
-		}
-		if (!isExist)
-			return "错误！请求添加的字段不存在";
-
-		//>,=,<的情况
-		if (sql.at(2).at(1).find(">") != string::npos || sql.at(2).at(1).find("=") != string::npos || sql.at(2).at(1).find("<") != string::npos) {
-			if (sql.size() <= 3) {
-
-			}
-			else {
-
-			}
-		}
+			s += "\n";
+		}			
 	}
 
 	string file_Path = "./data/" + dbName + "/" + sql.at(0).at(1) + ".tic";
