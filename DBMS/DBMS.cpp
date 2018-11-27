@@ -149,7 +149,10 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		vector<vector<string>> field = cp.getField(d, t, f);
 
 		clearTable();
-		ui.table->setRowCount(field.size() - 1);
+		if (field.size() == 1)
+			ui.table->setRowCount(1);
+		else
+			ui.table->setRowCount(field.size() - 1);
 		ui.table->setColumnCount(4);
 		QStringList header{ QString::fromLocal8Bit("列名"), QString::fromLocal8Bit("类型"), QString::fromLocal8Bit("约束名"), QString::fromLocal8Bit("约束内容") };
 		ui.table->setHorizontalHeaderLabels(header);
@@ -549,7 +552,9 @@ void DBMS::fieldAction()
 	}
 	else
 	{
-		string ss = "alter table " + parent->text(0).toStdString() + " drop column " + ui.tree->currentItem()->text(0).toStdString() + ";";
+		QTreeWidgetItem *item = ui.tree->currentItem();
+		string ss = "alter table " + parent->text(0).toStdString() + " drop column " + item->text(0).toStdString() + ";";
+		delete(item);
 		preSql.push_back(ss);
 	}
 }
@@ -589,7 +594,10 @@ void DBMS::recordChanged(QTableWidgetItem *item)
 	s += ui.table->horizontalHeaderItem(item->column())->text().toStdString() + "=" + item->text().toStdString() + " where";
 	for (int i = 0; i < ui.table->columnCount(); i++)
 		if (i != item->column())
-			s += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=" + ui.table->item(item->row(), i)->text().toStdString() + " and";
+			if (charType.find(ui.table->horizontalHeaderItem(i)->text().toStdString()) == charType.end()) // 类型不为字符串
+				s += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=" + ui.table->item(item->row(), i)->text().toStdString() + " and";
+			else
+				s += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=\"" + ui.table->item(item->row(), i)->text().toStdString() + "\" and";
 
 	s = s.substr(0, s.size() - 3) + ";";
 	preSql.push_back(s);
