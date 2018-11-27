@@ -8,6 +8,7 @@ DBMS::DBMS(QWidget *parent)
 	ui.table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	tableMenu = new QMenu();
 	isCreateTable = false;
+	isPriKey = false;
 	addRecNum = 0;
 
 	connect(ui.refresh, SIGNAL(triggered()), this, SLOT(sysAction()));
@@ -402,17 +403,21 @@ void DBMS::insertField()
 {
 	if (isCreateTable)
 	{
+		disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
 		ui.table->insertRow(ui.table->rowCount());
 
 		ui.table->setItem(ui.table->rowCount() - 1, 0, new QTableWidgetItem());
-		QStringList typeList{ "integer", "bool", "double", "varchar", "datetime" };
+		QStringList typeList{ "varchar", "integer", "bool", "double", "datetime" };
 		QComboBox *type = new QComboBox();
 		type->addItems(typeList);
+		connect(type, SIGNAL(currentIndexChanged(int)), SLOT(typeCheck(int)));
 		ui.table->setCellWidget(ui.table->rowCount() - 1, 1, type);
 		ui.table->setItem(ui.table->rowCount() - 1, 2, new QTableWidgetItem());
 
 		QTableWidgetItem *checkPri = new QTableWidgetItem();
 		checkPri->setCheckState(Qt::Unchecked);
+		if (isPriKey)
+			checkPri->setFlags(Qt::NoItemFlags);
 		ui.table->setItem(ui.table->rowCount() - 1, 3, checkPri);
 		QTableWidgetItem *checkUni = new QTableWidgetItem();
 		checkUni->setCheckState(Qt::Unchecked);
@@ -422,6 +427,7 @@ void DBMS::insertField()
 		ui.table->setItem(ui.table->rowCount() - 1, 5, checkNull);
 
 		ui.table->setItem(ui.table->rowCount() - 1, 6, new QTableWidgetItem());
+		connect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
 	}
 	else
 	{
@@ -451,31 +457,51 @@ void DBMS::consCheck(int row, int col)
 		{
 			ui.table->item(row, 4)->setFlags(Qt::NoItemFlags);
 			ui.table->item(row, 5)->setFlags(Qt::NoItemFlags);
+			if (!isPriKey)
+			{
+				for (int i = 0; i < ui.table->rowCount(); i++)
+					if (i != row)
+						ui.table->item(i, col)->setFlags(Qt::NoItemFlags);
+				isPriKey = true;
+			}
 		}
 		else if (col == 4 || col == 5)
 			ui.table->item(row, 3)->setFlags(Qt::NoItemFlags);
 		connect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
 	}
-	/*else if (ui.table->item(row, 3)->checkState() == Qt::Unchecked) // 未选中
+	else if (col == 3 && ui.table->item(row, col)->checkState() == Qt::Unchecked) // 未选中
 	{
 		disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
-		ui.table->item(row, 4)->setFlags(Qt::ItemIsTristate);
-		ui.table->item(row, 5)->setFlags(Qt::ItemIsTristate);
+		ui.table->item(row, 4)->setFlags((Qt::ItemFlags)63);
+		ui.table->item(row, 5)->setFlags((Qt::ItemFlags)63);
+		if (isPriKey)
+		{
+			for (int i = 0; i < ui.table->rowCount(); i++)
+				if (ui.table->item(i, 4)->checkState() == Qt::Unchecked && ui.table->item(i, 5)->checkState() == Qt::Unchecked)
+					ui.table->item(i, col)->setFlags((Qt::ItemFlags)63);
+			isPriKey = false;
+		}
 		connect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
 	}
-	else if (ui.table->item(row, 4)->checkState() == Qt::Unchecked && ui.table->item(row, 5)->checkState() == Qt::Unchecked) // 未选中
-	{
-		disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
-		ui.table->item(row, 3)->setFlags(Qt::ItemIsTristate);
-		connect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
-	}
-	else if (col == 1)
-	{
-		disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
-
-		connect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
-	}*/
+	else if(!isPriKey)
+		if ((col == 4 || col == 5) && ui.table->item(row, 4)->checkState() == Qt::Unchecked && ui.table->item(row, 5)->checkState() == Qt::Unchecked) // 未选中
+		{
+			disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
+			ui.table->item(row, 3)->setFlags((Qt::ItemFlags)63);
+			connect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
+		}
 }
+
+/*void DBMS::typeCheck(int index)
+{
+	disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
+	QComboBox *type = (QComboBox*)sender();
+	if (type->currentText().toStdString() != "varchar")
+		ui.table->item(row, col + 1)->setFlags(Qt::ItemIsEnabled);
+	else
+		ui.table->item(row, col + 1)->setFlags((Qt::ItemFlags)63);
+	connect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
+}*/
 
 void DBMS::saveTable()
 {
@@ -514,6 +540,7 @@ void DBMS::saveTable()
 		preSql.push_back(s);
 
 		isCreateTable = false;
+		isPriKey = false;
 	}
 	else
 	{

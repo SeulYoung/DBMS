@@ -30,6 +30,7 @@ private:
 	CmdParse cp;
 	string sql;
 	bool isCreateTable;
+	bool isPriKey;
 	int addRecNum;
 
 public slots:
@@ -43,6 +44,7 @@ public slots:
 	void createTable(QTreeWidgetItem *item, int col);
 	void insertField();
 	void consCheck(int row, int col);
+	//void typeCheck(int index);
 	void saveTable();
 	void fieldAction();
 	void recordAction();
