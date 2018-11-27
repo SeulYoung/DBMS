@@ -16,7 +16,7 @@ string CmdParse::sqlCheck(string s)
 	regex tDrop("^drop table \\w+;$");
 	regex tInsert("^insert into \\w+\\s?(\\(.+\\))?\\svalues\\s?\\(.+\\);$");
 	regex tDelete("^delete from \\w+\\swhere\\s?\\(?.+\\)?;$");
-	regex tUpdate("^update \\w+\\sset\\s(\\s?\\w+=\\w+\\s?,)*(\\s?\\w+=\\w+\\s)(where.+)?;$");
+	regex tUpdate("^update \\w+\\sset\\s(\\s?\\w+=.+\\s?,)*(\\s?\\w+=.+\\s)(where.+)?;$");
 	regex tSelect("^select.+from.+(where.+)?((group by.+)?|(having.+)?|(order by.+)?);$");
 
 	sql = preSql(s);
