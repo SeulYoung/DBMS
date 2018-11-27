@@ -1393,27 +1393,52 @@ string DataManage::con_check()
 	if (sql.at(0).size() > 2) {
 		for (int i = 2; i < sql.at(0).size(); i++) {
 			for (int j = 0; j < vec4.size(); j++) {
-				if (sql.at(0).at(i) == vec4.at(j).at(1)) {
-					isSuc = con_parse(i-2, j, vec4);
-					if (isSuc != "约束检查成功")
-						return isSuc;
+				if (vec4.at(j).at(1).find(',') != string::npos) {
+					vector<string> temp= explode(vec4.at(j).at(1),',');
+					for (int m = 0; m < temp.size(); m++) {
+						if (sql.at(0).at(i) == temp.at(m)) {
+							isSuc = con_parse(i - 2, j, vec4);
+							if (isSuc != "约束检查成功")
+								return isSuc;
+						}
+					}
 				}
+				else {
+					if (sql.at(0).at(i) == vec4.at(j).at(1)) {
+						isSuc = con_parse(i - 2, j, vec4);
+						if (isSuc != "约束检查成功")
+							return isSuc;
+					}
+				}
+				
 			}
 		}
 	}
 	else {
 		for (int i = 0; i < vec2.at(i).size(); i++) {
 			for (int j = 0; j < vec4.size(); j++) {
-				if (vec2.at(i).at(1) == vec4.at(j).at(1)) {
-					isSuc = con_parse(i, j, vec4);
-					if (isSuc != "约束检查成功")
-						return isSuc;
+				if (vec4.at(j).at(1).find(',') != string::npos) {
+					vector<string> temp = explode(vec4.at(j).at(1), ',');
+					for (int m = 0; m < temp.size(); m++) {
+						if (vec2.at(i).at(1) == temp.at(m)) {
+							isSuc = con_parse(i, j, vec4);
+							if (isSuc != "约束检查成功")
+								return isSuc;
+						}
+					}
 				}
+				else {
+					if (vec2.at(i).at(1) == vec4.at(j).at(1)) {
+						isSuc = con_parse(i, j, vec4);
+						if (isSuc != "约束检查成功")
+							return isSuc;
+					}
+				}
+				
 			}
 		}
 	}
 	
-
 	//检查not null;
 	bool isNull = false;
 	if (sql.at(0).size() > 2) {
@@ -1426,9 +1451,11 @@ string DataManage::con_check()
 					}
 				}
 			}
+			if (!isNull)
+				return "数据不符合非空约束";
+			isNull = false;
 		}
-		if (!isNull)
-			return "数据不符合非空约束";
+		
 	}
 
 	return "约束检查成功";
@@ -1496,6 +1523,43 @@ string DataManage::con_parse(int pos1, int pos2, vector<vector<string>> vec4)
 		if (sql.at(1).at(pos1) != vec4.at(pos2).at(3))
 			con_re = "数据不符合default约束";
 	}
+	else if (vec4.at(pos2).at(2) == "checkbetween")
+	{
+		if (sql.at(1).at(pos1) < vec4.at(pos2).at(3)|| sql.at(1).at(pos1) > vec4.at(pos2).at(4))
+			con_re = "数据不符合between约束";
+	}
+	else if (vec4.at(pos2).at(2) == "checkin")
+	{
+		bool sig = false;
+		for (int i = 3; i < vec4.at(pos2).size(); i++) {
+			if (sql.at(1).at(pos1) == vec4.at(pos2).at(i)) {
+				sig = true;
+				break;
+			}
+		}
+		if (!sig)
+			con_re = "数据不符合check in约束";
+	}
+	else if (vec4.at(pos2).at(2) == "check>=<")
+	{
+		if (vec4.at(pos2).size() < 10) {
+			for (int i = 3; i < vec4.at(pos2).size(); i = i + 3) {
+				if (vec4.at(pos2).at(i + 1) == "="){
+					if (sql.at(1).at(pos1) != vec4.at(pos2).at(i + 2))
+						con_re = "数据不符合check>=<约束";
+				}
+				else if (vec4.at(pos2).at(i + 1) == ">") {
+					if (sql.at(1).at(pos1) <= vec4.at(pos2).at(i + 2))
+						con_re = "数据不符合check>=<约束";
+				}
+				else if (vec4.at(pos2).at(i + 1) == "<") {
+					if (sql.at(1).at(pos1) >= vec4.at(pos2).at(i + 2))
+						con_re = "数据不符合check>=<约束";
+				}
+			}
+		}
+		
+	}
 	else
 	{
 		con_re = "约束检查成功";
@@ -1511,6 +1575,8 @@ bool DataManage::type_check()
 				if (sql.at(0).at(i) == vec2.at(j).at(1))
 				{
 					if (vec2.at(j).at(2) == "varchar"&&sql.at(1).at(i - 2).find("'") == string::npos)
+						return false;
+					else if (vec2.at(j).at(2) == "varchar2"&&sql.at(1).at(i-2).find("'") == string::npos)
 						return false;
 					else if (vec2.at(j).at(2) == "integer"&&sql.at(1).at(i - 2).find("'") != string::npos)
 						return false;
@@ -1528,6 +1594,8 @@ bool DataManage::type_check()
 		for (int i = 0; i < sql.at(1).size(); i++) {
 
 			if (vec2.at(i).at(2) == "varchar"&&sql.at(1).at(i).find("'") == string::npos)
+				return false;
+			else if (vec2.at(i).at(2) == "varchar2"&&sql.at(1).at(i).find("'") == string::npos)
 				return false;
 			else if (vec2.at(i).at(2) == "integer"&&sql.at(1).at(i).find("'") != string::npos)
 				return false;
@@ -1564,7 +1632,7 @@ bool DataManage::len_check()
 			int size;
 			if (vec2.at(i).at(3) != "NULL")
 			{
-				size = atoi(vec2.at(i).at(3).c_str());
+				size = atoi(vec2.at(i).at(3).c_str())+2;
 				if (sql.at(1).at(i).size() > size)
 					return false;
 			}

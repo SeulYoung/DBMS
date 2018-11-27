@@ -467,7 +467,7 @@ string FieldManage::constraint_Add()
 			s += "\n";
 		}
 	}
-	else if (sql.at(2).at(0) == "foreign key")
+	else if (sql.at(2).at(0).find("foreign key")!=string::npos)
 	{
 		//检查文件中是否已有要添加的字段
 		for (int j = 0; j < vec1.size(); j++) {
@@ -605,6 +605,7 @@ string FieldManage::constraint_Add()
 					s += " ";
 				}
 			}
+			s += "\n";
 		}
 
 		
