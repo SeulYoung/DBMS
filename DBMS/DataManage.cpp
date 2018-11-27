@@ -202,6 +202,11 @@ string DataManage::data_delete()
 				ptemp = 0;
 				rst.erase(rst.begin() + i);
 			}
+			if ( judge.at(0).at(1)  == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
+			}
+			
 		}if (ptemp) {
 			return "未选定行";
 		}
@@ -225,6 +230,10 @@ string DataManage::data_delete()
 		//按行判断数据
 		int ptemp = 1;
 		for (int i = 0; i < rst.size() - 1; i++) {
+			if (( judge.at(0).at(1)  == rst.at(i).at(pos)) && ( judge.at(1).at(1)  == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
+			}
 			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
 				ptemp = 0;
 				rst.erase(rst.begin() + i);
@@ -409,7 +418,10 @@ string DataManage::data_update()
 		//按行判断数据
 		int ptemp = 1;
 		for (int i = 0; i < rst.size() -1; i++) {
-			
+				if (judge.at(0).at(1) == rst.at(i).at(pos)) {
+					ptemp = 0;
+					rst.at(i).at(pos1) = modify.at(0).at(1) ;
+				}
 				if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
 					ptemp = 0;
 					rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
@@ -441,6 +453,11 @@ string DataManage::data_update()
 		//按行判断数据
 		int ptemp = 1;
 		for (int i = 0; i < rst.size() -1; i++) {
+			if ( judge.at(0).at(1) == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = modify.at(0).at(1) ;
+				rst.at(i).at(pos2) = modify.at(1).at(1) ;
+			}
 			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
 				ptemp = 0;
 				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
@@ -474,7 +491,10 @@ string DataManage::data_update()
 		//按行判断数据
 		int ptemp = 1;
 		for (int i = 0; i < rst.size() - 1; i++) {
-
+			if (( judge.at(0).at(1)  == rst.at(i).at(pos)) && ( judge.at(1).at(1)  == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = modify.at(0).at(1) ;
+			}
 			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
 				ptemp = 0;
 				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
@@ -510,7 +530,12 @@ string DataManage::data_update()
 		//按行判断数据
 		int ptemp = 1;
 		for (int i = 0; i < rst.size() - 1; i++) {
+			if (( judge.at(0).at(1) == rst.at(i).at(pos)) && ( judge.at(1).at(1)  == rst.at(i).at(poss))) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = modify.at(0).at(1) ;
+				rst.at(i).at(pos2) = modify.at(1).at(1) ;
 
+			}
 			if (("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) && ("'" + judge.at(1).at(1) + "'" == rst.at(i).at(poss))) {
 				ptemp = 0;
 				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
