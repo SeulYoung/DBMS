@@ -5,7 +5,7 @@ DBMS::DBMS(QWidget *parent)
 {
 	ui.setupUi(this);
 	this->setFixedSize(this->width(), this->height());
-
+	ui.table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	tableMenu = new QMenu();
 	isCreateTable = false;
 	addRecNum = 0;
@@ -28,7 +28,7 @@ void DBMS::initTree()
 	for (auto db : dbs)
 	{
 		// 数据库节点
-		if (add.find(db[0]) == add.end())
+		if (add.find(db[0]) == add.end()) // 未添加
 		{
 			add.insert(db[0]);
 			root = new QTreeWidgetItem(ui.tree, QStringList() << QString::fromStdString(db[0]));
@@ -42,6 +42,32 @@ void DBMS::initTree()
 				QTreeWidgetItem *col = new QTreeWidgetItem(table, QStringList() << QString::fromStdString(db[i]));
 		}
 	}
+}
+
+void DBMS::initType()
+{
+	QTreeWidgetItem *parent = ui.tree->currentItem()->parent();
+	if (parent == NULL)
+		return;
+
+	ifstream in("./data/" + parent->text(0).toStdString() + "/" + ui.tree->currentItem()->text(0).toStdString() + ".tdf");
+	if (!in.is_open())
+		ui.cmdLine->append(QString::fromLocal8Bit("错误，未找到字段信息"));
+
+	charType.clear();
+	char buff[512];
+	while (true)
+	{
+		in.getline(buff, sizeof(buff));
+		strtok(buff, " ");
+		char *n = strtok(NULL, " ");
+		if (n == NULL)
+			break;
+		char *t = strtok(NULL, " ");
+		if (string(t) == "varchar")
+			charType.insert(t);
+	}
+	in.close();
 }
 
 void DBMS::disConnAll()
@@ -110,6 +136,7 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 	{
 		connect(ui.newDb, SIGNAL(triggered()), this, SLOT(dbAction()));
 		connect(ui.deleteDb, SIGNAL(triggered()), this, SLOT(dbAction()));
+
 		connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 	}
 	else if (item->childCount() == 0)
@@ -122,7 +149,7 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		vector<vector<string>> field = cp.getField(d, t, f);
 
 		clearTable();
-		ui.table->setRowCount(field.size());
+		ui.table->setRowCount(field.size() - 1);
 		ui.table->setColumnCount(4);
 		QStringList header{ QString::fromLocal8Bit("列名"), QString::fromLocal8Bit("类型"), QString::fromLocal8Bit("约束名"), QString::fromLocal8Bit("约束内容") };
 		ui.table->setHorizontalHeaderLabels(header);
@@ -156,14 +183,17 @@ void DBMS::treeClicked(QTreeWidgetItem *item, int col)
 		for (int i = 1; i < table.size(); i++)
 			for (int j = 0; j < table[i].size(); j++)
 				ui.table->setItem(i - 1, j, new QTableWidgetItem(QString::fromStdString(table[i][j])));
+		initType();
 
 		connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 		connect(ui.deleteTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 		connect(ui.editTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 		connect(ui.insertTable, SIGNAL(triggered()), this, SLOT(insertField()));
 		connect(ui.saveTabel, SIGNAL(triggered()), this, SLOT(saveTable()));
+
 		connect(ui.newRec, SIGNAL(triggered()), this, SLOT(recordAction()));
 		connect(ui.deleteRec, SIGNAL(triggered()), this, SLOT(recordAction()));
+		connect(ui.saveRec, SIGNAL(triggered()), this, SLOT(saveRecord()));
 		connect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
 	}
 }
@@ -188,6 +218,7 @@ void DBMS::contextMenuEvent(QContextMenuEvent *event)
 
 			connect(ui.newDb, SIGNAL(triggered()), this, SLOT(dbAction()));
 			connect(ui.deleteDb, SIGNAL(triggered()), this, SLOT(dbAction()));
+
 			connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 		}
 		else if (treeItem->childCount() == 0 && parent->parent() != NULL)
@@ -209,14 +240,17 @@ void DBMS::contextMenuEvent(QContextMenuEvent *event)
 			tableMenu->addSeparator();
 			tableMenu->addAction(ui.newRec);
 			tableMenu->addAction(ui.deleteRec);
+			tableMenu->addAction(ui.saveRec);
 
 			connect(ui.newTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 			connect(ui.deleteTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 			connect(ui.editTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 			connect(ui.insertTable, SIGNAL(triggered()), this, SLOT(insertField()));
 			connect(ui.saveTabel, SIGNAL(triggered()), this, SLOT(saveTable()));
+
 			connect(ui.newRec, SIGNAL(triggered()), this, SLOT(recordAction()));
 			connect(ui.deleteRec, SIGNAL(triggered()), this, SLOT(recordAction()));
+			connect(ui.saveRec, SIGNAL(triggered()), this, SLOT(saveRecord()));
 		}
 		// 菜单出现的位置为当前鼠标的位置
 		tableMenu->exec(QCursor::pos());
@@ -277,6 +311,7 @@ void DBMS::dbAction()
 		QTreeWidgetItem *db = ui.tree->currentItem();
 		if (db != NULL)
 		{
+			string ss = "drop database " + db->text(0).toStdString() + ";";
 			while (db->childCount() > 0)
 			{
 				QTreeWidgetItem *table = db->takeChild(0);
@@ -285,7 +320,6 @@ void DBMS::dbAction()
 				delete table;
 			}
 			ui.tree->takeTopLevelItem(ui.tree->currentIndex().row());
-			string ss = "drop database " + ui.tree->currentItem()->text(0).toStdString() + ";";
 			delete db;
 			preSql.push_back(ss);
 		}
@@ -306,8 +340,8 @@ void DBMS::tableAction()
 	QTreeWidgetItem *parent = ui.tree->currentItem()->parent();
 	if (parent == NULL)
 		parent = ui.tree->currentItem();
-	string ss = "use database " + parent->text(0).toStdString() + ";";
-	preSql.push_back(ss);
+	if (parent->text(0).toStdString() != cp.getDbName())
+		cp.setDbName(parent->text(0).toStdString());
 	if (s == "newTable")
 	{
 		disconnect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
@@ -318,10 +352,20 @@ void DBMS::tableAction()
 		isCreateTable = true;
 		connect(ui.tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(createTable(QTreeWidgetItem*, int)));
 	}
-	else if (s == "dropTable")
+	else if (s == "deleteTable")
 	{
-		ss = "drop table " + ui.tree->currentItem()->text(0).toStdString() + ";";
-		preSql.push_back(ss);
+		QTreeWidgetItem *table = ui.tree->currentItem();
+		if (table != NULL)
+		{
+			string ss = "drop table " + table->text(0).toStdString() + ";";
+			while (table->childCount() > 0)
+			{
+				QTreeWidgetItem *field = table->takeChild(0);
+				delete field;
+			}
+			delete table;
+			preSql.push_back(ss);
+		}
 	}
 	else
 	{
@@ -496,7 +540,8 @@ void DBMS::fieldAction()
 {
 	QString s = sender()->objectName();
 	QTreeWidgetItem *parent = ui.tree->currentItem()->parent();
-	string ss = "use database " + parent->parent()->text(0).toStdString() + ";";
+	if (parent->text(0).toStdString() != cp.getDbName())
+		cp.setDbName(parent->parent()->text(0).toStdString());
 	if (s == "newField")
 	{
 		disconnect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
@@ -504,7 +549,7 @@ void DBMS::fieldAction()
 	}
 	else
 	{
-		ss = "alter table " + parent->text(0).toStdString() + " drop column " + ui.tree->currentItem()->text(0).toStdString() + ";";
+		string ss = "alter table " + parent->text(0).toStdString() + " drop column " + ui.tree->currentItem()->text(0).toStdString() + ";";
 		preSql.push_back(ss);
 	}
 }
@@ -513,8 +558,8 @@ void DBMS::recordAction()
 {
 	QString s = sender()->objectName();
 	QTreeWidgetItem *parent = ui.tree->currentItem()->parent();
-	string ss = "use database " + parent->text(0).toStdString() + ";";
-	preSql.push_back(ss);
+	if (parent->text(0).toStdString() != cp.getDbName())
+		cp.setDbName(parent->text(0).toStdString() + ";");
 	if (s == "newRec")
 	{
 		disconnect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
@@ -526,7 +571,14 @@ void DBMS::recordAction()
 	}
 	else
 	{
-		ss = "alter table " + parent->text(0).toStdString() + " drop column " + ui.tree->currentItem()->text(0).toStdString() + ";";
+		"delete from abc where gg=100 and ff=30;";
+		disconnect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
+		string ss = "delete from " + parent->text(0).toStdString() + " where";
+		for (int i = 0; i < ui.table->columnCount(); i++)
+			ss += " " + ui.table->horizontalHeaderItem(i)->text().toStdString() + "=" + ui.table->item(ui.table->currentRow(), i)->text().toStdString() + " and";
+		ui.table->removeRow(ui.table->currentRow());
+
+		ss = ss.substr(0, ss.size() - 3) + ";";
 		preSql.push_back(ss);
 	}
 }
@@ -546,6 +598,7 @@ void DBMS::recordChanged(QTableWidgetItem *item)
 void DBMS::saveRecord()
 {
 	disconnect(ui.saveRec, SIGNAL(triggered()), this, SLOT(saveRecord()));
+
 	for (; addRecNum > 0; addRecNum--)
 	{
 		string s = "insert into " + ui.tree->currentItem()->text(0).toStdString() + "(";
@@ -556,7 +609,10 @@ void DBMS::saveRecord()
 			if (item->text() != "")
 			{
 				s += ui.table->horizontalHeaderItem(i)->text().toStdString() + ",";
-				v += item->text().toStdString() + ",";
+				if (charType.find(ui.table->horizontalHeaderItem(i)->text().toStdString()) == charType.end()) // 类型不为字符串
+					v += item->text().toStdString() + ",";
+				else
+					v += "\"" + item->text().toStdString() + "\"" + ",";
 			}
 		}
 		s = s.substr(0, s.size() - 1) + ") " + v.substr(0, v.size() - 1) + ");";

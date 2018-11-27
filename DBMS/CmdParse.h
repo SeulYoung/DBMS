@@ -13,6 +13,8 @@ public:
 	CmdParse();
 	~CmdParse() {};
 	string sqlCheck(string s);
+	string getDbName() { return dbName; };
+	void setDbName(string s) { dbName = s; };
 	vector<vector<string>> getDbs();
 	vector<vector<string>> getTableInfo(string db,string table);
 	vector<vector<string>> getField(string db,string table,string col);

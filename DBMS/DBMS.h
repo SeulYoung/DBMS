@@ -17,6 +17,7 @@ public:
 
 private:
 	void initTree();
+	void initType();
 	void disConnAll();
 	void clearTable();
 	void closeEvent(QCloseEvent *event);
@@ -25,6 +26,7 @@ private:
 	QMenu *tableMenu;
 	vector<string> preSql;
 	vector<string> backup;
+	set<string> charType;
 	CmdParse cp;
 	string sql;
 	bool isCreateTable;
