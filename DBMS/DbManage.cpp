@@ -118,6 +118,9 @@ string DbManage::DeleteDatabase()
 		return "No database in this system";
 	}
 	fclose(f);
+	if (d_name == "ruanko") {
+		return "不能删除系统数据库";
+	}
 	//检测是否有人正在使用库
 	/*CString strFilename = _T(new_name);
 	CFile file;
