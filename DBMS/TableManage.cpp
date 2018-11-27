@@ -405,7 +405,7 @@ int TableManage::DeleteDatebase(string & str)
 	ifstream fin(path5, ios::in);
 	while (fin.getline(line, sizeof(line))) {
 		string cur = line;
-		if (!cur.find(s)) {
+		if (cur.find(s) == string::npos ) {
 			name.push_back(line);
 		}
 	}
