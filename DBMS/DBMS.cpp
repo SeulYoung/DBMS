@@ -81,7 +81,8 @@ void DBMS::disConnAll()
 	disconnect(ui.editTable, SIGNAL(triggered()), this, SLOT(tableAction()));
 	disconnect(ui.insertTable, SIGNAL(triggered()), this, SLOT(insertField()));
 	disconnect(ui.saveTabel, SIGNAL(triggered()), this, SLOT(saveTable()));
-	disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
+	if(!isCreateTable)
+		disconnect(ui.table, SIGNAL(cellChanged(int, int)), this, SLOT(consCheck(int, int)));
 
 	disconnect(ui.newField, SIGNAL(triggered()), this, SLOT(fieldAction()));
 	disconnect(ui.deleteField, SIGNAL(triggered()), this, SLOT(fieldAction()));
