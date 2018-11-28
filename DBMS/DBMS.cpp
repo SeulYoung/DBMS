@@ -637,7 +637,7 @@ void DBMS::recordAction()
 	QString s = sender()->objectName();
 	QTreeWidgetItem *parent = ui.tree->currentItem()->parent();
 	if (parent->text(0).toStdString() != cp.getDbName())
-		cp.setDbName(parent->text(0).toStdString() + ";");
+		cp.setDbName(parent->text(0).toStdString());
 	if (s == "newRec")
 	{
 		disconnect(ui.table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(recordChanged(QTableWidgetItem*)));
@@ -668,6 +668,10 @@ void DBMS::recordAction()
 
 void DBMS::recordChanged(QTableWidgetItem *item)
 {
+	QTreeWidgetItem *parent= ui.tree->currentItem()->parent();
+	if (parent->text(0).toStdString() != cp.getDbName())
+		cp.setDbName(parent->text(0).toStdString());
+
 	string s = "update " + ui.tree->currentItem()->text(0).toStdString() + " set ";
 	string col = ui.table->horizontalHeaderItem(item->column())->text().toStdString();
 	if (charType.find(col) == charType.end()) // 类型不为字符串

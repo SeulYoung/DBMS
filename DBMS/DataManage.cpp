@@ -242,6 +242,33 @@ string DataManage::data_delete()
 			return "未选定行";
 		}
 	}
+	else {
+		int pos1 = 0;
+		int pos = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+			}
+		}
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
+			}
+			if (judge.at(0).at(1) == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.erase(rst.begin() + i);
+			}
+
+		}if (ptemp) {
+			return "未选定行";
+		}
+	}
 
 	//判断约束条件
 	//default ,not null, unique ,check ,primary key,foreign key
@@ -299,7 +326,7 @@ string DataManage::data_update()
 			else {
 				size_t pos = sql.at(2).at(i).find("=");
 				string temp1 = sql.at(2).at(i).substr(0, pos);
-				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(1).at(i).size());
+				string temp2 = sql.at(2).at(i).substr(pos + 1, sql.at(2).at(i).size());
 				temp.push_back(temp1);
 				temp.push_back(temp2);
 				temp.push_back(std::to_string(1));
@@ -547,6 +574,38 @@ string DataManage::data_update()
 		}
 
 
+	}
+	else {
+		int pos1 = 0;
+		int pos = 0;
+		for (int k = 0; k < vec2.size(); k++) {
+			for (int m = 0; m < vec2.at(k).size(); m++) {
+
+				if (vec2.at(k).at(m) == judge.at(0).at(0))
+				{
+					pos = k;
+				}
+				else if (vec2.at(k).at(m) == modify.at(0).at(0)) {
+					pos1 = k;
+				}
+			}
+		}
+
+		//按行判断数据
+		int ptemp = 1;
+		for (int i = 0; i < rst.size() - 1; i++) {
+			if (judge.at(0).at(1) == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = modify.at(0).at(1);
+			}
+			if ("'" + judge.at(0).at(1) + "'" == rst.at(i).at(pos)) {
+				ptemp = 0;
+				rst.at(i).at(pos1) = "'" + modify.at(0).at(1) + "'";
+			}
+
+		}if (ptemp) {
+			return "未选定行";
+		}
 	}
 
 
