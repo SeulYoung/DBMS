@@ -1,0 +1,45 @@
+库操作：
+create database class;
+use class;
+创建表：
+create table student(sno varchar(12) primary key,sname varchar(10) not null,sex varchar(6),age integer,classno varchar(12),totalcredit integer default 0);
+修改表：
+alter table student add column aa integer;
+alter table student modify column aa integer;
+alter table student drop column aa;
+
+alter table student add constraint sex_con check(sex in('m','f'));
+alter table student add constraint sex_age check(sex='m' and age<23);
+alter table student add constraint age_con check(age between 18 and 23);
+
+插入数据：
+insert into student values ('001','wkz','m',20,'1604',30);
+insert into student values ('002','yyy','m',20,'1604',15);
+insert into student values ('003','qyy','f',19,'1603',25);
+insert into student values ('004','xj','m',18,'1604',0);
+insert into student values ('005','xxx','f',19,'1603',30);
+insert into student values ('006','xdd','m',18,'1604',20);
+insert into student values ('007','wky','m',19,'1603',30);
+insert into student(sno,sname) values ('012','m');
+约束：
+insert into student values ('001','wky','m',18,'1603',30);	数据不符合unique约束
+insert into student(sno,sex,age,classno,totalcredit) values ('008','m',22,'1603',30);	数据不符合非空约束
+insert into student values ('016','qlj','e',19,'1604',0);	数据不符合check in约束
+insert into student values ('010','ydd','f',10,'1604',13);	数据不符合between约束
+
+查询：
+select * from student;
+select * from student where sno>'005';
+select * from student where classno='1604' and sex='m';
+select * from student where age>21 and sex<>'m';
+select * from student where sex='m' and classno like '%03';
+select * from student where age between 19 and 22;
+select * from student where sname in('wkz','xj');
+select * from student where sex='m' and sname like 'y%';
+select * from student where age is null;
+select * from student order by sno desc;
+select * from student where sex='m' group by classno,age;
+select * from student where sno like '00%' group by age;
+
+update student set classno=1606 where age=22;
+delete from student where classno=1606;
