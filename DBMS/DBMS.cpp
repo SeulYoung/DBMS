@@ -293,6 +293,7 @@ void DBMS::sysAction()
 		}
 		preSql.clear();
 		backup.clear();
+		initTree();
 	}
 	else if (s == "undo")
 	{
