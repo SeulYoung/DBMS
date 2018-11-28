@@ -53,7 +53,10 @@ void DBMS::initType()
 
 	ifstream in("./data/" + parent->text(0).toStdString() + "/" + ui.tree->currentItem()->text(0).toStdString() + ".tdf");
 	if (!in.is_open())
+	{
 		ui.cmdLine->append(QString::fromLocal8Bit("错误，未找到字段信息"));
+		autoScroll();
+	}
 
 	charType.clear();
 	char buff[512];
@@ -102,6 +105,13 @@ void DBMS::clearTable()
 		ui.table->removeRow(0);
 }
 
+void DBMS::autoScroll()
+{
+	QTextCursor cursor = ui.cmdLine->textCursor();
+	cursor.movePosition(QTextCursor::End);
+	ui.cmdLine->setTextCursor(cursor);
+}
+
 void DBMS::closeEvent(QCloseEvent *event)
 {
 	switch (QMessageBox::information(this, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("你确定退出该软件？"), QString::fromLocal8Bit("确定"), QString::fromLocal8Bit("取消"), 0, 1))
@@ -120,11 +130,13 @@ void DBMS::getCmd()
 	disConnAll();
 	QString s = ui.inputLine->text();
 	ui.cmdLine->append(s);
+	autoScroll();
 	sql += s.toStdString();
 	if (s[s.size() - 1] == ';')
 	{
 		string s = cp.sqlCheck(sql);
 		ui.cmdLine->append(QString::fromLocal8Bit(s.c_str()));
+		autoScroll();
 		sql = "";
 	}
 	ui.inputLine->clear();
@@ -291,6 +303,7 @@ void DBMS::sysAction()
 		{
 			string res = cp.sqlCheck(s);
 			ui.cmdLine->append(QString::fromLocal8Bit(res.c_str()));
+			autoScroll();
 		}
 		preSql.clear();
 		backup.clear();
@@ -303,6 +316,7 @@ void DBMS::sysAction()
 			backup.push_back(preSql.back());
 			preSql.pop_back();
 			ui.cmdLine->append(QString::fromLocal8Bit(("撤销：" + backup.back()).c_str()));
+			autoScroll();
 		}
 	}
 	else if (s == "redo")
@@ -312,6 +326,7 @@ void DBMS::sysAction()
 			preSql.push_back(backup.back());
 			backup.pop_back();
 			ui.cmdLine->append(QString::fromLocal8Bit(("重做：" + preSql.back()).c_str()));
+			autoScroll();
 		}
 	}
 	else
@@ -533,6 +548,7 @@ void DBMS::saveTable()
 			if (ui.table->item(i, 0)->text() == "")
 			{
 				ui.cmdLine->append(QString::fromLocal8Bit("错误：列名不能为空"));
+				autoScroll();
 				return;
 			}
 			s += ui.table->item(i, 0)->text().toStdString() + " ";
@@ -569,6 +585,7 @@ void DBMS::saveTable()
 			if (ui.table->item(i, 0)->text() == "")
 			{
 				ui.cmdLine->append(QString::fromLocal8Bit("错误：列名不能为空"));
+				autoScroll();
 				return;
 			}
 			s += ui.table->item(i, 0)->text().toStdString() + " ";
@@ -617,6 +634,7 @@ void DBMS::fieldAction()
 			if (ui.table->item(i, 0)->text() == "")
 			{
 				ui.cmdLine->append(QString::fromLocal8Bit("错误：列名不能为空"));
+				autoScroll();
 				return;
 			}
 			s += ui.table->item(i, 0)->text().toStdString() + " ";

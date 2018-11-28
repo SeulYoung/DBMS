@@ -20,6 +20,7 @@ private:
 	void initType();
 	void disConnAll();
 	void clearTable();
+	void autoScroll();
 	void closeEvent(QCloseEvent *event);
 
 	Ui::DBMSClass ui;
